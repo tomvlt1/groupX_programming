@@ -6,7 +6,7 @@
 
 #if the user selects a histogram, then he must have selected only one variable
     #Plot the histogram of the variable selected by the user
-#if the user selects bar chart, he needs 2 categorical variables maximum
+#if the user selects bar chart, he needs 2 categorical variables maximum with one numetical
     #if 1 variable was selected
         #plot the bar  chart with one variable
     #if the user selects 2 variables
@@ -33,7 +33,9 @@
 import matplotlib.pyplot as plt
 if graph_select = histogrm:
     plt.hist(var1,15, range = (-50,50), histtype='stepfilled', align = 'mid', color = "g")
-elif graph_select = bar
+    plt.show()
+elif graph_select = bar:
+    if len
 
 
 
