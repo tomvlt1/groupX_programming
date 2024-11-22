@@ -12,6 +12,13 @@ def Connect_to_Mysql(userport):
         passwd="root")
     return mydb
 
+def is_date_format(column):
+    try:
+        pd.to_datetime(column)
+        return True  
+    except (ValueError, TypeError):
+        return False  
+
 def Create_Table(file, mydb):
     if file.endswith('.csv'):
         df = pd.read_csv(file)
@@ -23,8 +30,13 @@ def Create_Table(file, mydb):
     columns = ""
 
     for i, colname in enumerate(df.columns):
-        type_colname = type(df[colname].iloc[0])
-    
+        
+        if is_date_format(df[colname]) == True:
+            type_colname = 'date'
+        else:
+            type_colname = type(df[colname].iloc[0])
+
+            
         if i < len(df.columns) - 1: 
             if type_colname == int:
                 columns += f"`{colname}` INT, "
@@ -32,6 +44,8 @@ def Create_Table(file, mydb):
                 columns += f"`{colname}` FLOAT, "
             elif type_colname == str:
                 columns += f"`{colname}` VARCHAR(255), "
+            elif type_colname == 'date':
+                columns += f"`{colname}` DATE, "
             else:
                 columns += f"`{colname}` VARCHAR(255), "
         else: 
@@ -41,6 +55,8 @@ def Create_Table(file, mydb):
                 columns += f"`{colname}` FLOAT"
             elif type_colname == str:
                 columns += f"`{colname}` VARCHAR(255)"
+            elif type_colname == 'date':
+                columns += f"`{colname}` DATE"
             else:
                 columns += f"`{colname}` VARCHAR(255)"
 
@@ -54,24 +70,106 @@ def Create_Table(file, mydb):
         placeholders = ""
         for i in range(len(row)):
             placeholders += "%s"
-        if i < len(row) - 1:
+        if i == len(row):
             placeholders += ", "
 
     insert_query = f"INSERT INTO `{table_name}` VALUES ({placeholders});" 
 
     cursor.execute(insert_query, tuple(row))  # tuple converts the pandas series into a string
-    
-    
-def filter_by_range(column_name, min_value, max_value):
-    return f"SELECT * FROM `{table_name}` WHERE `{column_name}` BETWEEN {min_value} AND {max_value};"
 
-def filter_by_character_pattern(column_name, pattern):
-    return f"SELECT * FROM `{table_name}` WHERE `{column_name}` LIKE '%{pattern}%';"
-
-def execute_query(mydb, query):
+def filter_by_range(mydb, column_name, min_value, max_value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` BETWEEN {min_value} AND {max_value};"
     cursor = mydb.cursor()
     cursor.execute(query)
     return cursor.fetchall()
+
+def filter_by_exact_value(mydb, column_name, value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` = '{value}';"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_not_equal(mydb, column_name, value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` != '{value}';"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_null(mydb, column_name):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` IS NULL;"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_not_null(mydb, column_name):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` IS NOT NULL;"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_multiple_values(mydb, column_name, values_list):  #values have to be inpitted separated by a comma (",")
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` IN ({values_list});"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_not_in(mydb, column_name, values_list): #values have to be inpitted separated by a comma (",")
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` NOT IN ({values_list});"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_date_range(mydb, column_name, start_date, end_date):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` BETWEEN '{start_date}' AND '{end_date}';"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_greater_than(mydb, column_name, value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` > {value};"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_less_than(mydb, column_name, value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` < {value};"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_greater_than_or_equal(mydb, column_name, value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` >= {value};"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_less_than_or_equal(mydb, column_name, value):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` <= {value};"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_starts_with(mydb, column_name, pattern):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` LIKE '{pattern}%';"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def filter_by_ends_with(mydb, column_name, pattern):
+    query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` LIKE '%{pattern}';"
+    cursor = mydb.cursor()
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+
+
+
+
+
+
+
+
 
 
 
