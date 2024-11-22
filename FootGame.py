@@ -2,6 +2,17 @@ import graphics
 import random
 import time
 
+#we set the windows size to be x and y, we set the background to green to reflect the color of football 
+# we need to draw every aspect of the football field, we will start with the center line, t
+# the boundary, 
+# the center circle, 
+# the center spot, 
+# the left goal area,
+# the right goal area, 
+# the left penalty spot, 
+# the right penalty spot, 
+# the stands, 
+# the goals
 def draw_field(win):
     # Draw the field's boundary
     boundary = graphics.Rectangle(graphics.Point(100, 50), graphics.Point(1200, 750))
