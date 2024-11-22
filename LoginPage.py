@@ -39,6 +39,7 @@ retrieve the data from the fields
 close the registration page
 '''
 
+
 def roundButton(win, x1, y1, x2, y2, text, text_color, fill_color):
     button = Rectangle(Point(x1, y1), Point(x2, y2))
     button.setFill(fill_color)
