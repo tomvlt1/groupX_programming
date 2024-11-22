@@ -4,8 +4,9 @@ Pseudocode
 - call the LoginGUI function from main
 the login function should call the register function 
 
-import pandas
-import graphics
+import pandas in order format a data frame to store the information inpputed on the registration page
+import graphics to display the gui 
+import os to check the path of the data set 
 create a pd dataframe to store the data from each user as they insert in the registration page
 
 - LoginGUI: create a function to display the login page
@@ -20,6 +21,7 @@ draw a button for login with a rounded rectangle and white text
 draw a button for register with a rounded rectangle and white text
 create a field for the user to insert their username
 create a field for the user to insert their password
+create an error message label that will be displayed in red if the login attempt is incorrect
 wait for a user mouse click
 check if user clicked login button
 check if user clicked register button
@@ -47,7 +49,7 @@ from graphics import *
 import pandas as pd
 import os
 
-data_file = "UserData.csv"
+data_file = "user_data.csv"
 
 if os.path.exists(data_file):
     df = pd.read_csv(data_file)
