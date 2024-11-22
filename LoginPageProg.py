@@ -2,113 +2,128 @@ from graphics import *
 
 '''
 Pseudocode
-- loginGUI: create a function to display the login page
+- create a main function to call all other functions
+- call the LoginGUI function from main
+the login function should call the register function 
+
+- LoginGUI: create a function to display the login page
 open, name and set the size of the window 
-set the window to a white background
-draw a title in the page
-draw the instructions for the user in the page
-draw a username instruction in the page
-draw a password instruction in the page
-draw a registration instruction in the page
+set the window to a dark green background
+draw a title in the page with white text and a custom font
+draw a football-themed logo or icon on the background
+draw the instructions for the user in the page with white text and a custom font
+draw a username instruction in the page with white text and a custom font
+draw a password instruction in the page with white text and a custom font
+draw a button for login with a rounded rectangle and white text
+draw a button for register with a rounded rectangle and white text
 create a field for the user to insert their username
-set the value of the field equal to 0 in the case the user does not type in it
-draw the box for the user to insert their username
 create a field for the user to insert their password
-set the value of the field equal to 0 in the case the user does not type in it
-draw the box for the user to insert their password
-draw a buttom for the user to click to login 
-draw a buttom for the user to click to register 
+wait for a user mouse click
+check if user clicked login button
+check if user clicked register button
+close the login page if login button clicked
+call RegisterGUI if register button clicked
 
-
-- Register GUI: create a function to display the login page
+- RegisterGUI: create a function to display the registration page
 open, name and set the size of the window 
-set the window to a white background
-draw a title in the page
-draw the instructions for the user in the page
-draw a username instruction in the page
-draw a password instruction in the page
-draw a registration instruction in the page
-create a field for the user to insert their username
-set the value of the field equal to 0 in the case the user does not type in it
-draw the box for the user to insert their username
-create a field for the user to insert their password
-set the value of the field equal to 0 in the case the user does not type in it
-draw the box for the user to insert their password
-draw a buttom for the user to click to login 
-draw a buttom for the user to click to register 
-
-
-
-
-
+set the window to a dark green background
+draw a title in the page with white text and a custom font
+draw a football-themed logo or icon on the background
+draw the instructions for the user in the page with white text and a custom font
+draw a label for each registration field with white text and a custom font
+create fields for the user to input their data
+draw a button for submitting the registration form with a rounded rectangle and white text
+wait for a user mouse click
+check if user clicked register button
+retrieve the data from the fields
+close the registration page
 '''
 
-def RegisterGUI():
-    win = GraphWin("Registration Page", 1300, 800)
-    win.setBackground("dark green")
-    # Draw the interface
-    Text(Point(650, 70), "TableauV2 Registration").draw(win).setSize(35)
-    Text(Point(650, 100), "Please complete all of the following fields").draw(win)
-    Text(Point(650, 150), "Set your username:").draw(win)
-    Text(Point(650, 200), "Set your password:").draw(win)
-    Text(Point(650, 400), "Register here: ").draw(win)
-    InputUsername = Entry(Point(650, 2), 5)
-    InputUsername.setText("0.0")
-    InputUsername.draw(win)
-    InputPassword = Entry(Point(650, 2), 5)
-    InputPassword.setText("0.0")
-    InputPassword.draw(win)
-    outputText = Text(Point(650, 1),"")
-    outputText.draw(win)
-    button = Text(Point(800, 2.0), "Convert It")
+def roundButton(win, x1, y1, x2, y2, text, text_color, fill_color):
+    button = Rectangle(Point(x1, y1), Point(x2, y2))
+    button.setFill(fill_color)
+    button.setOutline(fill_color)
     button.draw(win)
-    Rectangle(Point(1, 1.5), Point(2, 2.5)).draw(win)
-
-# wait for a mouse click
-    win.getMouse()
-    # convert input
-    celsius = float(inputText.getText())
-    fahrenheit = 9.0 / 5.0 * celsius + 32
-    # display output and change button
-    outputText.setText(round(fahrenheit, 2))
-    button.setText("Quit")
-    # wait for click and then quit
-    win.getMouse()
-    win.close()
-
-LoginGUI()
+    label = Text(Point((x1 + x2) / 2, (y1 + y2) / 2), text)
+    label.setTextColor(text_color)
+    label.setStyle("bold")
+    label.setSize(18)
+    label.draw(win)
+    return button
 
 def LoginGUI():
-    win = GraphWin("Login Page", 1300, 800)
-    win.setBackground("white")
-    # Draw the interface
-    Text(Point(650, 70), "Welcome to Tableauv2!").draw(win).setSize(35)
-    Text(Point(650, 100), "Please enter your login information below").draw(win)
-    Text(Point(650, 150), "Username:").draw(win)
-    Text(Point(650, 200), "Password:").draw(win)
-    Text(Point(650, 400), "Register here: ").draw(win)
-    InputUsername = Entry(Point(650, 2), 5)
-    InputUsername.setText("0.0")
-    InputUsername.draw(win)
-    InputPassword = Entry(Point(650, 2), 5)
-    InputPassword.setText("0.0")
-    InputPassword.draw(win)
-    outputText = Text(Point(650, 1),"")
-    outputText.draw(win)
-    button = Text(Point(800, 2.0), "Convert It")
-    button.draw(win)
-    Rectangle(Point(1, 1.5), Point(2, 2.5)).draw(win)
+    win = GraphWin("FootViz Login Page", 1300, 800)
+    win.setBackground("dark green")
+    title = Text(Point(650, 70), "Welcome to FootViz!")
+    title.setSize(36)
+    title.setTextColor("white")
+    title.setStyle("bold")
+    title.setFace("courier")
+    title.draw(win)
+    subtitle = Text(Point(650, 120), "Please enter your login information below")
+    subtitle.setSize(20)
+    subtitle.setTextColor("white")
+    subtitle.setFace("courier")
+    subtitle.draw(win)
+    username_label = Text(Point(500, 450), "Username:")
+    username_label.setSize(20)
+    username_label.setTextColor("white")
+    username_label.setFace("courier")
+    username_label.draw(win)
+    password_label = Text(Point(500, 500), "Password:")
+    password_label.setSize(20)
+    password_label.setTextColor("white")
+    password_label.setFace("courier")
+    password_label.draw(win)
+    username_field = Entry(Point(800, 450), 30)
+    username_field.draw(win)
+    password_field = Entry(Point(800, 500), 30)
+    password_field.draw(win)
+    login_button = roundButton(win, 500, 600, 700, 650, "Login", "white", "dark green")
+    register_button = roundButton(win, 750, 600, 950, 650, "Register", "white", "dark green")
+    while True:
+        click = win.getMouse()
+        if 500 <= click.x <= 700 and 600 <= click.y <= 650:
+            win.close()
+            return
+        elif 750 <= click.x <= 950 and 600 <= click.y <= 650:
+            win.close()
+            RegisterGUI()
 
-# wait for a mouse click
-    win.getMouse()
-    # convert input
-    celsius = float(inputText.getText())
-    fahrenheit = 9.0 / 5.0 * celsius + 32
-    # display output and change button
-    outputText.setText(round(fahrenheit, 2))
-    button.setText("Quit")
-    # wait for click and then quit
-    win.getMouse()
-    win.close()
+def RegisterGUI():
+    win = GraphWin("FootViz Registration Page", 1300, 800)
+    win.setBackground("dark green")
+    title = Text(Point(650, 70), "FootViz Registration")
+    title.setSize(36)
+    title.setTextColor("white")
+    title.setStyle("bold")
+    title.setFace("courier")
+    title.draw(win)
+    subtitle = Text(Point(650, 120), "Please complete all the fields below")
+    subtitle.setSize(20)
+    subtitle.setTextColor("white")
+    subtitle.setFace("courier")
+    subtitle.draw(win)
+    labels = ["First Name:", "Last Name:", "Username:", "Password:", "Date of Birth:", 
+              "Gender:", "Nationality:", "Favorite Team:"]
+    fields = []
+    for i, label in enumerate(labels):
+        label_text = Text(Point(300, 200 + i * 50), label)
+        label_text.setSize(18)
+        label_text.setTextColor("white")
+        label_text.setFace("courier")
+        label_text.draw(win)
+        field = Entry(Point(700, 200 + i * 50), 30)
+        field.draw(win)
+        fields.append(field)
+    register_button = roundButton(win, 550, 650, 750, 700, "Register", "white", "dark green")
+    while True:
+        click = win.getMouse()
+        if 550 <= click.x <= 750 and 650 <= click.y <= 700:
+            win.close()
+            return
 
-LoginGUI()
+def main():
+    LoginGUI()
+
+main()
