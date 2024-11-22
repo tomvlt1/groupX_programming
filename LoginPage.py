@@ -1,5 +1,9 @@
 '''
 Pseudocode
+load the user data from the UserData.csv file into the DataFrame df if it exists
+if the UserData.csv file does not exist, create an empty DataFrame with the required columns
+after a registration is done, save the updated DataFrame to a csv file to store the data 
+
 - create a main function to call all other functions
 - call the LoginGUI function from main
 the login function should call the register function 
@@ -29,7 +33,7 @@ close the login page if login button clicked
 call RegisterGUI if register button clicked
 
 - RegisterGUI: create a function to display the registration page
-set the global data frame
+set the global data frame to store the user data
 open, name and set the size of the window 
 set the window to a dark green background
 draw a title in the page with white text and a custom font
@@ -43,6 +47,7 @@ check if user clicked register button
 retrieve the data from the fields
 create a new row for each new user input 
 append the data the global data frame 
+save the updated DataFrame to a CSV file to keep the data
 close the registration page
 '''
 from graphics import *
@@ -163,15 +168,44 @@ def RegisterGUI():
         field = Entry(Point(700, 200 + i * 50), 30)
         field.draw(win)
         fields.append(field)
+
     register_button = roundButton(win, 550, 650, 750, 700, "Register", "white", "dark green")
+    error_message = None  
+
     while True:
         try:
             click = win.getMouse()
             if 550 <= click.x <= 750 and 650 <= click.y <= 700:
+                if error_message:
+                    error_message.undraw()
+                
                 user_data = [field.getText() for field in fields]
+
+                if df['Username'].str.contains(user_data[2]).any():
+                    error_message = Text(Point(650, 750), "Username already exists. Please choose another.")
+                    error_message.setSize(18)
+                    error_message.setTextColor("red")
+                    error_message.setFace("courier")
+                    error_message.draw(win)
+                    continue  
+
+                try:
+                    age = int(user_data[4])
+                    if age < 0:
+                        raise ValueError("Age cannot be negative.")
+                except ValueError:
+                    error_message = Text(Point(650, 750), "Please enter a valid age.")
+                    error_message.setSize(18)
+                    error_message.setTextColor("red")
+                    error_message.setFace("courier")
+                    error_message.draw(win)
+                    continue 
+
                 new_row = pd.DataFrame([user_data], columns=columns)
                 df = pd.concat([df, new_row], ignore_index=True)
-                df.to_csv(data_file, index=False)  
+
+                df.to_csv(data_file, index=False)
+
                 print(df)  
                 win.close()
                 return  
