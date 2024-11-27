@@ -62,153 +62,165 @@ else:
     columns = ["First Name", "Last Name", "Username", "Password", "Age", "Gender", "Nationality", "Favorite Team"]
     df = pd.DataFrame(columns=columns)
 
-def roundButton(win, x1, y1, x2, y2, text, text_color, fill_color):
+def roundButton(win, x1, y1, x2, y2, text, text_color, fill_color, border_color="white", border_width=2):
     button = Rectangle(Point(x1, y1), Point(x2, y2))
     button.setFill(fill_color)
-    button.setOutline(fill_color)
+    button.setOutline(border_color)
+    button.setWidth(border_width)
     button.draw(win)
     label = Text(Point((x1 + x2) / 2, (y1 + y2) / 2), text)
     label.setTextColor(text_color)
     label.setStyle("bold")
-    label.setSize(18)
+    label.setSize(14)
     label.draw(win)
     return button
 
-def LoginGUI():
-    win = GraphWin("FootViz Login Page", 1300, 800)
-    win.setBackground("dark green")
+def drawFootballField(win, x_start, y_start, width, height):
+    field = Rectangle(Point(x_start, y_start), Point(x_start + width, y_start + height))
+    field.setOutline("white")
+    field.setWidth(2)
+    field.draw(win)
+    center_circle = Circle(Point(x_start + width / 2, y_start + height / 2), width / 6)
+    center_circle.setOutline("white")
+    center_circle.setWidth(2)
+    center_circle.draw(win)
+    center_line = Line(Point(x_start + width / 2, y_start), Point(x_start + width / 2, y_start + height))
+    center_line.setOutline("white")
+    center_line.setWidth(2)
+    center_line.draw(win)
+    left_penalty = Rectangle(Point(x_start, y_start + height / 4), Point(x_start + width / 5, y_start + 3 * height / 4))
+    left_penalty.setOutline("white")
+    left_penalty.setWidth(2)
+    left_penalty.draw(win)
+    right_penalty = Rectangle(Point(x_start + 4 * width / 5, y_start + height / 4), Point(x_start + width, y_start + 3 * height / 4))
+    right_penalty.setOutline("white")
+    right_penalty.setWidth(2)
+    right_penalty.draw(win)
 
-    title = Text(Point(650, 70), "Welcome to FootViz!")
-    title.setSize(36)
-    title.setTextColor("white")
+def RegisterGUI():
+    win = GraphWin("FootViz Registration Page", 800, 500)
+    win.setBackground("#FFFFFF")
+    left_background = Rectangle(Point(0, 0), Point(400, 500))
+    left_background.setFill("#ADEFD1")
+    left_background.setOutline("#ADEFD1")
+    left_background.draw(win)
+    logo = Text(Point(200, 250), "COMPANY\nLOGO")
+    logo.setTextColor("#1E2A39")
+    logo.setStyle("bold")
+    logo.setSize(24)
+    logo.draw(win)
+    title = Text(Point(600, 50), "REGISTER")
+    title.setSize(20)
+    title.setTextColor("#1E2A39")
     title.setStyle("bold")
-    title.setFace("courier")
+    title.setFace("helvetica")
     title.draw(win)
-
-    subtitle = Text(Point(650, 120), "Please enter your login information below")
-    subtitle.setSize(20)
-    subtitle.setTextColor("white")
-    subtitle.setFace("courier")
+    subtitle = Text(Point(600, 80), "IT'S COMPLETELY FREE")
+    subtitle.setSize(12)
+    subtitle.setTextColor("#1E2A39")
+    subtitle.setFace("helvetica")
     subtitle.draw(win)
-
-    username_label = Text(Point(500, 450), "Username:")
-    username_label.setSize(20)
-    username_label.setTextColor("white")
-    username_label.setFace("courier")
-    username_label.draw(win)
-
-    password_label = Text(Point(500, 500), "Password:")
-    password_label.setSize(20)
-    password_label.setTextColor("white")
-    password_label.setFace("courier")
-    password_label.draw(win)
-
-    username_field = Entry(Point(800, 450), 30)
-    username_field.draw(win)
-
-    password_field = Entry(Point(800, 500), 30)
-    password_field.draw(win)
-
-    login_button = roundButton(win, 500, 600, 700, 650, "Login", "white", "dark green")
-    register_button = roundButton(win, 750, 600, 950, 650, "Register", "white", "dark green")
-
-    error_message = Text(Point(650, 700), "")
-    error_message.setSize(18)
-    error_message.setTextColor("red")
-    error_message.setFace("courier")
-    error_message.draw(win)
-
+    fields = [("Name", 150), ("Username", 200), ("Email", 250), ("Password", 300), ("Confirm Password", 350)]
+    entry_fields = {}
+    for label, y in fields:
+        label_text = Text(Point(500, y), label)
+        label_text.setSize(12)
+        label_text.setTextColor("#1E2A39")
+        label_text.setFace("helvetica")
+        label_text.draw(win)
+        entry = Entry(Point(650, y), 25)
+        entry.setFill("#F0F8FF")
+        entry.draw(win)
+        entry_fields[label] = entry
+    create_button = roundButton(win, 550, 400, 700, 440, "Create Account", "white", "#2E8B57")
+    back_button = roundButton(win, 550, 450, 700, 490, "Back to Login", "white", "#2E8B57")
     while True:
         try:
             click = win.getMouse()
-            if 500 <= click.x <= 700 and 600 <= click.y <= 650:
+            if 550 <= click.x <= 700 and 400 <= click.y <= 440:
+                name = entry_fields["Name"].getText()
+                username = entry_fields["Username"].getText()
+                email = entry_fields["Email"].getText()
+                password = entry_fields["Password"].getText()
+                confirm_password = entry_fields["Confirm Password"].getText()
+                if password != confirm_password:
+                    error_message = Text(Point(600, 470), "Passwords do not match.")
+                    error_message.setSize(12)
+                    error_message.setTextColor("#FF6347")
+                    error_message.setFace("helvetica")
+                    error_message.draw(win)
+                else:
+                    df.loc[len(df)] = [name.split()[0], name.split()[-1], username, password, None, None, None, None]
+                    df.to_csv(data_file, index=False)
+                    win.close()
+                    return "back_to_login"
+            elif 550 <= click.x <= 700 and 450 <= click.y <= 490:
+                win.close()
+                return "back_to_login"
+        except GraphicsError:
+            break
+
+def LoginGUI():
+    win = GraphWin("FootViz Login Page", 800, 500)
+    win.setBackground("#FFFFFF")
+    left_background = Rectangle(Point(0, 0), Point(400, 500))
+    left_background.setFill("#F8F9FA")
+    left_background.setOutline("#F8F9FA")
+    left_background.draw(win)
+    title = Text(Point(200, 50), "LOGIN")
+    title.setSize(20)
+    title.setTextColor("#2E2E2E")
+    title.setStyle("bold")
+    title.setFace("helvetica")
+    title.draw(win)
+    subtitle = Text(Point(200, 80), "How to get started lorem ipsum dolor at?")
+    subtitle.setSize(12)
+    subtitle.setTextColor("#6C757D")
+    subtitle.setFace("helvetica")
+    subtitle.draw(win)
+    username_label = Text(Point(130, 180), "Username")
+    username_label.setSize(12)
+    username_label.setTextColor("#6C757D")
+    username_label.setFace("helvetica")
+    username_label.draw(win)
+    username_field = Entry(Point(200, 210), 25)
+    username_field.setFill("#F0F8FF")
+    username_field.draw(win)
+    password_label = Text(Point(130, 260), "Password")
+    password_label.setSize(12)
+    password_label.setTextColor("#6C757D")
+    password_label.setFace("helvetica")
+    password_label.draw(win)
+    password_field = Entry(Point(200, 290), 25)
+    password_field.setFill("#F0F8FF")
+    password_field.draw(win)
+    login_button = roundButton(win, 130, 330, 270, 370, "Login Now", "white", "#2E8B57")
+    register_button = roundButton(win, 130, 380, 270, 420, "Register", "white", "#2E8B57")
+    right_background = Rectangle(Point(400, 0), Point(800, 500))
+    right_background.setFill("#2E8B57")
+    right_background.setOutline("#2E8B57")
+    right_background.draw(win)
+    drawFootballField(win, 450, 100, 300, 300)
+    error_message = Text(Point(200, 480), "")
+    error_message.setSize(12)
+    error_message.setTextColor("#FF6347")
+    error_message.setFace("helvetica")
+    error_message.draw(win)
+    while True:
+        try:
+            click = win.getMouse()
+            if 130 <= click.x <= 270 and 330 <= click.y <= 370:
                 username = username_field.getText()
                 password = password_field.getText()
-
                 if ((df['Username'] == username) & (df['Password'] == password)).any():
                     win.close()
                     return
                 else:
-                    error_message.setText("Incorrect username or password. Please try again.")
-
-            elif 750 <= click.x <= 950 and 600 <= click.y <= 650:
+                    error_message.setText("Incorrect username or password.")
+            elif 130 <= click.x <= 270 and 380 <= click.y <= 420:
                 win.close()
-                RegisterGUI()  
-                return  
-        except GraphicsError:
-            break
-
-def RegisterGUI():
-    global df
-    win = GraphWin("FootViz Registration Page", 1300, 800)
-    win.setBackground("dark green")
-
-    title = Text(Point(650, 70), "FootViz Registration")
-    title.setSize(36)
-    title.setTextColor("white")
-    title.setStyle("bold")
-    title.setFace("courier")
-    title.draw(win)
-
-    subtitle = Text(Point(650, 120), "Please complete all the fields below")
-    subtitle.setSize(20)
-    subtitle.setTextColor("white")
-    subtitle.setFace("courier")
-    subtitle.draw(win)
-
-    labels = ["First Name:", "Last Name:", "Username:", "Password:", "Age:", 
-              "Gender:", "Nationality:", "Favorite Team:"]
-    fields = []
-    for i, label in enumerate(labels):
-        label_text = Text(Point(300, 200 + i * 50), label)
-        label_text.setSize(18)
-        label_text.setTextColor("white")
-        label_text.setFace("courier")
-        label_text.draw(win)
-        field = Entry(Point(700, 200 + i * 50), 30)
-        field.draw(win)
-        fields.append(field)
-
-    register_button = roundButton(win, 550, 650, 750, 700, "Register", "white", "dark green")
-    error_message = None  
-
-    while True:
-        try:
-            click = win.getMouse()
-            if 550 <= click.x <= 750 and 650 <= click.y <= 700:
-                if error_message:
-                    error_message.undraw()
-                
-                user_data = [field.getText() for field in fields]
-
-                if df['Username'].str.contains(user_data[2]).any():
-                    error_message = Text(Point(650, 750), "Username already exists. Please choose another.")
-                    error_message.setSize(18)
-                    error_message.setTextColor("red")
-                    error_message.setFace("courier")
-                    error_message.draw(win)
-                    continue  
-
-                try:
-                    age = int(user_data[4])
-                    if age < 0:
-                        raise ValueError("Age cannot be negative.")
-                except ValueError:
-                    error_message = Text(Point(650, 750), "Please enter a valid age.")
-                    error_message.setSize(18)
-                    error_message.setTextColor("red")
-                    error_message.setFace("courier")
-                    error_message.draw(win)
-                    continue 
-
-                new_row = pd.DataFrame([user_data], columns=columns)
-                df = pd.concat([df, new_row], ignore_index=True)
-
-                df.to_csv(data_file, index=False)
-
-                print(df)  
-                win.close()
-                return  
+                if RegisterGUI() == "back_to_login":
+                    LoginGUI()
         except GraphicsError:
             break
 
