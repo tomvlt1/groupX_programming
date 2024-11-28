@@ -2,17 +2,6 @@ import graphics
 import random
 import time
 
-#we set the windows size to be x and y, we set the background to green to reflect the color of football 
-# we need to draw every aspect of the football field, we will start with the center line, t
-# the boundary, 
-# the center circle, 
-# the center spot, 
-# the left goal area,
-# the right goal area, 
-# the left penalty spot, 
-# the right penalty spot, 
-# the stands, 
-# the goals
 def draw_field(win):
     # Draw the field's boundary
     boundary = graphics.Rectangle(graphics.Point(100, 50), graphics.Point(1200, 750))
@@ -108,7 +97,7 @@ def simulate_goal(ball, players, scoring_team, win):
         offset_y = random.randint(-20, 20)
         player.move(offset_x, offset_y)
     
-    # Determine target players and goal positions based on scoring team
+    # Determine target players and goal positions based on scoring_team
     if scoring_team == "home":
         target_players = [p for p in players[1:11] if p.getCenter().getX() > 650]  # Home players in opponent's half
         goal_x = 1175  # Home team scores on the right side
@@ -174,9 +163,12 @@ def simulate_match(win, home_team, away_team, final_result):
     ball = draw_ball(win)
 
     current_home_score, current_away_score = 0, 0
-    for _ in range(home_score + away_score):
+    total_goals = home_score + away_score
+    goals_sequence = ['home'] * home_score + ['away'] * away_score
+    random.shuffle(goals_sequence)  # Randomize the order of goals
+
+    for scoring_team in goals_sequence:
         time.sleep(0.5)  # Shorter wait before the next goal
-        scoring_team = "home" if random.randint(0, 1) == 0 and current_home_score < home_score else "away"
         simulate_goal(ball, players, scoring_team, win)
 
         if scoring_team == "home":
@@ -185,6 +177,77 @@ def simulate_match(win, home_team, away_team, final_result):
             current_away_score += 1
 
         update_score(scoreboard, home_team, away_team, current_home_score, current_away_score)
+
+    # Determine the winning team
+    if current_home_score > current_away_score:
+        winning_team = home_team
+    elif current_away_score > current_home_score:
+        winning_team = away_team
+    else:
+        winning_team = "draw"
+
+    # Call the celebration end screen
+    celebration_end_screen(win, winning_team)
+
+import graphics
+import random
+import time
+
+# Previous functions omitted for brevity...
+
+def celebration_end_screen(win, winning_team):
+    # Exaggerated celebration
+    # Fade out the field
+    rect = graphics.Rectangle(graphics.Point(0, 0), graphics.Point(1300, 800))
+    rect.setFill("black")
+    rect.setOutline("black")
+    rect.draw(win)
+
+    # Display the winning team's name in large, flashy text
+    if winning_team == "draw":
+        message_text = "It's a Draw!"
+    else:
+        message_text = f"{winning_team} Wins!"
+
+    message = graphics.Text(graphics.Point(650, 400), message_text)
+    message.setSize(36)
+    message.setTextColor("gold")
+    message.setStyle("bold italic")
+    message.draw(win)
+
+    # Create fireworks animation
+    for _ in range(15):
+        firework_center = graphics.Point(random.randint(100, 1200), random.randint(100, 700))
+        for size in range(2, 50, 2):
+            # Draw expanding circle as firework
+            firework = graphics.Circle(firework_center, size)
+            firework.setFill(random.choice(["red", "blue", "green", "yellow", "purple", "pink"]))
+            firework.draw(win)
+            time.sleep(0.01)
+            firework.undraw()
+
+    # Confetti
+    confetti = []
+    for _ in range(200):
+        confetto = graphics.Circle(graphics.Point(random.randint(0, 1300), random.randint(-800, 0)), 2)
+        confetto.setFill(random.choice(["red", "blue", "green", "yellow", "purple", "pink", "orange"]))
+        confetto.setOutline(confetto.getFill())
+        confetto.draw(win)
+        confetti.append(confetto)
+
+    # Make confetti fall
+    for _ in range(160):
+        for confetto in confetti:
+            confetto.move(0, 5)
+        time.sleep(0.05)
+
+    # Optional: Add more exaggerated elements (e.g., animated stars, moving banners, etc.)
+
+    # Wait for user to close
+    win.getMouse()
+    win.close()
+
+# Rest of the code omitted for brevity...
 
 def main():
     win = graphics.GraphWin("Football Match Simulation", 1300, 800)
@@ -197,9 +260,6 @@ def main():
     final_result = input("Enter final result (e.g., 3-2): ")
 
     simulate_match(win, home_team, away_team, final_result)
-
-    win.getMouse()
-    win.close()
 
 if __name__ == "__main__":
     main()

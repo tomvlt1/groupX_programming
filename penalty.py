@@ -1,151 +1,162 @@
-from graphics import *
-import time
-import random
+import pygame
+import sys
 
-# Create the main window
-win = GraphWin("Penalty Kick Challenge", 600, 400)
-win.setBackground("green")
+# Initialize Pygame
+pygame.init()
 
-# Draw the goal area
-goal = Rectangle(Point(200, 50), Point(400, 150))
-goal.setFill("white")
-goal.draw(win)
+# Set up the game window
+WIDTH = 800
+HEIGHT = 600
+WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Simple Football Game')
 
-# Initial goalkeeper position
-goalie_start_p1 = Point(280, 60)
-goalie_start_p2 = Point(320, 150)
+# Define colors
+GREEN = (34, 139, 34)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+PLAYER1_COLOR = (0, 0, 255)  # Blue
+PLAYER2_COLOR = (255, 0, 0)  # Red
 
-# Draw the goalkeeper
-goalie = Rectangle(goalie_start_p1, goalie_start_p2)
-goalie.setFill("blue")
-goalie.draw(win)
+# Define player properties
+PLAYER_WIDTH = 20
+PLAYER_HEIGHT = 20
+player_speed = 5
 
-# Draw the ball
-ball = Circle(Point(300, 350), 10)
-ball.setFill("white")
-ball.draw(win)
+# Ball properties
+BALL_RADIUS = 10
 
-# Goalkeeper's movement speed
-goalie_speed = 6
+# Define player positions
+player1_pos = [WIDTH // 2 - PLAYER_WIDTH // 2, HEIGHT - PLAYER_HEIGHT * 2]
+player2_pos = [WIDTH // 2 - PLAYER_WIDTH // 2, PLAYER_HEIGHT]
 
-# Function to animate the ball towards the clicked point and move the goalkeeper simultaneously
-def animate_ball_and_goalie(target_x, target_y, power):
-    global shot_out_of_control
-    start_x, start_y = 300, 350
+# Ball position
+ball_pos = [WIDTH // 2, HEIGHT // 2]
+ball_vel = [0, 0]
 
-    if power > 100:
-        print("You overshot the ball! The shot went out of control!")
-        shot_out_of_control = True
-        # Ball goes in a random bad direction if overpower
-        target_x += random.choice([-100, 100])
-        target_y += random.choice([-50, 50])
-        num_steps = 50
-    else:
-        shot_out_of_control = False
-        num_steps = int(30 - power / 5)
-        if num_steps <= 0:
-            num_steps = 1  # Ensure at least one step to avoid division by zero
+# Set up the clock
+clock = pygame.time.Clock()
 
-    dx = (target_x - start_x) / num_steps
-    dy = (target_y - start_y) / num_steps
+# Scores
+player1_score = 0
+player2_score = 0
 
-    for i in range(num_steps):
-        # Move the ball
-        ball.move(dx, dy)
+# Font for score display
+font = pygame.font.SysFont(None, 36)
 
-        # Move the goalkeeper towards the ball, keeping within bounds
-        goalie_center = (goalie.getP1().getX() + goalie.getP2().getX()) / 2
-        if goalie_center < target_x:
-            move_amount = min(goalie_speed, target_x - goalie_center)
-            if goalie.getP2().getX() + move_amount <= 400:
-                goalie.move(move_amount, 0)
-        elif goalie_center > target_x:
-            move_amount = min(goalie_speed, goalie_center - target_x)
-            if goalie.getP1().getX() - move_amount >= 200:
-                goalie.move(-move_amount, 0)
+def draw_field():
+    WINDOW.fill(GREEN)
+    # Draw midline
+    pygame.draw.line(WINDOW, WHITE, (WIDTH // 2, 0), (WIDTH // 2, HEIGHT), 5)
+    # Draw goals
+    pygame.draw.rect(WINDOW, WHITE, (0, HEIGHT // 2 - 50, 5, 100))
+    pygame.draw.rect(WINDOW, WHITE, (WIDTH - 5, HEIGHT // 2 - 50, 5, 100))
 
-        time.sleep(0.02)
+def draw_players():
+    # Draw player 1
+    pygame.draw.rect(WINDOW, PLAYER1_COLOR, (player1_pos[0], player1_pos[1], PLAYER_WIDTH, PLAYER_HEIGHT))
+    # Draw player 2
+    pygame.draw.rect(WINDOW, PLAYER2_COLOR, (player2_pos[0], player2_pos[1], PLAYER_WIDTH, PLAYER_HEIGHT))
 
-# Draw the power bar
-power_bar_outline = Rectangle(Point(450, 300), Point(550, 350))
-power_bar_outline.setFill("white")
-power_bar_outline.draw(win)
+def draw_ball():
+    pygame.draw.circle(WINDOW, BLACK, (int(ball_pos[0]), int(ball_pos[1])), BALL_RADIUS)
 
-power_bar = Rectangle(Point(450, 300), Point(450, 350))
-power_bar.setFill("red")
-power_bar.draw(win)
+def move_ball():
+    ball_pos[0] += ball_vel[0]
+    ball_pos[1] += ball_vel[1]
 
-# Game loop
-power = 0
-powering = False
-click_start_time = None
-shot_out_of_control = False
+    # Ball collision with walls
+    if ball_pos[0] <= BALL_RADIUS or ball_pos[0] >= WIDTH - BALL_RADIUS:
+        ball_vel[0] = -ball_vel[0]
+    if ball_pos[1] <= BALL_RADIUS or ball_pos[1] >= HEIGHT - BALL_RADIUS:
+        ball_vel[1] = -ball_vel[1]
 
-while True:
-    # Detect mouse click for power bar
-    mouse_pressed = win.checkMouse()
-    if mouse_pressed:
-        if not powering:
-            powering = True
-            click_start_time = time.time()
-        else:
-            # Kick the ball after releasing the click
-            target_x = mouse_pressed.getX()
-            target_y = mouse_pressed.getY()
+    # Slow down the ball over time (friction)
+    ball_vel[0] *= 0.99
+    ball_vel[1] *= 0.99
 
-            # Animate the ball and goalkeeper simultaneously
-            animate_ball_and_goalie(target_x, target_y, power)
+def check_goal():
+    global player1_score, player2_score
+    # Left goal
+    if ball_pos[0] <= BALL_RADIUS and HEIGHT // 2 - 50 < ball_pos[1] < HEIGHT // 2 + 50:
+        player2_score += 1
+        reset_ball()
+    # Right goal
+    if ball_pos[0] >= WIDTH - BALL_RADIUS and HEIGHT // 2 - 50 < ball_pos[1] < HEIGHT // 2 + 50:
+        player1_score += 1
+        reset_ball()
 
-            # Check if the ball is intercepted by the goalkeeper or inside the goal box
-            goalie_x1 = goalie.getP1().getX()
-            goalie_x2 = goalie.getP2().getX()
-            ball_x = ball.getCenter().getX()
-            ball_y = ball.getCenter().getY()
+def reset_positions():
+    # Reset player positions
+    player1_pos[0] = WIDTH // 2 - PLAYER_WIDTH // 2
+    player1_pos[1] = HEIGHT - PLAYER_HEIGHT * 2
+    player2_pos[0] = WIDTH // 2 - PLAYER_WIDTH // 2
+    player2_pos[1] = PLAYER_HEIGHT
 
-            if shot_out_of_control:
-                print("Missed! The shot was outside the goal area due to overpower.")
-            elif 200 <= ball_x <= 400 and 50 <= ball_y <= 150:
-                # Adding 1-second delay to determine goal status
-                time.sleep(1)
-                # Re-check if the goalkeeper is touching the ball after delay
-                goalie_x1 = goalie.getP1().getX()
-                goalie_x2 = goalie.getP2().getX()
-                ball_x = ball.getCenter().getX()
-                ball_y = ball.getCenter().getY()
+def reset_ball():
+    reset_positions()
+    ball_pos[0] = WIDTH // 2
+    ball_pos[1] = HEIGHT // 2
+    ball_vel[0] = 0
+    ball_vel[1] = 0
 
-                if goalie_x1 <= ball_x <= goalie_x2 and 60 <= ball_y <= 150:
-                    print("Goalkeeper saved it!")
-                else:
-                    print("GOAL!!!")
-            else:
-                print("Missed! The shot was outside the goal area.")
+def display_score():
+    score_text = font.render(f"{player1_score} : {player2_score}", True, BLACK)
+    WINDOW.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 10))
 
-            # Reset ball position and power
-            ball.move(300 - ball.getCenter().getX(), 350 - ball.getCenter().getY())
-            power = 0
-            power_bar.undraw()
-            power_bar = Rectangle(Point(450, 300), Point(450, 350))
-            power_bar.setFill("red")
-            power_bar.draw(win)
-            powering = False
+def main():
+    running = True
+    while running:
+        clock.tick(60)  # 60 FPS
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-            # Reset goalkeeper position
-            current_goalie_center_x = (goalie.getP1().getX() + goalie.getP2().getX()) / 2
-            initial_goalie_center_x = (goalie_start_p1.getX() + goalie_start_p2.getX()) / 2
-            dx = initial_goalie_center_x - current_goalie_center_x
-            goalie.move(dx, 0)
+        keys = pygame.key.get_pressed()
 
-    if powering:
-        # Calculate power based on how long the mouse is held
-        power = min(120, (time.time() - click_start_time) * 150)
+        # Player 1 controls (Arrow keys)
+        if keys[pygame.K_LEFT] and player1_pos[0] > 0:
+            player1_pos[0] -= player_speed
+        if keys[pygame.K_RIGHT] and player1_pos[0] < WIDTH - PLAYER_WIDTH:
+            player1_pos[0] += player_speed
+        if keys[pygame.K_UP] and player1_pos[1] > 0:
+            player1_pos[1] -= player_speed
+        if keys[pygame.K_DOWN] and player1_pos[1] < HEIGHT - PLAYER_HEIGHT:
+            player1_pos[1] += player_speed
 
-        # Update power bar
-        power_bar.undraw()
-        power_bar = Rectangle(Point(450, 300), Point(450 + power, 350))
-        power_bar.setFill("red")
-        power_bar.draw(win)
+        # Player 2 controls (WASD)
+        if keys[pygame.K_a] and player2_pos[0] > 0:
+            player2_pos[0] -= player_speed
+        if keys[pygame.K_d] and player2_pos[0] < WIDTH - PLAYER_WIDTH:
+            player2_pos[0] += player_speed
+        if keys[pygame.K_w] and player2_pos[1] > 0:
+            player2_pos[1] -= player_speed
+        if keys[pygame.K_s] and player2_pos[1] < HEIGHT - PLAYER_HEIGHT:
+            player2_pos[1] += player_speed
 
-    # Delay for frame rate
-    time.sleep(0.01)
+        # Collision between player and ball
+        player1_rect = pygame.Rect(player1_pos[0], player1_pos[1], PLAYER_WIDTH, PLAYER_HEIGHT)
+        player2_rect = pygame.Rect(player2_pos[0], player2_pos[1], PLAYER_WIDTH, PLAYER_HEIGHT)
+        ball_rect = pygame.Rect(ball_pos[0] - BALL_RADIUS, ball_pos[1] - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2)
 
-win.close()
+        if player1_rect.colliderect(ball_rect):
+            ball_vel[0] = 3 * ((ball_pos[0] - (player1_pos[0] + PLAYER_WIDTH / 2)) / PLAYER_WIDTH)
+            ball_vel[1] = -3
+        if player2_rect.colliderect(ball_rect):
+            ball_vel[0] = 3 * ((ball_pos[0] - (player2_pos[0] + PLAYER_WIDTH / 2)) / PLAYER_WIDTH)
+            ball_vel[1] = 3
+
+        move_ball()
+        check_goal()
+
+        draw_field()
+        draw_players()
+        draw_ball()
+        display_score()
+
+        pygame.display.flip()
+
+    pygame.quit()
+    sys.exit()
+
+if __name__ == '__main__':
+    main()
