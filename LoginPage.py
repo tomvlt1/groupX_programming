@@ -120,28 +120,24 @@ def drawFootballField(win):
     bottom_goal_dot.draw(win)
 
 def drawFootballShirt(win):
-    # Shirt Rectangle moved further up
     shirt = Polygon(Point(100, 90), Point(400, 90), Point(400, 490), Point(100, 490))
     shirt.setFill("#1E2A39")
     shirt.setOutline("white")
     shirt.setWidth(3)
     shirt.draw(win)
     
-    # Inverted Collar moved further up
     collar = Polygon(Point(190, 90), Point(310, 90), Point(250, 140))
     collar.setFill("#F0F8FF")
     collar.setOutline("white")
     collar.setWidth(3)
     collar.draw(win)
     
-    # Left Sleeve moved further up
     left_sleeve = Polygon(Point(100, 90), Point(0, 190), Point(100, 190))
     left_sleeve.setFill("#1E2A39")
     left_sleeve.setOutline("white")
     left_sleeve.setWidth(3)
     left_sleeve.draw(win)
     
-    # Right Sleeve moved further up
     right_sleeve = Polygon(Point(400, 90), Point(500, 190), Point(400, 190))
     right_sleeve.setFill("#1E2A39")
     right_sleeve.setOutline("white")
@@ -149,27 +145,22 @@ def drawFootballShirt(win):
     right_sleeve.draw(win)
 
 
-
 def RegisterGUI():
     win = GraphWin("FootViz Registration Page", 1100, 800)
     win.setBackground("#FFFFFF")
     
-    # Left Background (image as background)
-    left_background = Image(Point(250, 400), "path_to_your_image.jpg")  # Input the image path here
+    left_background = Image(Point(250, 400), "/images/BackgroundRegister.jpg")  
     left_background.draw(win)
     
-    # Draw the Football Shirt on the left side
-    drawFootballShirt(win)  # Draw the football shirt on the left side
-    
-    # Message for customizing shirt, moved further up
-    customize_message = Text(Point(250, 40), "Customize your FootViz shirt")  # Moved higher
+    drawFootballShirt(win)  
+
+    customize_message = Text(Point(250, 40), "Customize your FootViz shirt")  
     customize_message.setSize(18)
     customize_message.setTextColor("#1E2A39")
     customize_message.setFace("helvetica")
     customize_message.setStyle("bold")
     customize_message.draw(win)
     
-    # Title and Subtitle
     title = Text(Point(800, 80), "REGISTER")
     title.setSize(28)
     title.setTextColor("#1E2A39")
@@ -183,13 +174,11 @@ def RegisterGUI():
     subtitle.setFace("helvetica")
     subtitle.draw(win)
     
-    # Fields for the right side of the page (user information)
     fields_right = [
         ("First Name", 180), ("Last Name", 230), ("Username", 280), ("Password", 330),
         ("Date of Birth", 380), ("Gender", 430), ("Nationality", 480), ("Favorite Team", 530)
     ]
     
-    # Entry fields dictionary
     entry_fields = {}
     for label, y in fields_right:
         label_text = Text(Point(800, y), label)
@@ -202,7 +191,6 @@ def RegisterGUI():
         entry.draw(win)
         entry_fields[label] = entry
     
-    # Fields for the left side of the page (shirt customization)
     fields_left = [
         ("Shirt Number", 600), ("Primary Shirt Color", 650), ("Secondary Shirt Color", 700)
     ]
@@ -218,11 +206,9 @@ def RegisterGUI():
         entry.draw(win)
         entry_fields[label] = entry
     
-    # Buttons for creating account or going back
     create_button = roundButton(win, 700, 750, 900, 790, "Create Account", "white", "#2E8B57")
     back_button = roundButton(win, 700, 700, 900, 740, "Back to Login", "white", "#2E8B57")
     
-    # Wait for user interaction
     while True:
         try:
             click = win.getMouse()
@@ -239,7 +225,6 @@ def RegisterGUI():
                 nationality = entry_fields["Nationality"].getText()
                 favorite_team = entry_fields["Favorite Team"].getText()
                 
-                # Add the new user's data to the dataframe and save to CSV
                 df.loc[len(df)] = [first_name, last_name, username, password, shirt_number, primary_shirt_color, secondary_shirt_color, dob, gender, nationality, favorite_team]
                 df.to_csv(data_file, index=False)
                 win.close()
