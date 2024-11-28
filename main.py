@@ -1,5 +1,6 @@
+import time
 from graphics import *
-from FootGameHome import simulate_mini_game  # Import the mini-game simulation
+from FootGameHome import FootGameHomeMain 
 
 
 def create_window():
@@ -59,19 +60,25 @@ def create_overview_section(win):
         x_offset += 200
 
 def create_mini_game_area(win):
-    mini_game_area = Rectangle(Point(220, 140), Point(880, 480))
+    # Define the mini-game area coordinates
+    mini_game_left = 220
+    mini_game_top = 140
+    mini_game_right = 880
+    mini_game_bottom = 480
+
+    # Draw the rectangle for the mini-game area
+    mini_game_area = Rectangle(Point(mini_game_left, mini_game_top), Point(mini_game_right, mini_game_bottom))
     mini_game_area.setFill(color_rgb(224, 224, 224))
     mini_game_area.draw(win)
-    return mini_game_area
+
+    # Start the mini-game within this area
+    FootGameHomeMain(win)
 
 def create_dashboard():
     win = create_window()
     create_sidebar(win)
     create_overview_section(win)
     create_mini_game_area(win)
-
-    # Run the mini-game by default when the dashboard is loaded
-    simulate_mini_game(win, "Home Team", "Away Team")
 
     win.getMouse()  # Wait for user interaction before closing
     win.close()
