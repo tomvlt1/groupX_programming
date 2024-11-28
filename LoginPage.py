@@ -153,63 +153,108 @@ def drawFootballShirt(win):
 def RegisterGUI():
     win = GraphWin("FootViz Registration Page", 1100, 800)
     win.setBackground("#FFFFFF")
-    left_background = Rectangle(Point(0, 0), Point(500, 800))
-    left_background.setFill("#ADEFD1")
-    left_background.setOutline("#ADEFD1")
+    
+    # Left Background (image as background)
+    left_background = Image(Point(250, 400), "path_to_your_image.jpg")  # Input the image path here
     left_background.draw(win)
+    
+    # Draw the Football Shirt on the left side
     drawFootballShirt(win)  # Draw the football shirt on the left side
+    
+    # Message for customizing shirt, moved further up
+    customize_message = Text(Point(250, 40), "Customize your FootViz shirt")  # Moved higher
+    customize_message.setSize(18)
+    customize_message.setTextColor("#1E2A39")
+    customize_message.setFace("helvetica")
+    customize_message.setStyle("bold")
+    customize_message.draw(win)
+    
+    # Title and Subtitle
     title = Text(Point(800, 80), "REGISTER")
     title.setSize(28)
     title.setTextColor("#1E2A39")
     title.setStyle("bold")
     title.setFace("helvetica")
     title.draw(win)
+    
     subtitle = Text(Point(800, 120), "IT'S COMPLETELY FREE")
     subtitle.setSize(16)
     subtitle.setTextColor("#1E2A39")
     subtitle.setFace("helvetica")
     subtitle.draw(win)
-    fields = [
+    
+    # Fields for the right side of the page (user information)
+    fields_right = [
         ("First Name", 180), ("Last Name", 230), ("Username", 280), ("Password", 330),
-        ("Shirt Number", 380), ("Shirt Color", 430), ("Date of Birth", 480),
-        ("Gender", 530), ("Nationality", 580), ("Favorite Team", 630)
+        ("Date of Birth", 380), ("Gender", 430), ("Nationality", 480), ("Favorite Team", 530)
     ]
+    
+    # Entry fields dictionary
     entry_fields = {}
-    for label, y in fields:
-        label_text = Text(Point(700, y), label)
+    for label, y in fields_right:
+        label_text = Text(Point(800, y), label)
         label_text.setSize(14)
         label_text.setTextColor("#1E2A39")
         label_text.setFace("helvetica")
         label_text.draw(win)
-        entry = Entry(Point(900, y), 30)
+        entry = Entry(Point(1000, y), 30)
         entry.setFill("#F0F8FF")
         entry.draw(win)
         entry_fields[label] = entry
-    create_button = roundButton(win, 700, 700, 900, 740, "Create Account", "white", "#2E8B57")
-    back_button = roundButton(win, 700, 650, 900, 690, "Back to Login", "white", "#2E8B57")
+    
+    # Fields for the left side of the page (shirt customization)
+    fields_left = [
+        ("Shirt Number", 600), ("Primary Shirt Color", 650), ("Secondary Shirt Color", 700)
+    ]
+    
+    for label, y in fields_left:
+        label_text = Text(Point(250, y), label)
+        label_text.setSize(14)
+        label_text.setTextColor("#1E2A39")
+        label_text.setFace("helvetica")
+        label_text.draw(win)
+        entry = Entry(Point(400, y), 30)
+        entry.setFill("#F0F8FF")
+        entry.draw(win)
+        entry_fields[label] = entry
+    
+    # Buttons for creating account or going back
+    create_button = roundButton(win, 700, 750, 900, 790, "Create Account", "white", "#2E8B57")
+    back_button = roundButton(win, 700, 700, 900, 740, "Back to Login", "white", "#2E8B57")
+    
+    # Wait for user interaction
     while True:
         try:
             click = win.getMouse()
-            if 700 <= click.x <= 900 and 700 <= click.y <= 740:
+            if 700 <= click.x <= 900 and 750 <= click.y <= 790:
                 first_name = entry_fields["First Name"].getText()
                 last_name = entry_fields["Last Name"].getText()
                 username = entry_fields["Username"].getText()
                 password = entry_fields["Password"].getText()
                 shirt_number = entry_fields["Shirt Number"].getText()
-                shirt_color = entry_fields["Shirt Color"].getText()
+                primary_shirt_color = entry_fields["Primary Shirt Color"].getText()
+                secondary_shirt_color = entry_fields["Secondary Shirt Color"].getText()
                 dob = entry_fields["Date of Birth"].getText()
                 gender = entry_fields["Gender"].getText()
                 nationality = entry_fields["Nationality"].getText()
                 favorite_team = entry_fields["Favorite Team"].getText()
-                df.loc[len(df)] = [first_name, last_name, username, password, shirt_number, shirt_color, dob, gender, nationality, favorite_team]
+                
+                # Add the new user's data to the dataframe and save to CSV
+                df.loc[len(df)] = [first_name, last_name, username, password, shirt_number, primary_shirt_color, secondary_shirt_color, dob, gender, nationality, favorite_team]
                 df.to_csv(data_file, index=False)
                 win.close()
                 return "back_to_login"
-            elif 700 <= click.x <= 900 and 650 <= click.y <= 690:
+            
+            elif 700 <= click.x <= 900 and 700 <= click.y <= 740:
                 win.close()
                 return "back_to_login"
+        
         except GraphicsError:
             break
+
+
+
+
 
 def LoginGUI():
     win = GraphWin("FootViz Login Page", 800, 500)
