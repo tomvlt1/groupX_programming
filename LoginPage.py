@@ -120,29 +120,34 @@ def drawFootballField(win):
     bottom_goal_dot.draw(win)
 
 def drawFootballShirt(win):
-    shirt = Polygon(Point(100, 200), Point(400, 200), Point(400, 600), Point(100, 600))
+    # Shirt Rectangle moved further up
+    shirt = Polygon(Point(100, 90), Point(400, 90), Point(400, 490), Point(100, 490))
     shirt.setFill("#1E2A39")
     shirt.setOutline("white")
     shirt.setWidth(3)
     shirt.draw(win)
     
-    collar = Polygon(Point(175, 200), Point(325, 200), Point(250, 250))
+    # Inverted Collar moved further up
+    collar = Polygon(Point(190, 90), Point(310, 90), Point(250, 140))
     collar.setFill("#F0F8FF")
     collar.setOutline("white")
     collar.setWidth(3)
     collar.draw(win)
     
-    left_sleeve = Polygon(Point(100, 200), Point(0, 300), Point(100, 300))
+    # Left Sleeve moved further up
+    left_sleeve = Polygon(Point(100, 90), Point(0, 190), Point(100, 190))
     left_sleeve.setFill("#1E2A39")
     left_sleeve.setOutline("white")
     left_sleeve.setWidth(3)
     left_sleeve.draw(win)
     
-    right_sleeve = Polygon(Point(400, 200), Point(500, 300), Point(400, 300))
+    # Right Sleeve moved further up
+    right_sleeve = Polygon(Point(400, 90), Point(500, 190), Point(400, 190))
     right_sleeve.setFill("#1E2A39")
     right_sleeve.setOutline("white")
     right_sleeve.setWidth(3)
     right_sleeve.draw(win)
+
 
 
 def RegisterGUI():
