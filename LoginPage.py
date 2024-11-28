@@ -149,7 +149,7 @@ def RegisterGUI():
     win = GraphWin("FootViz Registration Page", 1100, 800)
     win.setBackground("#FFFFFF")
     
-    left_background = Image(Point(250, 400), "/images/BackgroundRegister.jpg")  
+    left_background = Image(Point(250, 400), "/Users/guito/Documents/Docs BBADBA 3rd sem/Programmming for Data/groupX_programming/images/BackgroundRegister.jpg")  
     left_background.draw(win)
     
     drawFootballShirt(win)  
