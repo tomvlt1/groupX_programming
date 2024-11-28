@@ -100,3 +100,5 @@ except mysql.connector.Error as err:
         cursor.close()
     if db_connection:
         db_connection.close()
+
+
