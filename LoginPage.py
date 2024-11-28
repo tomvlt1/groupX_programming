@@ -85,7 +85,7 @@ def drawFootballField(win):
     outer_boundary.setOutline("white")
     outer_boundary.setWidth(2)
     outer_boundary.draw(win)
-    center_line = Line(Point(420, 250), Point(780, 250))
+    center_line = Line(Point(400, 250), Point(800, 250))
     center_line.setOutline("white")
     center_line.setWidth(2)
     center_line.draw(win)
@@ -118,6 +118,66 @@ def drawFootballField(win):
     bottom_goal_dot = Circle(Point(600, 430), 3)
     bottom_goal_dot.setFill("white")
     bottom_goal_dot.draw(win)
+
+def RegisterGUI():
+    win = GraphWin("FootViz Registration Page", 1100, 800)
+    win.setBackground("#FFFFFF")
+    left_background = Rectangle(Point(0, 0), Point(500, 800))
+    left_background.setFill("#ADEFD1")
+    left_background.setOutline("#ADEFD1")
+    left_background.draw(win)
+    title = Text(Point(800, 80), "REGISTER")
+    title.setSize(28)
+    title.setTextColor("#1E2A39")
+    title.setStyle("bold")
+    title.setFace("helvetica")
+    title.draw(win)
+    subtitle = Text(Point(800, 120), "IT'S COMPLETELY FREE")
+    subtitle.setSize(16)
+    subtitle.setTextColor("#1E2A39")
+    subtitle.setFace("helvetica")
+    subtitle.draw(win)
+    fields = [
+        ("First Name", 180), ("Last Name", 230), ("Username", 280), ("Password", 330),
+        ("Shirt Number", 380), ("Shirt Color", 430), ("Date of Birth", 480),
+        ("Gender", 530), ("Nationality", 580), ("Favorite Team", 630)
+    ]
+    entry_fields = {}
+    for label, y in fields:
+        label_text = Text(Point(700, y), label)
+        label_text.setSize(14)
+        label_text.setTextColor("#1E2A39")
+        label_text.setFace("helvetica")
+        label_text.draw(win)
+        entry = Entry(Point(900, y), 30)
+        entry.setFill("#F0F8FF")
+        entry.draw(win)
+        entry_fields[label] = entry
+    create_button = roundButton(win, 700, 700, 900, 740, "Create Account", "white", "#2E8B57")
+    back_button = roundButton(win, 700, 650, 900, 690, "Back to Login", "white", "#2E8B57")
+    while True:
+        try:
+            click = win.getMouse()
+            if 700 <= click.x <= 900 and 700 <= click.y <= 740:
+                first_name = entry_fields["First Name"].getText()
+                last_name = entry_fields["Last Name"].getText()
+                username = entry_fields["Username"].getText()
+                password = entry_fields["Password"].getText()
+                shirt_number = entry_fields["Shirt Number"].getText()
+                shirt_color = entry_fields["Shirt Color"].getText()
+                dob = entry_fields["Date of Birth"].getText()
+                gender = entry_fields["Gender"].getText()
+                nationality = entry_fields["Nationality"].getText()
+                favorite_team = entry_fields["Favorite Team"].getText()
+                df.loc[len(df)] = [first_name, last_name, username, password, shirt_number, shirt_color, dob, gender, nationality, favorite_team]
+                df.to_csv(data_file, index=False)
+                win.close()
+                return "back_to_login"
+            elif 700 <= click.x <= 900 and 650 <= click.y <= 690:
+                win.close()
+                return "back_to_login"
+        except GraphicsError:
+            break
 
 def LoginGUI():
     win = GraphWin("FootViz Login Page", 800, 500)
