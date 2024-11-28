@@ -119,6 +119,32 @@ def drawFootballField(win):
     bottom_goal_dot.setFill("white")
     bottom_goal_dot.draw(win)
 
+def drawFootballShirt(win):
+    shirt = Polygon(Point(100, 200), Point(400, 200), Point(400, 600), Point(100, 600))
+    shirt.setFill("#1E2A39")
+    shirt.setOutline("white")
+    shirt.setWidth(3)
+    shirt.draw(win)
+    
+    collar = Polygon(Point(175, 200), Point(325, 200), Point(250, 250))
+    collar.setFill("#F0F8FF")
+    collar.setOutline("white")
+    collar.setWidth(3)
+    collar.draw(win)
+    
+    left_sleeve = Polygon(Point(100, 200), Point(0, 300), Point(100, 300))
+    left_sleeve.setFill("#1E2A39")
+    left_sleeve.setOutline("white")
+    left_sleeve.setWidth(3)
+    left_sleeve.draw(win)
+    
+    right_sleeve = Polygon(Point(400, 200), Point(500, 300), Point(400, 300))
+    right_sleeve.setFill("#1E2A39")
+    right_sleeve.setOutline("white")
+    right_sleeve.setWidth(3)
+    right_sleeve.draw(win)
+
+
 def RegisterGUI():
     win = GraphWin("FootViz Registration Page", 1100, 800)
     win.setBackground("#FFFFFF")
@@ -126,6 +152,7 @@ def RegisterGUI():
     left_background.setFill("#ADEFD1")
     left_background.setOutline("#ADEFD1")
     left_background.draw(win)
+    drawFootballShirt(win)  # Draw the football shirt on the left side
     title = Text(Point(800, 80), "REGISTER")
     title.setSize(28)
     title.setTextColor("#1E2A39")
