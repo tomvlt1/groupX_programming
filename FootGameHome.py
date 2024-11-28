@@ -1,6 +1,16 @@
-import graphics
+# FootGameHome.py
+from graphics import *
 import random
 import time
+import mysql.connector
+
+# Database configuration
+db_config = {
+    "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
+    "user": "MATCHIEAdmin",
+    "password": "IeUniversity123",
+    "database": "LaLiga"
+}
 
 # Constants for the mini-game area
 MINI_GAME_LEFT = 220
@@ -14,6 +24,13 @@ def scale_point(x, y):
     """Scale a point to fit within the mini-game area."""
     return MINI_GAME_LEFT + (x - 100) * SCALE_X, MINI_GAME_TOP + (y - 50) * SCALE_Y
 
+def clear_area(win, left, top, right, bottom):
+    """Clear a specific area within the existing window."""
+    clear_rect = Rectangle(Point(left, top), Point(right, bottom))
+    clear_rect.setFill(color_rgb(224, 224, 224))  # Match the background color of the mini-game area
+    clear_rect.setOutline(color_rgb(224, 224, 224))  # Hide border to make clearing look smooth
+    clear_rect.draw(win)
+
 def draw_pitch(win):
     """Draw the scaled-down football field with alternating green stripes."""
     left, top = scale_point(100, 50)
@@ -22,9 +39,9 @@ def draw_pitch(win):
     # Draw alternating green stripes
     stripe_width = (right - left) / 11
     for i in range(11):
-        stripe = graphics.Rectangle(
-            graphics.Point(left + i * stripe_width, top),
-            graphics.Point(left + (i + 1) * stripe_width, bottom)
+        stripe = Rectangle(
+            Point(left + i * stripe_width, top),
+            Point(left + (i + 1) * stripe_width, bottom)
         )
         if i % 2 == 0:
             stripe.setFill("darkgreen")
@@ -34,7 +51,7 @@ def draw_pitch(win):
         stripe.draw(win)
 
     # Draw field boundary
-    boundary = graphics.Rectangle(graphics.Point(left, top), graphics.Point(right, bottom))
+    boundary = Rectangle(Point(left, top), Point(right, bottom))
     boundary.setOutline("white")
     boundary.setWidth(2)
     boundary.draw(win)
@@ -43,24 +60,24 @@ def draw_pitch(win):
     center_x, _ = scale_point(650, 0)
     top_y = scale_point(0, 50)[1]
     bottom_y = scale_point(0, 750)[1]
-    center_line = graphics.Line(graphics.Point(center_x, top_y), graphics.Point(center_x, bottom_y))
+    center_line = Line(Point(center_x, top_y), Point(center_x, bottom_y))
     center_line.setFill("white")
     center_line.draw(win)
 
     # Draw center circle
     center_x, center_y = scale_point(650, 400)
     radius = 75 * SCALE_X  # Scale circle radius
-    center_circle = graphics.Circle(graphics.Point(center_x, center_y), radius)
+    center_circle = Circle(Point(center_x, center_y), radius)
     center_circle.setOutline("white")
     center_circle.setWidth(2)
     center_circle.draw(win)
 
     # Draw goal boxes
-    left_goal = graphics.Rectangle(
-        graphics.Point(*scale_point(100, 300)), graphics.Point(*scale_point(150, 500))
+    left_goal = Rectangle(
+        Point(*scale_point(100, 300)), Point(*scale_point(150, 500))
     )
-    right_goal = graphics.Rectangle(
-        graphics.Point(*scale_point(1150, 300)), graphics.Point(*scale_point(1200, 500))
+    right_goal = Rectangle(
+        Point(*scale_point(1150, 300)), Point(*scale_point(1200, 500))
     )
     for goal in [left_goal, right_goal]:
         goal.setOutline("white")
@@ -68,21 +85,21 @@ def draw_pitch(win):
         goal.draw(win)
 
 def draw_scoreboard(win, home_team, away_team):
-    """Draw the scoreboard below the mini-game area."""
-    scoreboard_x, scoreboard_y = scale_point(650, 490)
-    scoreboard = graphics.Text(graphics.Point(scoreboard_x, scoreboard_y), f"{home_team} 0 - 0 {away_team}")
-    scoreboard.setSize(12)  # Adjust font size to fit
-    scoreboard.setTextColor("black")
+    """Draw the scoreboard higher up in the mini-game area and make it larger."""
+    scoreboard_x, scoreboard_y = scale_point(650, 100)  # Move the scoreboard higher up
+    scoreboard = Text(Point(scoreboard_x, scoreboard_y), f"{home_team} 0 - 0 {away_team}")
+    scoreboard.setSize(20)  # Increase the font size to make it more prominent
+    scoreboard.setTextColor("white")
     scoreboard.draw(win)
     return scoreboard
 
-def draw_players(win, team_color, positions, is_goalkeeper=False):
+def draw_players(win, team_color, positions):
     """Draw the scaled-down players."""
     players = []
     for x, y in positions:
         scaled_x, scaled_y = scale_point(x, y)
-        player = graphics.Circle(graphics.Point(scaled_x, scaled_y), 6)  # Scaled size for players
-        player.setFill(team_color if not is_goalkeeper else "yellow")  # Goalkeepers are yellow
+        player = Circle(Point(scaled_x, scaled_y), 6)  # Scaled size for players
+        player.setFill(team_color)
         player.draw(win)
         players.append(player)
     return players
@@ -90,7 +107,7 @@ def draw_players(win, team_color, positions, is_goalkeeper=False):
 def draw_ball(win):
     """Draw the scaled-down ball."""
     x, y = scale_point(650, 400)
-    ball = graphics.Circle(graphics.Point(x, y), 5)  # Scaled size for the ball
+    ball = Circle(Point(x, y), 5)  # Scaled size for the ball
     ball.setFill("white")
     ball.draw(win)
     return ball
@@ -114,9 +131,9 @@ def move_ball(ball, start_point, end_point):
         ball.move(dx, dy)
         time.sleep(0.05)
 
-def move_players(players, goalkeeper_positions):
+def move_players(players):
     """Move players randomly within their respective zones."""
-    for i, player in enumerate(players):
+    for player in players:
         offset_x = random.randint(-5, 5) * SCALE_X
         offset_y = random.randint(-5, 5) * SCALE_Y
         player.move(offset_x, offset_y)
@@ -152,8 +169,46 @@ def simulate_goal_attempt(ball, scoring_team, strikers):
     # Assume a 70% chance that the goal is successful
     return random.random() < 0.7
 
-def simulate_mini_game(win, home_team, away_team):
-    """Simulate a brief sequence of moves for the mini-game."""
+def update_score(scoreboard, home_team, away_team, home_score, away_score):
+    """Update the score on the scoreboard."""
+    scoreboard.setText(f"{home_team} {home_score} - {away_score} {away_team}")
+
+def get_random_match():
+    """Connect to the database and retrieve a random match with improved randomization."""
+    try:
+        # Seed randomness for better results
+        random.seed(time.time())
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Select a random match with only the required fields
+        cursor.execute("SELECT `Home Team`, `Away Team`, `Score` FROM DataDetail ORDER BY RAND() LIMIT 1;")
+        match = cursor.fetchone()
+
+        # Close the database connection to ensure fresh state
+        cursor.close()
+        conn.close()
+
+        if match is None:
+            print("No match found in the database.")
+            return None
+
+        # Map the match data to variables
+        match_data = {
+            "Home Team": match[0],
+            "Away Team": match[1],
+            "Score": match[2]
+        }
+
+        return match_data
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+def simulate_mini_game(win, home_team, away_team, home_score, away_score):
+    """Simulate a brief sequence of moves for the mini-game using actual match data."""
     draw_pitch(win)
     scoreboard = draw_scoreboard(win, home_team, away_team)
 
@@ -175,9 +230,9 @@ def simulate_mini_game(win, home_team, away_team):
 
     current_home_score, current_away_score = 0, 0
 
-    # Generate random target scores between 0-4 for both teams
-    target_home_score = random.randint(0, 2)
-    target_away_score = random.randint(0, 2)
+    # Set the target scores to the actual scores from the match
+    target_home_score = home_score
+    target_away_score = away_score
 
     # Define strikers
     strikers_home = players_home[-2:]  # Last two players are forwards
@@ -192,8 +247,15 @@ def simulate_mini_game(win, home_team, away_team):
 
         # Randomly determine if a goal attempt happens by a striker
         if random.random() < 0.3:  # 30% chance for a goal attempt
-            scoring_team = random.choice(["home", "away"])
-            strikers = strikers_home if scoring_team == "home" else strikers_away
+            if current_home_score < target_home_score and random.random() < 0.5:
+                scoring_team = "home"
+                strikers = strikers_home
+            elif current_away_score < target_away_score:
+                scoring_team = "away"
+                strikers = strikers_away
+            else:
+                continue  # Both teams have reached their target scores
+
             success = simulate_goal_attempt(ball, scoring_team, strikers)
             if success:
                 if scoring_team == "home":
@@ -207,15 +269,42 @@ def simulate_mini_game(win, home_team, away_team):
                 # Reset ball to center after a goal
                 reset_ball_to_center(ball)
 
+        # Check if target scores have been reached to avoid freezing
+        if current_home_score >= target_home_score and current_away_score >= target_away_score:
+            break
+
         # Move players randomly during each play
-        move_players(players_home + players_away, goalkeeper_positions=[0, 11])
+        move_players(players_home + players_away)
         time.sleep(0.5)  # Pause briefly for visualization
 
-    # Once the target scores are reached, reset the game
-    reset_ball_to_center(ball)
-    update_score(scoreboard, home_team, away_team, 0, 0)
-    current_home_score, current_away_score = 0, 0
+    # Display the final result
+    result_text = Text(Point(550, 600), f"Final Score: {home_team} {target_home_score} - {target_away_score} {away_team}")
+    result_text.setSize(12)
+    result_text.draw(win)
 
-def update_score(scoreboard, home_team, away_team, home_score, away_score):
-    """Update the score on the scoreboard."""
-    scoreboard.setText(f"{home_team} {home_score} - {away_score} {away_team}")
+def FootGameHomeMain(win):
+    """Display the mini-game directly within the existing dashboard window."""
+    while True:
+        # Clear the mini-game area before drawing new elements
+        clear_area(win, MINI_GAME_LEFT, MINI_GAME_TOP, MINI_GAME_RIGHT, MINI_GAME_BOTTOM)
+
+        # Get a random match from the database
+        match_data = get_random_match()
+        if match_data is None:
+            return
+
+        # Extract necessary variables
+        home_team = match_data["Home Team"]
+        away_team = match_data["Away Team"]
+        try:
+            home_score = int(match_data["Score"].split('-')[0])
+            away_score = int(match_data["Score"].split('-')[1])
+        except (IndexError, ValueError):
+            print("Invalid score format.")
+            continue  # Skip to the next match
+
+        # Simulate the mini-game using the match data
+        simulate_mini_game(win, home_team, away_team, home_score, away_score)
+
+        # Wait for a brief period before moving to the next match, allowing the user to see the final result
+        time.sleep(3)  # Display the final score for 3 seconds
