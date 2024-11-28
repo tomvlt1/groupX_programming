@@ -97,7 +97,6 @@ def main():
         print(f"Selected file: {selected_file}")
     except FileNotFoundError as e:
         print(e)
-    return selected_file
 
 
-
+main()
