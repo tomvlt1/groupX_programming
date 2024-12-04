@@ -19,11 +19,21 @@ try:
     # Crear la tabla User
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS User (
-        idUser INT AUTO_INCREMENT PRIMARY KEY,
-        UserName VARCHAR(255),       
-        Password VARCHAR(255)   
-    );
-    """)
+    idUser INT AUTO_INCREMENT PRIMARY KEY,
+    UserName VARCHAR(255),
+    FirstName VARCHAR(255),
+    LastName VARCHAR(255),
+    Password VARCHAR(255),
+    ShirtNumber INT,
+    PrimaryColor VARCHAR(255),
+    SecondaryColor VARCHAR(255),
+    DateOfBirth DATE,
+    Gender VARCHAR(50),
+    Nationality VARCHAR(255),
+    FavoriteTeam VARCHAR(255)
+    )  ;
+        """)
+
 
     # Crear la tabla Load
     cursor.execute("""
