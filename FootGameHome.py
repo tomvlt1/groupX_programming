@@ -1,4 +1,4 @@
-# FootGameHome.py
+
 from graphics import *
 import random
 import time
@@ -174,7 +174,7 @@ def update_score(scoreboard, home_team, away_team, home_score, away_score):
     scoreboard.setText(f"{home_team} {home_score} - {away_score} {away_team}")
 
 def get_random_match():
-    """Connect to the database and retrieve a random match with improved randomization."""
+    """Connect to the database and retrieve a random match."""
     try:
         # Seed randomness for better results
         random.seed(time.time())
@@ -182,8 +182,10 @@ def get_random_match():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        # Select a random match with only the required fields
-        cursor.execute("SELECT `Home Team`, `Away Team`, `Score` FROM DataDetail ORDER BY RAND() LIMIT 1;")
+        # Correct SQL query with backticks to handle column names with special characters or spaces
+        cursor.execute(
+            "SELECT `Home Team`, `Away Team`, `Score` FROM DataDetail ORDER BY RAND() LIMIT 1;"
+        )
         match = cursor.fetchone()
 
         # Close the database connection to ensure fresh state
@@ -202,6 +204,10 @@ def get_random_match():
         }
 
         return match_data
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -283,28 +289,54 @@ def simulate_mini_game(win, home_team, away_team, home_score, away_score):
     result_text.draw(win)
 
 def FootGameHomeMain(win):
-    """Display the mini-game directly within the existing dashboard window."""
-    while True:
-        # Clear the mini-game area before drawing new elements
-        clear_area(win, MINI_GAME_LEFT, MINI_GAME_TOP, MINI_GAME_RIGHT, MINI_GAME_BOTTOM)
+    """Initialize and run the mini-game."""
+    print("Mini-game initialized.")
 
-        # Get a random match from the database
-        match_data = get_random_match()
-        if match_data is None:
-            return
+    # Clear the mini-game area
+    MINI_GAME_LEFT = 220
+    MINI_GAME_TOP = 140
+    MINI_GAME_RIGHT = 880
+    MINI_GAME_BOTTOM = 480
+    clear_area(win, MINI_GAME_LEFT, MINI_GAME_TOP, MINI_GAME_RIGHT, MINI_GAME_BOTTOM)
 
-        # Extract necessary variables
-        home_team = match_data["Home Team"]
-        away_team = match_data["Away Team"]
-        try:
-            home_score = int(match_data["Score"].split('-')[0])
-            away_score = int(match_data["Score"].split('-')[1])
-        except (IndexError, ValueError):
-            print("Invalid score format.")
-            continue  # Skip to the next match
+    # Fetch a random match
+    match_data = get_random_match()
+    if match_data is None:
+        print("No match data available. Exiting mini-game.")
+        return
 
-        # Simulate the mini-game using the match data
-        simulate_mini_game(win, home_team, away_team, home_score, away_score)
+    # Extract match details
+    home_team = match_data["Home Team"]
+    away_team = match_data["Away Team"]
+    try:
+        home_score = int(match_data["Score"].split('-')[0])
+        away_score = int(match_data["Score"].split('-')[1])
+    except (IndexError, ValueError):
+        home_score = 0
+        away_score = 0
 
-        # Wait for a brief period before moving to the next match, allowing the user to see the final result
-        time.sleep(3)  # Display the final score for 3 seconds
+    print(f"Game setup complete: {home_team} vs {away_team}.")
+
+    # Draw the pitch, players, ball, and scoreboard
+    draw_pitch(win)
+    scoreboard = draw_scoreboard(win, home_team, away_team)
+
+    # Set up player positions
+    home_positions = [
+        (150, 400), (300, 200), (300, 600), (400, 100), (400, 700),  # Defenders
+        (500, 300), (500, 500), (600, 200), (600, 600),              # Midfielders
+        (900, 350), (900, 450)                                       # Forwards
+    ]
+    away_positions = [
+        (1150, 400), (1000, 200), (1000, 600), (900, 100), (900, 700),  # Defenders
+        (800, 300), (800, 500), (700, 200), (700, 600),                 # Midfielders
+        (400, 350), (400, 450)                                         # Forwards
+    ]
+
+    players_home = draw_players(win, "blue", home_positions)
+    players_away = draw_players(win, "red", away_positions)
+    ball = draw_ball(win)
+
+    # Run the simulation
+    simulate_mini_game(win, home_team, away_team, home_score, away_score)
+    print(f"Mini-game completed: Final score {home_team} {home_score} - {away_score} {away_team}.")
