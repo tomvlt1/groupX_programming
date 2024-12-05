@@ -288,7 +288,7 @@ def VariableSelection():
 def GraphOptions(selected):
     win = GraphWin("Graph Options", 800, 600)
 
-    bg_image = Image(Point(400, 300), "pic.gif")
+    bg_image = Image(Point(400, 300), "ekground.jpeg")
     bg_image.draw(win)
 
     title = Text(Point(400, 30), f"Select a Graph for {', '.join(selected)}")
