@@ -85,7 +85,6 @@ def create_overview_section(win):
     overview_y_start = 20
     x_offset = 220
 
-    # Draw the boxes for the overview section
     for _ in range(3):
         overview_box = Rectangle(Point(x_offset, overview_y_start), Point(x_offset + 180, overview_y_start + 100))
         overview_box.setFill("white")
@@ -93,7 +92,7 @@ def create_overview_section(win):
         overview_boxes.append(overview_box)
         x_offset += 200
 
-    facts = GetRandomFacts(3)  # Get initial facts
+    facts = GetRandomFacts(3)
     update_overview_section(win, overview_boxes, facts)
 
     return overview_boxes
@@ -102,10 +101,9 @@ def create_overview_section(win):
 def update_overview_section(win, overview_boxes, facts):
     """Update the overview section with new facts."""
     for i, fact in enumerate(facts):
-        # Clear the previous overview section
-        overview_boxes[i].setFill("white")  # Keep the box visible but clear text
+        overview_boxes[i].setFill("white")  
 
-        # Remove previous text inside the box
+        
         for item in win.items[:]:
             if isinstance(item, Text):
                 if overview_boxes[i].getP1().x <= item.getAnchor().x <= overview_boxes[i].getP2().x and \
@@ -172,7 +170,6 @@ def create_dashboard():
                 print("Preview button clicked.")
                 mini_game_active = True
 
-                # Hide the preview button and warning
                 preview_button.undraw()
                 preview_text.undraw()
                 lock_message.undraw()
@@ -181,7 +178,6 @@ def create_dashboard():
                 # Start the mini-game
                 FootGameHomeMain(win)
 
-                # Re-display the preview button and warning after the game ends
                 preview_button.draw(win)
                 preview_text.draw(win)
                 lock_message.draw(win)
@@ -194,7 +190,7 @@ def create_dashboard():
                 facts = GetRandomFacts(3)
                 update_overview_section(win, overview_boxes, facts)
 
-        time.sleep(0.05)  # Small delay to reduce CPU usage
+        time.sleep(0.05)  
 
     win.close()
 
