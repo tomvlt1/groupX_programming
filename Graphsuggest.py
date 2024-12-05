@@ -1,16 +1,10 @@
-from graphics import GraphWin, Rectangle, Point, Text, Image, Line
+from graphics import GraphWin,Point, Text
 from graphics import *
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-
-
-try:
-    data = pd.read_csv('laliga.csv')  # Replace with the actual path to your dataset
-    print("Dataset loaded successfully!")
-except FileNotFoundError:
-    print("Error: Dataset file not found. Please check the file path.")
-    exit()
+import pandas as pd
+from load_data import data
 
 data = data.dropna()
 
@@ -20,8 +14,6 @@ def IsNumerical(column):
 
 def IsCategorical(column):
     return data[column].dtype == 'object' or pd.api.types.is_categorical_dtype(data[column])
-
-
 
 def Histogram(column, filename):
     plt.figure()
@@ -104,8 +96,6 @@ def Heatmap(x, y, filename):
     plt.close()
 
 
-
-
 def HeatmapWithTwoNumericals(cat_var, numvar1, numvar2, filename, data, agg_func='mean'):
     try:
         if not pd.api.types.is_numeric_dtype(data[numvar2]):
@@ -130,9 +120,6 @@ def HeatmapWithTwoNumericals(cat_var, numvar1, numvar2, filename, data, agg_func
 
     except Exception as e:
         print(f"Error: {e}")
-
-
-
 
 
 def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
