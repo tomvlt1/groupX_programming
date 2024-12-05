@@ -204,3 +204,4 @@ def VariableSelection():
 
     # Shift the x-position of the rectangles and text to the left for centering
  
+VariableSelection()

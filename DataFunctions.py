@@ -1,77 +1,145 @@
 import mysql.connector
-import csv
+from config import *
+from datetime import datetime
 from Globals import *
-import os #to filename
+import csv
 
+def openconnection():
+    db_host = host
+    db_user = user
+    db_password = password
+    db_name = database
 
-# Database connection details
-db_config = {
-    "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
-    "user": "MATCHIEAdmin",
-    "password": "IeUniversity123",
-    "database":"LaLiga"
-}
+    # Database connection details
+    db_config = {
+        "host": db_host,
+        "user": db_user,
+        "password": db_password,
+        "database":db_name 
+    }
+    db_connection = mysql.connector.connect(**db_config)
+    return db_connection
+    
 # Function to validate user credentials
 def validate_user(username, password):
+    db_connection = None  # Inicializa la variable antes de usarla
+    cursor = None
     try:
-        # Connect to the MySQL database
-        db_connection = mysql.connector.connect(**db_config)
+        # Connect to the database
+        db_connection = openconnection()
         cursor = db_connection.cursor()
-
         # Query to check if the username and password exist
-        query = "SELECT UserName,IdUser FROM User WHERE LOWER(UserName) = LOWER(%s) AND Password = %s"
+        query = "SELECT UserName, IdUser FROM User WHERE LOWER(UserName) = LOWER(%s) AND Password = %s"
         cursor.execute(query, (username, password))
-
-        # Fetch result
-        queryresult = cursor.fetchone()       
-        if queryresult :
-               
+        # Fetch the result
+        queryresult = cursor.fetchone()
+        if queryresult:
             # If a match is found
-            setIDUser(int(queryresult[1])) #session
+            setIDUser(int(queryresult[1]))  # Set the user ID in the session
             vmessage = "Login successful"
-            vresult=True
+            vresult = True
+            # Return the username and id as well
+            return vresult, vmessage, queryresult[0], queryresult[1]
         else:
             # If no match is found
             vmessage = "Incorrect credentials"
-            vresult=False
-    except:
-        vmessage = "Error"
-        vresult=False
-           
-    cursor.close()
-    db_connection.close()    
-    return vresult, vmessage,queryresult[0],queryresult[1]
-  
-def create_user(name, password):
+            vresult = False
+            # Return None for UserName and IdUser if no match
+            return vresult, vmessage, None, None
+    except mysql.connector.Error as err:
+        # Database error handling
+        vmessage = f"Database Error: {err}"
+        vresult = False
+        return vresult, vmessage, None, None
+    except Exception as e:
+        # General error handling
+        vmessage = f"Error: {str(e)}"
+        vresult = False
+        return vresult, vmessage, None, None
+    finally:
+        cursor.close()
+        db_connection.close()
+            
+def create_user(data):
+    db_connection = None  # Inicializa la variable antes de usarla
+    cursor = None
+    vcheck=0
+    vmessage=''
+    # Validaciones de los datos
+    if not all(data):  # Verifica si hay algún campo vacío en la lista data
+        vmessage="All fields must be filled" 
+        vcheck=1
+    if data[4]:
+        try:
+            shirt_number = int(data[4])  
+        except ValueError:
+            vmessage= vmessage + " Shirt Number must be an integer" 
+            vcheck=1        
     try:
-        # Conexión a la base de datos
-        db_connection = mysql.connector.connect(**db_config)
-        cursor = db_connection.cursor()
-
-        # Query para insertar un nuevo usuario
-        query = "INSERT INTO User (UserName, Password) VALUES (%s, %s)"
-        values = (name, password)
-        cursor.execute(query, values)  
-
-        # Confirmar los cambios
-        db_connection.commit()
-         # If a match is found           
-        vmessage = "Created"
-        vresult=True
-    except:
-        vmessage = "Error"
-        vresult=False
-           
-    cursor.close()
-    db_connection.close()    
-    return vresult, vmessage
+        dob = datetime.strptime(data[7], '%Y-%m-%d').date()
+    except ValueError:
+        vmessage= vmessage + " Date of Birth must be in the format yyyy-mm-dd"
+        vcheck=1
+   
+    if vcheck==0:
+        try: 
+            # Connect to the database
+            db_connection = openconnection()
+            cursor = db_connection.cursor()
+             
+            check_query = "SELECT COUNT(*) FROM User WHERE LOWER(UserName) = LOWER(%s)"
+            cursor.execute(check_query, (data[2],))  # Check if UserName exists
+            user_count = cursor.fetchone()[0]
+            
+            if user_count > 0:  # If UserName already exists, return error
+                vmessage = "Username already exists"
+                vresult = False
+            else:        
+                query = """
+                INSERT INTO User 
+                (UserName, FirstName, LastName, Password, ShirtNumber, PrimaryColor, SecondaryColor, 
+                DateOfBirth, Gender, Nationality, FavoriteTeam) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                values = (
+                    data[2],  # Username
+                    data[0],  # First Name
+                    data[1],  # Last Name
+                    data[3],  # Password
+                    shirt_number,  # Shirt Number 
+                    data[5],  # Shirt Color
+                    data[6],  # SecondaryColor
+                    dob,  # Date of Birth
+                    data[8],  # Gender
+                    data[9],  # Nationality
+                    data[10]   # Favorite Team
+                )
+                # Ejecutar la consulta SQL para insertar los valores
+                cursor.execute(query, values)
+                # Confirmar los cambios
+                db_connection.commit()
+                vmessage = "User created successfully"
+                vresult = True
+        except:
+            vmessage = "Error"
+            vresult = False
+        finally:
+            cursor.close()
+            db_connection.close()
+        return vresult, vmessage
+    
+    else:
+         return False, vmessage
 
 # Función para registrar el archivo en la tabla LoadFiles
 def create_load_record(user_id, file_path):
+    db_connection = None  # Inicializa la variable antes de usarla
+    cursor = None
     try:
-        db_connection = mysql.connector.connect(**db_config)
+    # Connect to the database
+        db_connection = openconnection()
         cursor = db_connection.cursor()
-
+        
         # Obtener el último idLoad para este usuario
         #COALESCE para que si no hay registros devuelva cero
         query = "SELECT COALESCE(MAX(idLoadUser), 0) FROM LoadFiles WHERE idUser = %s"
@@ -101,10 +169,106 @@ def create_load_record(user_id, file_path):
     db_connection.close()    
     return vresult, last_insert_id ,vmessage
 
-def import_csv_to_database(file_path, user_id, load_id):
-    db_connection = mysql.connector.connect(**db_config)
-    cursor = db_connection.cursor()
+# Function to get user data from the database
+def get_user_data(user_id):
+    try:
+              
+        db_connection = openconnection()
+        cursor = db_connection.cursor()
 
+        query = """
+        SELECT 
+            FirstName, LastName, UserName, Password, ShirtNumber, PrimaryColor, 
+            SecondaryColor, DateOfBirth, Gender, Nationality, FavoriteTeam 
+        FROM User 
+        WHERE IdUser = %s
+        """
+
+        # Execute the query with the user_id parameter
+        cursor.execute(query, (user_id,))
+        user_data = cursor.fetchone()
+
+        cursor.close()
+        db_connection.close()
+        
+        return user_data  # Return the user data
+    except mysql.connector.Error as err:
+        print(f"Database Error: {err}")
+        return None  # Return None if there was an error
+    
+# Function to modify user data
+def modify_user(user_id, data):
+
+    
+    vcheck=0
+    if not all(data):  # Verifica si hay algún campo vacío en la lista data
+        vmessage="All fields must be filled" 
+        vcheck=1
+    if data[4]:
+        try:
+            shirt_number = int(data[4])  
+        except ValueError:
+            vmessage= vmessage + " Shirt Number must be an integer" 
+            vcheck=1        
+    try:
+        dob = datetime.strptime(data[7], '%Y-%m-%d').date()
+    except ValueError:
+        vmessage= vmessage + " Date of Birth must be in the format yyyy-mm-dd"
+        vcheck=1
+   
+    if vcheck==0:
+        try:
+          
+            db_connection = openconnection()
+            cursor = db_connection.cursor()
+
+            query = """
+            UPDATE User
+            SET UserName = %s, FirstName = %s, LastName = %s, Password = %s, ShirtNumber = %s, 
+                PrimaryColor = %s, SecondaryColor = %s, DateOfBirth = %s, Gender = %s, 
+                Nationality = %s, FavoriteTeam = %s
+            WHERE IdUser = %s
+            """
+
+            # Execute the query with the data parameters
+            cursor.execute(query, (
+                data[2],    # UserName
+                data[0],    # FirstName
+                data[1],    # LastName
+                data[3],    # Password
+                data[4],    # ShirtNumber (Make sure 'shirt_number' is defined if it’s not part of 'data')
+                data[5],    # PrimaryColor
+                data[6],    # SecondaryColor
+                data[7],    # DateOfBirth (assuming it's in data[7])
+                data[8],    # Gender
+                data[9],    # Nationality
+                data[10],   # FavoriteTeam
+                user_id     # IdUser
+                ))
+            db_connection.commit()
+
+            cursor.close()
+            db_connection.close()
+            vresult=True
+            vmessage= "User data updated successfully"
+ 
+        except Exception as e:
+            vmessage = "Error"
+            vresult = False
+        finally:
+            cursor.close()
+            db_connection.close()
+        return vresult, vmessage
+    else:
+        return False, vmessage
+    
+def import_csv_to_database(file_path, user_id, load_id):
+    db_connection = None  # Inicializa la variable antes de usarla
+    cursor = None
+   # Connect to the database
+    db_connection = openconnection()
+    cursor = db_connection.cursor()
+        
     with open(file_path, newline='', encoding='utf-8') as csvfile:
         csvreader = csv.reader(csvfile)
 
@@ -216,9 +380,11 @@ def import_csv_to_database(file_path, user_id, load_id):
     db_connection.close()
     
 def delete_last_insert_for_user(user_id):
-        db_connection = mysql.connector.connect(**db_config)
+        db_connection = None  # Inicializa la variable antes de usarla
+        cursor = None
+    # Connect to the database
+        db_connection = openconnection()
         cursor = db_connection.cursor()
-
         try:
             # Obtén el MAX(idLoad) para el usuario específico
             query_get_last_idLoad = "SELECT MAX(idLoad) FROM DataDetail WHERE idUser = %s"
