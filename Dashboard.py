@@ -1,12 +1,14 @@
+# Dashboard.py
 from graphics import *
 from Globals import *
 from DataFunctions import *
 from FootGameHome import FootGameHomeMain
 from Graphsuggest import Graphsuggest_main
-import time
-
-# Import the stats functions from the separate GetRandomStats.py
 from GetRandomStats import GetRandomFacts, GetColumnNames
+from FootClick import run_footclick
+from headsoccer import run_headsoccer
+#from graph_1 import run_graph_1
+import time
 
 def create_window():
     userid = getIDUser()
@@ -31,10 +33,13 @@ def create_sidebar(win):
     p2 = Point(180, 130)
 
     buttons = []
+
+    # Existing buttons
     new_button, new_buttontxt = create_button(win, p1, p2, "New Match", color_rgb(28, 195, 170), "white", size=12)
     buttons.append(new_button)
 
-    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png", size=(20, 20), vout=color_rgb(28,195,170))
+    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png",
+                                           size=(20, 20), vout=color_rgb(28, 195, 170))
     buttons.append(back_button)
 
     y_offset = 90
@@ -42,15 +47,26 @@ def create_sidebar(win):
     p2 = Point(p2.getX(), p2.getY() + y_offset)
     button_titles = [("Import Dataset", "btoImport"),
                      ("Choose Dataset", "btoChoose"),
-                     ("Visualize", "btoVisualize"),
-                     ("Profile", "btoProfile")]
+                     ("Visualize",      "btoVisualize"),
+                     ("Profile",        "btoProfile")]
 
     for btnlabel, btnid in button_titles:
-        btnname, btntxt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
+        btn, txt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
         y_offset = 50
         p1 = Point(p1.getX(), p1.getY() + y_offset)
         p2 = Point(p2.getX(), p2.getY() + y_offset)
-        buttons.append(btnname)
+        buttons.append(btn)
+
+    # Now add the new three buttons
+    extra_titles = [("FootClick Game", "footclick"),
+                    ("HeadSoccer Game", "headsoccer"),
+                    ("Graph_1", "graph1")]
+    for btnlabel, btnid in extra_titles:
+        btn, txt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
+        y_offset = 50
+        p1 = Point(p1.getX(), p1.getY() + y_offset)
+        p2 = Point(p2.getX(), p2.getY() + y_offset)
+        buttons.append(btn)
 
     return buttons
 
@@ -105,6 +121,7 @@ def update_overview_section(win, overview_boxes, facts):
                         overview_boxes[i].getP1().y <= item.getAnchor().y <= overview_boxes[i].getP2().y):
                     item.undraw()
 
+        # facts are returned in the form "description\nHomeTeam - AwayTeam\nColumn: value"
         try:
             description, match_info, value = fact.split("\n")
         except ValueError:
@@ -136,7 +153,10 @@ def create_mini_game_area(win):
     return mini_game_area, mini_game_left, mini_game_top, mini_game_right, mini_game_bottom
 
 def select_file():
-    return "files/file_to_import.csv"
+    # If you want an actual file dialog, you'd handle that with tkinter or similar.
+    # For now, placeholders:
+    file_path = "files/file_to_import.csv"
+    return file_path
 
 def create_dashboard():
     win = create_window()
@@ -156,7 +176,7 @@ def create_dashboard():
     while True:
         click = win.checkMouse()
         if click:
-            # Preview
+            # Preview button
             if not mini_game_active and is_click_in_rectangle(click, preview_button):
                 mini_game_active = True
                 preview_button.undraw()
@@ -172,7 +192,7 @@ def create_dashboard():
                 warning.draw(win)
                 mini_game_active = False
 
-            # Refresh => Regenerate random facts
+            # Refresh button => Regenerate random facts
             if is_click_in_rectangle(click, refresh_button):
                 new_facts = GetRandomFacts(3)
                 update_overview_section(win, overview_boxes, new_facts)
@@ -185,7 +205,8 @@ def create_dashboard():
                     if vectorobjects:
                         while True:
                             click_point = win.getMouse()
-                            if is_click_in_rectangle(click_point, vectorobjects[4]):  # OK
+                            # OK button
+                            if is_click_in_rectangle(click_point, vectorobjects[4]):
                                 for obj in vectorobjects:
                                     obj.undraw()
                                 file_path = select_file()
@@ -203,25 +224,40 @@ def create_dashboard():
                                     else:
                                         messages(verror)
                                         break
-                            elif is_click_in_rectangle(click_point, vectorobjects[5]):  # Cancel
+                            # Cancel button
+                            elif is_click_in_rectangle(click_point, vectorobjects[5]):
                                 for obj in vectorobjects:
                                     obj.undraw()
                                 break
 
-            # Visualize
+            # Visualize button
             elif is_click_in_rectangle(click, buttons[4]):
                 userId = getIDUser()
                 if userId:
                     statistics(userId)
 
-            # Profile
+            # Profile button
             elif is_click_in_rectangle(click, buttons[5]):
                 userId = getIDUser()
                 if userId:
                     AccountGUI(userId)
 
-            # Choose Dataset or go back
+            # New Match, Import Dataset, etc., can be handled here as needed
+            # Additional buttons: FootClick Game, HeadSoccer Game, Graph_1
+            elif is_click_in_rectangle(click, buttons[6]):
+                # FootClick Game button clicked
+                run_footclick()
+
+            elif is_click_in_rectangle(click, buttons[7]):
+                # HeadSoccer Game button clicked
+                run_headsoccer()
+
+            elif is_click_in_rectangle(click, buttons[8]):
+                # Graph_1 button clicked
+                run_graph_1()
+
             elif is_click_in_rectangle(click, buttons[1]):
+                # Back button clicked
                 LoginGUI()
 
         time.sleep(0.05)

@@ -5,6 +5,7 @@ from DataFunctions import select_datadetail
 from Globals import *
 import math
 
+
 def generate_graphs_1(vyear,vteam):
   
     year = vyear

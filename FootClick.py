@@ -1,3 +1,4 @@
+# FootClick.py
 import random
 import time
 import math
@@ -79,8 +80,13 @@ def display_average_time(avg_time, win):
     time_label.setTextColor("blue")
     time_label.draw(win)
 
-def main():
-    getQuantity = int(input("How many footballs do you want to click? "))
+def run_footclick():
+    try:
+        getQuantity = int(input("How many footballs do you want to click? "))
+    except ValueError:
+        print("Invalid input. Please enter an integer.")
+        return
+
     win = GraphWin("Football Click Game ⚽", 500, 500)
     draw_football_net(win)  # Draw the football net background
 
@@ -113,4 +119,4 @@ def main():
     win.close()
 
 if __name__ == "__main__":
-    main()
+    run_footclick()
