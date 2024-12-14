@@ -133,7 +133,7 @@ def AccountGUI(userId):
             left_background.draw(win)
 
             drawFootballField(win, Point(30, 100), Point(470, 600))
-
+            
             title = create_label(win, "YOUR PROFILE", Point(800, 60), 28, "#1E2A39", "bold")
             vcolorbutton = "#2E8B57"
             submit_button, txt6 = create_button(win, Point(700, 650), Point(810, 700), "Save", vcolorbutton, "white")
