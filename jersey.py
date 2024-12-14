@@ -15,7 +15,6 @@
 from graphics import *
 
 team_colors = {
-    "BASE": { "primary": "#FFFFFF","secondary": "#000000"},
     "MÁLAGA": {"primary": "#4AADD4", "secondary": "#FFFFFF"},
     "SEVILLA FC": {"primary": "#D71A28", "secondary": "#FFFFFF"},
     "GRANADA": {"primary": "#E30613", "secondary": "#FFFFFF"},
@@ -49,78 +48,54 @@ team_colors = {
     "CÁDIZ CF": {"primary": "#FFD700", "secondary": "#0000FF"},
 }
 
-def draw_custom_jersey(win, p1, p2, team_chosen, username, favorite_number):
+def draw_custom_jersey(win, team_chosen, username, favorite_number):
     if team_chosen not in team_colors:
         print("Invalid team chosen. Please select a valid team.")
         return
     
     primary_color = team_colors[team_chosen]["primary"]
     secondary_color = team_colors[team_chosen]["secondary"]
-    
-    # Calculate width and height based on input points
-    area_width = p2.getX() - p1.getX()
-    area_height = p2.getY() - p1.getY()
-    
-    # Define proportions for jersey elements
-    # These proportions can be adjusted as needed
-    torso_top_left = Point(p1.getX() + 0.25 * area_width, p1.getY() + 0.2 * area_height)
-    torso_bottom_right = Point(p1.getX() + 0.75 * area_width, p1.getY() + 0.8 * area_height)
-    
-    left_sleeve_points = [
-        Point(p1.getX() + 0.25 * area_width, p1.getY() + 0.2 * area_height),
-        Point(p1.getX() + 0.10 * area_width, p1.getY() + 0.5 * area_height),
-        Point(p1.getX() + 0.25 * area_width, p1.getY() + 0.5 * area_height)
-    ]
-    
-    right_sleeve_points = [
-        Point(p1.getX() + 0.75 * area_width, p1.getY() + 0.2 * area_height),
-        Point(p1.getX() + 0.90 * area_width, p1.getY() + 0.5 * area_height),
-        Point(p1.getX() + 0.75 * area_width, p1.getY() + 0.5 * area_height)
-    ]
-    
-    collar_top_left = Point(p1.getX() + 0.40 * area_width, p1.getY() + 0.10 * area_height)
-    collar_bottom_right = Point(p1.getX() + 0.60 * area_width, p1.getY() + 0.20 * area_height)
-    
-    # Draw torso
-    torso = Rectangle(torso_top_left, torso_bottom_right)
+
+    torso = Rectangle(Point(150, 80), Point(350, 380))
     torso.setFill(primary_color)
     torso.setOutline("black")
-    torso.setWidth(int(0.005 * area_width))  # Line width proportional to area
+    torso.setWidth(3)
     torso.draw(win)
-    
-    # Draw left sleeve
-    left_sleeve = Polygon(left_sleeve_points)
+
+    left_sleeve = Polygon(Point(150, 80), Point(100, 200), Point(150, 200))
     left_sleeve.setFill(secondary_color)
     left_sleeve.setOutline("black")
-    left_sleeve.setWidth(int(0.005 * area_width))
+    left_sleeve.setWidth(3)
     left_sleeve.draw(win)
-    
-    # Draw right sleeve
-    right_sleeve = Polygon(right_sleeve_points)
+
+    right_sleeve = Polygon(Point(350, 80), Point(400, 200), Point(350, 200))
     right_sleeve.setFill(secondary_color)
     right_sleeve.setOutline("black")
-    right_sleeve.setWidth(int(0.005 * area_width))
+    right_sleeve.setWidth(3)
     right_sleeve.draw(win)
-    
-    # Draw collar
-    collar = Rectangle(collar_top_left, collar_bottom_right)
+
+    collar = Rectangle(Point(215, 70), Point(285, 90))
     collar.setFill(secondary_color)
     collar.setOutline("black")
-    collar.setWidth(int(0.003 * area_width))
+    collar.setWidth(2)
     collar.draw(win)
-    
-    # Draw username
-    username_position = Point(p1.getX() + 0.5 * area_width, p1.getY() + 0.45 * area_height)
-    username_text = Text(username_position, username.upper())
-    username_text.setSize(int(0.05 * area_height))  # Size proportional to height
+
+    username_text = Text(Point(250, 140), username.upper())
+    username_text.setSize(20)
     username_text.setTextColor(secondary_color)
     username_text.setStyle("bold")
     username_text.draw(win)
-    
-    # Draw favorite number
-    number_position = Point(p1.getX() + 0.5 * area_width, p1.getY() + 0.65 * area_height)
-    number_text = Text(number_position, str(favorite_number))
-    number_text.setSize(int(0.07 * area_height))  # Size proportional to height
+
+    number_text = Text(Point(250, 200), str(favorite_number))
+    number_text.setSize(30)
     number_text.setTextColor(secondary_color)
     number_text.setStyle("bold")
     number_text.draw(win)
+
+def main():
+    win = GraphWin("Football Jersey", 500, 400)
+    draw_custom_jersey(win, "REAL MADRID", "PlayerOne", 10)
+    win.getMouse()
+    win.close()
+
+main()
