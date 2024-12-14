@@ -1,5 +1,5 @@
 from graphics import *
-from Globals import is_click_in_rectangle, create_label
+from Globals import is_click_in_rectangle, create_label, create_button
 from DataFunctions import openconnection
 import pandas as pd
 
@@ -73,18 +73,6 @@ def get_operators_for_column(column_name):
     else:
         return ["="]  # For text columns, only '='
 
-def create_button(win, p1, p2, label, fill_color="gray", text_color="black", text_size=12):
-    rect = Rectangle(p1, p2)
-    rect.setFill(fill_color)
-    rect.setOutline(fill_color)
-    rect.draw(win)
-
-    txt = Text(rect.getCenter(), label)
-    txt.setSize(text_size)
-    txt.setTextColor(text_color)
-    txt.draw(win)
-    return rect, txt
-
 def create_scrollable_dropdown(win, label, options, position, width=15, visible_count=10):
     dropdown_label_color = "white"
     label_position = Point(position.getX() - (width * 7), position.getY())
@@ -130,6 +118,7 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
 
             up_button = down_button = up_text = down_text = None
             if len(options) > visible_count:
+                # Scroll Up
                 up_button = Rectangle(
                     Point(dropdown.getP1().getX(), dropdown.getP2().getY() - 20),
                     Point(dropdown.getP2().getX(), dropdown.getP2().getY())
@@ -142,8 +131,9 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
                 up_text.setTextColor("black")
                 up_text.draw(win)
 
+                # Scroll Down
                 down_button = Rectangle(
-                    Point(dropdown.getP1().getX(), dropdown.getP2().getY() + visible_count * 20),
+                    Point(dropdown.getP1().getX(), dropdown.getP2().getY() + visible_count*20),
                     Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (visible_count+1)*20)
                 )
                 down_button.setFill("#D3D3D3")
@@ -159,11 +149,10 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
                 option_click = win.getMouse()
                 if up_button and is_click_in_rectangle(option_click, up_button) and start_index > 0:
                     start_index -= visible_count
-                elif (down_button 
-                      and is_click_in_rectangle(option_click, down_button) 
-                      and start_index + visible_count < len(options)):
+                elif down_button and is_click_in_rectangle(option_click, down_button) and start_index + visible_count < len(options):
                     start_index += visible_count
 
+                # Undraw old options
                 for rect, t, _ in dropdown_options:
                     rect.undraw()
                     t.undraw()
@@ -224,9 +213,11 @@ def filter_data_from_db(filters=None, columns=None):
         results = cursor.fetchall()
         column_names = [desc[0] for desc in cursor.description]
         return pd.DataFrame(results, columns=column_names)
+
     except Exception as e:
         print(f"Error occurred: {e}")
         return pd.DataFrame()
+
     finally:
         if cursor:
             cursor.close()
@@ -288,17 +279,18 @@ def build_filters_page(win):
     selected_op  = None
     selected_val = None
 
+    # Use create_button from Globals
     add_filter_btn, add_filter_txt = create_button(
         win, Point(540, 105), Point(640, 135), "Add Filter",
-        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+        fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
     next_step_btn, next_step_txt = create_button(
         win, Point(540, 145), Point(640, 175), "Next Step",
-        fill_color=color_rgb(0,128,255), text_color="white", text_size=12
+        fill_color=color_rgb(0,128,255), text_color="white", vout="grey", size=12
     )
     clear_filters_btn, clear_filters_txt = create_button(
         win, Point(540, 185), Point(640, 215), "Clear All",
-        fill_color=color_rgb(200, 128, 0), text_color="white", text_size=12
+        fill_color=color_rgb(200, 128, 0), text_color="white", vout="grey", size=12
     )
 
     while True:
@@ -308,6 +300,7 @@ def build_filters_page(win):
 
         x, y = click.getX(), click.getY()
 
+        # Column Box
         if 340 <= x <= 520 and 105 <= y <= 135:
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,120))
             col_text.setText(selected_col if selected_col else "Select column")
@@ -316,6 +309,7 @@ def build_filters_page(win):
             op_text.setText("Select operator")
             val_text.setText("Select value")
 
+        # Operator Box
         if 340 <= x <= 520 and 145 <= y <= 175 and selected_col:
             operators = get_operators_for_column(selected_col)
             selected_op = create_scrollable_dropdown(win, "", operators, Point(430,160))
@@ -323,6 +317,7 @@ def build_filters_page(win):
             selected_val = None
             val_text.setText("Select value")
 
+        # Value Box
         if 340 <= x <= 520 and 185 <= y <= 215 and selected_col and selected_op:
             unique_vals = get_unique_values(selected_col)
             selected_val = create_scrollable_dropdown(win, "", unique_vals, Point(430,200))
@@ -380,11 +375,11 @@ def build_columns_page(win, filters):
 
     back_btn, back_txt = create_button(
         win, Point(20,20), Point(180,60), "Back",
-        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+        fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
     submit_btn, submit_txt = create_button(
         win, Point(20,80), Point(180,120), "Submit",
-        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+        fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
     available_columns = get_headers()
@@ -411,7 +406,7 @@ def build_columns_page(win, filters):
 
     add_col_btn, add_col_txt = create_button(
         win, Point(540,125), Point(640,155), "Add Column",
-        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+        fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
     selected_col = None
@@ -422,18 +417,21 @@ def build_columns_page(win, filters):
             continue
         x, y = click.getX(), click.getY()
 
+        # Back to filters
         if 20 <= x <= 180 and 20 <= y <= 60:
-            return None  # back to filters
+            return None
 
+        # Submit
         if 20 <= x <= 180 and 80 <= y <= 120:
-            # If no columns selected, everything is selected
             df = filter_data_from_db(filters=filters, columns=selected_columns if selected_columns else None)
             return df
 
+        # Display column box
         if 340 <= x <= 520 and 125 <= y <= 155:
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,140))
             disp_text.setText(selected_col if selected_col else "Select column")
 
+        # Add Column
         if 540 <= x <= 640 and 125 <= y <= 155 and selected_col:
             if selected_col not in selected_columns:
                 selected_columns.append(selected_col)
@@ -460,7 +458,6 @@ def build_2_page_ui():
     while True:
         df = build_columns_page(win, filters)
         if df is None:
-            # user clicked back => re-draw filter page
             for item in win.items[:]:
                 item.undraw()
             win.items.clear()
@@ -475,8 +472,9 @@ def build_2_page_ui():
 
 def main():
     final_df = build_2_page_ui()
-    print("\nData returned to main():")
-    print(final_df)
+    #print("\nData returned to main():")
+    #print(final_df)
+    return final_df
 
 if __name__ == "__main__":
     main()
