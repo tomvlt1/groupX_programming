@@ -3,9 +3,9 @@
 from graphics import *
 from Globals import create_button, is_click_in_rectangle, create_label
 from GraphChoiceSelect import main as GraphChoiceSelect_main
-from filter import df 
+from Graphsuggest import main as GraphSuggestions_main
 
-def GraphOptions(df):
+def GraphOptions():
     """
     A window with two buttons: 'Variable to Graph' and 'Graph to Variable'.
     """
@@ -27,12 +27,12 @@ def GraphOptions(df):
 
         if is_click_in_rectangle(click, button1):
             win.close()
-            return "Variable to Graph"
+            GraphSuggestions_main()
 
         if is_click_in_rectangle(click, button2):
             #graph to variable
             win.close()
-            GraphChoiceSelect_main(df)
+            GraphChoiceSelect_main()
 
 if __name__ == "__main__":
     selected_option = GraphOptions()

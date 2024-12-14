@@ -453,7 +453,7 @@ def build_2_page_ui():
     # Page 1: Filters
     filters = build_filters_page(win)
     if filters is None:
-        win.close()
+        #win.close()
         return pd.DataFrame()
 
     # Page 2: Columns
@@ -472,18 +472,18 @@ def build_2_page_ui():
         else:
             # We got final dataframe or user closed
             win.close()
-            return df
+            df.to_csv("temp_data.csv", index=False)
+            return "temp_data.csv"
+
 
 def main():
     final_df = build_2_page_ui()
     # Once the user finishes the 2-page filter UI, we then call PostFilter.py
 
     from PostFilter import GraphOptions   # Import here to avoid circular references
-    selected_option = GraphOptions(final_df)       # This will open the "Variable to Graph" / "Graph to Variable" window
+    selected_option = GraphOptions()       # This will open the "Variable to Graph" / "Graph to Variable" window
 
-    print("User selected option:", selected_option)
-    return final_df, selected_option
-
+    return "Data returned to main()", selected_option
 if __name__ == "__main__":
     final_df, selected_option = main()
     print("\nData returned to main():")

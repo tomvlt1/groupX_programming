@@ -4,7 +4,6 @@ from graphics import *
 from Globals import *
 from DataFunctions import *
 from FootGameHome import FootGameHomeMain
-from Graphsuggest import Graphsuggest_main
 from GetRandomStats import GetRandomFacts, GetColumnNames
 from FootClick import run_footclick
 from headsoccer import run_headsoccer

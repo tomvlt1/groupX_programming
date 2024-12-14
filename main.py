@@ -1,4 +1,5 @@
 from Login import LoginGUI
+
 def main():
     """
     Orchestrate the login and dashboard sequence.
