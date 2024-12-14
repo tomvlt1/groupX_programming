@@ -268,3 +268,119 @@ def drawFootballField(win, p1, p2):
     bottom_goal_dot = Circle(Point(p1.getX() + 0.5 * field_width, p1.getY() + 0.92 * field_height), bottom_goal_dot_radius)
     bottom_goal_dot.setFill("white")
     bottom_goal_dot.draw(win)
+
+def create_scrollable_dropdown(win, label, options, position, width=15, visible_count=10):
+    dropdown_label_color = "white"
+    label_position = Point(position.getX() - (width * 7), position.getY())
+    create_label(win, label, label_position, size=12)
+
+    dropdown_bg_color = color_rgb(255, 255, 255) 
+    dropdown_outline_color = "black"
+
+    dropdown = Rectangle(
+        Point(position.getX() - width*5, position.getY() - 10),
+        Point(position.getX() + width*5, position.getY() + 10)
+    )
+    dropdown.setOutline(dropdown_outline_color)
+    dropdown.setFill(dropdown_bg_color)
+    dropdown.draw(win)
+
+    selected_text = Text(dropdown.getCenter(), "Select...")
+    selected_text.setSize(10)
+    selected_text.setTextColor("black")
+    selected_text.draw(win)
+
+    while True:
+        click = win.getMouse()
+        if is_click_in_rectangle(click, dropdown):
+            dropdown_options = []
+            visible_options = options[:visible_count]
+
+            for i, option in enumerate(visible_options):
+                option_rect = Rectangle(
+                    Point(dropdown.getP1().getX(), dropdown.getP2().getY() + i * 20),
+                    Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (i+1)*20)
+                )
+                option_rect.setFill("white")
+                option_rect.setOutline("black")
+                option_rect.draw(win)
+
+                option_text = Text(option_rect.getCenter(), str(option))
+                option_text.setSize(10)
+                option_text.setTextColor("black")
+                option_text.draw(win)
+
+                dropdown_options.append((option_rect, option_text, option))
+
+            up_button = down_button = up_text = down_text = None
+            if len(options) > visible_count:
+                # Scroll Up
+                up_button = Rectangle(
+                    Point(dropdown.getP1().getX(), dropdown.getP2().getY() - 20),
+                    Point(dropdown.getP2().getX(), dropdown.getP2().getY())
+                )
+                up_button.setFill("#D3D3D3")
+                up_button.setOutline("black")
+                up_button.draw(win)
+                up_text = Text(up_button.getCenter(), "▲")
+                up_text.setSize(10)
+                up_text.setTextColor("black")
+                up_text.draw(win)
+
+                # Scroll Down
+                down_button = Rectangle(
+                    Point(dropdown.getP1().getX(), dropdown.getP2().getY() + visible_count*20),
+                    Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (visible_count+1)*20)
+                )
+                down_button.setFill("#D3D3D3")
+                down_button.setOutline("black")
+                down_button.draw(win)
+                down_text = Text(down_button.getCenter(), "▼")
+                down_text.setSize(10)
+                down_text.setTextColor("black")
+                down_text.draw(win)
+
+            start_index = 0
+            while True:
+                option_click = win.getMouse()
+                if up_button and is_click_in_rectangle(option_click, up_button) and start_index > 0:
+                    start_index -= visible_count
+                elif down_button and is_click_in_rectangle(option_click, down_button) and start_index + visible_count < len(options):
+                    start_index += visible_count
+
+                # Undraw old options
+                for rect, t, _ in dropdown_options:
+                    rect.undraw()
+                    t.undraw()
+                dropdown_options.clear()
+
+                visible_options = options[start_index:start_index+visible_count]
+                for i, opt in enumerate(visible_options):
+                    option_rect = Rectangle(
+                        Point(dropdown.getP1().getX(), dropdown.getP2().getY() + i * 20),
+                        Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (i+1)*20)
+                    )
+                    option_rect.setFill("white")
+                    option_rect.setOutline("black")
+                    option_rect.draw(win)
+
+                    option_text = Text(option_rect.getCenter(), str(opt))
+                    option_text.setSize(10)
+                    option_text.setTextColor("black")
+                    option_text.draw(win)
+
+                    dropdown_options.append((option_rect, option_text, opt))
+
+                for rect, text_obj, val_opt in dropdown_options:
+                    if is_click_in_rectangle(option_click, rect):
+                        for r, t, _ in dropdown_options:
+                            r.undraw()
+                            t.undraw()
+                        if up_button:
+                            up_button.undraw()
+                            up_text.undraw()
+                        if down_button:
+                            down_button.undraw()
+                            down_text.undraw()
+                        selected_text.setText(str(val_opt))
+                        return val_opt
