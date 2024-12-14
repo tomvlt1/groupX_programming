@@ -91,7 +91,7 @@ def GraphSelection():
     return finalselect
 
 def variable_split():
-    dataset = pd.read_csv("combined_data_laliga.csv")
+    dataset = pd.read_csv("temp_data.csv")
     numerical_display = []
     categorical_display = []
     for i in dataset.columns:
