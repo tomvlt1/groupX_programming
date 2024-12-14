@@ -1,6 +1,4 @@
 from Login import LoginGUI
-from Dashboard import create_dashboard
-
 def main():
     """
     Orchestrate the login and dashboard sequence.
