@@ -15,6 +15,7 @@
 from graphics import *
 
 team_colors = {
+    "BASE": { "primary": "#FFFFFF","secondary": "#000000"},
     "MÁLAGA": {"primary": "#4AADD4", "secondary": "#FFFFFF"},
     "SEVILLA FC": {"primary": "#D71A28", "secondary": "#FFFFFF"},
     "GRANADA": {"primary": "#E30613", "secondary": "#FFFFFF"},

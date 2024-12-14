@@ -3,7 +3,7 @@ from Globals import *
 from DataFunctions import *
 from Dashboard import create_dashboard
 import time
-
+from jersey import draw_custom_jersey
 def login_user(input1, input2):
     username = input1.getText()  # Get the username from the input field
     password = input2.getText()  # Get the password from the input field   
@@ -34,7 +34,7 @@ def RegisterGUI():
     title = create_label(win, "REGISTER", Point(800, 60), 28, "#1E2A39", "bold")  
     subtitle = create_label(win, "IT'S COMPLETELY FREE", Point(800, 100), 16, "#1E2A39", "normal")  
 
-    drawFootballField(win, Point(30, 100), Point(470, 600))
+    draw_custom_jersey(win,Point(30, 100), Point(470, 600),"BASE" ,"Username","0")
 
     fields = [
         ("FirstName", 140, "First Name"),
@@ -132,9 +132,7 @@ def AccountGUI(userId):
             left_background.setFill("#ADEFD1")
             left_background.setOutline("#ADEFD1")
             left_background.draw(win)
-
-            drawFootballField(win, Point(30, 100), Point(470, 600))
-
+            draw_custom_jersey(win,Point(30, 100), Point(470, 600), user_data[10].upper, user_data[2], user_data[4])
             title = create_label(win, "YOUR PROFILE", Point(800, 60), 28, "#1E2A39", "bold")
             vcolorbutton = "#2E8B57"
             submit_button, txt6 = create_button(win, Point(700, 650), Point(810, 700), "Save", vcolorbutton, "white")
