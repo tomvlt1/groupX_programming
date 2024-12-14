@@ -10,6 +10,8 @@ from FootClick import run_footclick
 from headsoccer import run_headsoccer
 #from visualize import run_visualize  # Import the visualize function
 import time
+from FileSelect import file_selector  # Import the file_selector function
+
 
 def create_window():
     userid = getIDUser()
@@ -36,8 +38,6 @@ def create_sidebar(win):
     buttons = {}
 
     # Existing buttons
-    new_button, new_buttontxt = create_button(win, p1, p2, "New Match", color_rgb(28, 195, 170), "white", size=12)
-    buttons["New Match"] = new_button
 
     back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png",
                                            size=(20, 20), vout=color_rgb(28, 195, 170))
@@ -200,46 +200,34 @@ def create_dashboard():
             elif is_click_in_rectangle(click, buttons.get("Import Dataset")):
                 userId = getIDUser()
                 if userId:
-                    vectorobjects = show_import_message(win, Point(520, 70))
-                    if vectorobjects:
-                        while True:
-                            click_point = win.getMouse()
-                            # OK button
-                            if is_click_in_rectangle(click_point, vectorobjects[4]):
-                                for obj in vectorobjects:
-                                    obj.undraw()
-                                file_path = select_file()
-                                result1, verror = check_csv_file(file_path)
+                    try:
+                        # Use FileSelect.py's file_selector function
+                        selected_file = file_selector("target_folder")  # Replace "target_folder" with your actual folder
+                        # Proceed to import the selected file into the database
+                        result1, verror = check_csv_file(selected_file)
+                        if result1:
+                            result, last_insert_id, vmessage = create_load_record(userId, selected_file)
+                            if result:
+                                result1, vmessage = import_csv_to_database(selected_file, int(userId), int(last_insert_id))
                                 if result1:
-                                    result, last_insert_id, vmessage = create_load_record(userId, file_path)
-                                    if result:
-                                        result1, vmessage = import_csv_to_database(file_path, int(userId), int(last_insert_id))
-                                        if result1:
-                                            messages(vmessage)
-                                            break
-                                        else:
-                                            messages(vmessage)
-                                            break
-                                    else:
-                                        messages(verror)
-                                        break
-                            # Cancel button
-                            elif is_click_in_rectangle(click_point, vectorobjects[5]):
-                                for obj in vectorobjects:
-                                    obj.undraw()
-                                break
+                                    messages(vmessage)
+                                else:
+                                    messages(vmessage)
+                            else:
+                                messages(verror)
+                        else:
+                            messages("Invalid CSV file.")
+                    except FileNotFoundError as e:
+                        messages(str(e))
+                    except Exception as e:
+                        messages(f"An error occurred: {str(e)}")
 
             # Visualize button
-            #elif is_click_in_rectangle(click, buttons.get("Visualize")):
-             #   userId = getIDUser()
-             #   if userId:
-             #       statistics(userId)
 
             # Profile button
-            #elif is_click_in_rectangle(click, buttons.get("Profile")):
-             #   userId = getIDUser()
-             #   if userId:
-                    #AccountGUI(userId)
+            elif is_click_in_rectangle(click, buttons.get("Select Dataset")):
+                # Use FileSelect.py's file_selector function
+                selected_file = file_selector("target_folder")
 
             # FootClick Game button
             elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
@@ -250,10 +238,6 @@ def create_dashboard():
                 run_headsoccer()
 
             # Visualize Data button
-            elif is_click_in_rectangle(click, buttons.get("Visualize Data")):
-                run_visualize()
-
-            # Back button
             
 
         time.sleep(0.05)
