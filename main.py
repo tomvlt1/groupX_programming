@@ -2,6 +2,7 @@ from graphics import *
 from FootGameHome import FootGameHomeMain
 from GetRandomStats import GetRandomFacts
 import time
+from LoginPage import LoginGUI
 
 
 def create_window():
@@ -147,24 +148,31 @@ def create_mini_game_area(win):
 
 def create_dashboard():
     """Create the main dashboard."""
+    login_successful = LoginGUI()
+    
+    if not login_successful:
+        #print("Login failed or canceled. Exiting application.") #FIX THIS
+        #return True  # Exit the program if login fails
+        pass
+    
     win = create_window()
     create_sidebar(win)
     overview_boxes = create_overview_section(win)
-    refresh_button = RefreshButton(850, 60, win)  # Refresh button
+    refresh_button = RefreshButton(850, 60, win) 
 
     mini_game_area, left, top, right, bottom = create_mini_game_area(win)
     preview_button, preview_text, lock_message = PreviewButton((left + right) // 2, (top + bottom) // 2, win)
     warning = WarningMessage((left + right) // 2, (top + bottom) // 2 + 60, win)
 
-    mini_game_active = False  # Track if the mini-game is active
+    mini_game_active = False  
 
     while True:
-        click = win.checkMouse()  # Non-blocking mouse click check
+        click = win.checkMouse() 
 
         if click:
-            print(f"Mouse clicked at: {click.getX()}, {click.getY()}")  # Debugging
+            print(f"Mouse clicked at: {click.getX()}, {click.getY()}")  
 
-            # Check if preview button is clicked
+            
             if not mini_game_active and preview_button.getP1().x <= click.getX() <= preview_button.getP2().x and \
                     preview_button.getP1().y <= click.getY() <= preview_button.getP2().y:
                 print("Preview button clicked.")
@@ -184,7 +192,7 @@ def create_dashboard():
                 warning.draw(win)
                 mini_game_active = False
 
-            # Check if refresh button is clicked
+            
             if (850 - 25) <= click.getX() <= (850 + 25) and (60 - 25) <= click.getY() <= (60 + 25):
                 print("Refresh button clicked.")
                 facts = GetRandomFacts(3)
