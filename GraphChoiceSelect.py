@@ -123,7 +123,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset):
     down_arrow.setFill("white")
     down_arrow.draw(win)
 
-    bg_image = Image(Point(400, 300), "pic.png")
+    bg_image = Image(Point(400, 300), "images/pic.png")
     bg_image.draw(win)
 
     title = Text(Point(400, 30), f"Select a Variable for {selected}")
