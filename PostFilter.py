@@ -2,8 +2,10 @@
 
 from graphics import *
 from Globals import create_button, is_click_in_rectangle, create_label
+from GraphChoiceSelect import main as GraphChoiceSelect_main
+from filter import df 
 
-def GraphOptions():
+def GraphOptions(df):
     """
     A window with two buttons: 'Variable to Graph' and 'Graph to Variable'.
     """
@@ -28,8 +30,9 @@ def GraphOptions():
             return "Variable to Graph"
 
         if is_click_in_rectangle(click, button2):
+            #graph to variable
             win.close()
-            return "Graph to Variable"
+            GraphChoiceSelect_main(df)
 
 if __name__ == "__main__":
     selected_option = GraphOptions()

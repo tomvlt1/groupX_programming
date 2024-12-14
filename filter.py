@@ -479,7 +479,7 @@ def main():
     # Once the user finishes the 2-page filter UI, we then call PostFilter.py
 
     from PostFilter import GraphOptions   # Import here to avoid circular references
-    selected_option = GraphOptions()       # This will open the "Variable to Graph" / "Graph to Variable" window
+    selected_option = GraphOptions(final_df)       # This will open the "Variable to Graph" / "Graph to Variable" window
 
     print("User selected option:", selected_option)
     return final_df, selected_option
