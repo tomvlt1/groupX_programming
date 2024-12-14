@@ -1,5 +1,5 @@
 from graphics import *
-from Globals import is_click_in_rectangle, create_label, create_button
+from Globals import is_click_in_rectangle, create_label
 from DataFunctions import openconnection
 import pandas as pd
 
@@ -11,8 +11,7 @@ def get_headers():
         cursor = conn.cursor()
         cursor.execute("SHOW COLUMNS FROM `DataDetail`")
         headers = [row[0] for row in cursor.fetchall()]
-        # Exclude the first column if you don’t need it:
-        return headers[1:]
+        return headers[1:]  # Exclude first column if you don't need it
     except Exception as e:
         print(f"Error fetching headers: {e}")
         return []
@@ -65,28 +64,46 @@ def get_unique_values(column_name):
             conn.close()
 
 def get_operators_for_column(column_name):
+    """
+    Removed 'LIKE' operator as requested. Only basic operators remain.
+    """
     datatype = get_column_datatype(column_name)
     if datatype == "numerical":
         return ["=", ">", "<", ">=", "<="]
-    elif datatype == "text":
-        return ["=", "LIKE"]
     else:
-        return ["="]
+        return ["="]  # For text columns, only '='
+
+def create_button(win, p1, p2, label, fill_color="gray", text_color="black", text_size=12):
+    rect = Rectangle(p1, p2)
+    rect.setFill(fill_color)
+    rect.setOutline(fill_color)
+    rect.draw(win)
+
+    txt = Text(rect.getCenter(), label)
+    txt.setSize(text_size)
+    txt.setTextColor(text_color)
+    txt.draw(win)
+    return rect, txt
 
 def create_scrollable_dropdown(win, label, options, position, width=15, visible_count=10):
-    label_position = Point(position.getX() - (width * 8), position.getY())
+    dropdown_label_color = "white"
+    label_position = Point(position.getX() - (width * 7), position.getY())
     create_label(win, label, label_position, size=12)
 
+    dropdown_bg_color = color_rgb(255, 255, 255) 
+    dropdown_outline_color = "black"
+
     dropdown = Rectangle(
-        Point(position.getX() - width * 5, position.getY() - 10),
-        Point(position.getX() + width * 5, position.getY() + 10)
+        Point(position.getX() - width*5, position.getY() - 10),
+        Point(position.getX() + width*5, position.getY() + 10)
     )
-    dropdown.setOutline("black")
-    dropdown.setFill("white")
+    dropdown.setOutline(dropdown_outline_color)
+    dropdown.setFill(dropdown_bg_color)
     dropdown.draw(win)
 
     selected_text = Text(dropdown.getCenter(), "Select...")
     selected_text.setSize(10)
+    selected_text.setTextColor("black")
     selected_text.draw(win)
 
     while True:
@@ -95,11 +112,10 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
             dropdown_options = []
             visible_options = options[:visible_count]
 
-            # Draw visible options
             for i, option in enumerate(visible_options):
                 option_rect = Rectangle(
                     Point(dropdown.getP1().getX(), dropdown.getP2().getY() + i * 20),
-                    Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (i + 1) * 20)
+                    Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (i+1)*20)
                 )
                 option_rect.setFill("white")
                 option_rect.setOutline("black")
@@ -107,12 +123,12 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
 
                 option_text = Text(option_rect.getCenter(), str(option))
                 option_text.setSize(10)
+                option_text.setTextColor("black")
                 option_text.draw(win)
 
                 dropdown_options.append((option_rect, option_text, option))
 
-            # Draw navigation buttons if needed
-            up_button, down_button = None, None
+            up_button = down_button = up_text = down_text = None
             if len(options) > visible_count:
                 up_button = Rectangle(
                     Point(dropdown.getP1().getX(), dropdown.getP2().getY() - 20),
@@ -123,24 +139,24 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
                 up_button.draw(win)
                 up_text = Text(up_button.getCenter(), "▲")
                 up_text.setSize(10)
+                up_text.setTextColor("black")
                 up_text.draw(win)
 
                 down_button = Rectangle(
                     Point(dropdown.getP1().getX(), dropdown.getP2().getY() + visible_count * 20),
-                    Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (visible_count + 1) * 20)
+                    Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (visible_count+1)*20)
                 )
                 down_button.setFill("#D3D3D3")
                 down_button.setOutline("black")
                 down_button.draw(win)
                 down_text = Text(down_button.getCenter(), "▼")
                 down_text.setSize(10)
+                down_text.setTextColor("black")
                 down_text.draw(win)
 
             start_index = 0
             while True:
                 option_click = win.getMouse()
-
-                # Handle up/down clicks
                 if up_button and is_click_in_rectangle(option_click, up_button) and start_index > 0:
                     start_index -= visible_count
                 elif (down_button 
@@ -148,28 +164,29 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
                       and start_index + visible_count < len(options)):
                     start_index += visible_count
 
-                # Clear old items
-                for rect, text, _ in dropdown_options:
+                for rect, t, _ in dropdown_options:
                     rect.undraw()
-                    text.undraw()
+                    t.undraw()
                 dropdown_options.clear()
 
-                visible_options = options[start_index:start_index + visible_count]
-                for i, option in enumerate(visible_options):
+                visible_options = options[start_index:start_index+visible_count]
+                for i, opt in enumerate(visible_options):
                     option_rect = Rectangle(
                         Point(dropdown.getP1().getX(), dropdown.getP2().getY() + i * 20),
-                        Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (i + 1) * 20)
+                        Point(dropdown.getP2().getX(), dropdown.getP2().getY() + (i+1)*20)
                     )
                     option_rect.setFill("white")
                     option_rect.setOutline("black")
                     option_rect.draw(win)
-                    option_text = Text(option_rect.getCenter(), str(option))
-                    option_text.setSize(10)
-                    option_text.draw(win)
-                    dropdown_options.append((option_rect, option_text, option))
 
-                # Check if user clicked an option
-                for rect, text, opt in dropdown_options:
+                    option_text = Text(option_rect.getCenter(), str(opt))
+                    option_text.setSize(10)
+                    option_text.setTextColor("black")
+                    option_text.draw(win)
+
+                    dropdown_options.append((option_rect, option_text, opt))
+
+                for rect, text_obj, val_opt in dropdown_options:
                     if is_click_in_rectangle(option_click, rect):
                         for r, t, _ in dropdown_options:
                             r.undraw()
@@ -180,8 +197,8 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
                         if down_button:
                             down_button.undraw()
                             down_text.undraw()
-                        selected_text.setText(str(opt))
-                        return opt
+                        selected_text.setText(str(val_opt))
+                        return val_opt
 
 def filter_data_from_db(filters=None, columns=None):
     conn = None
@@ -190,13 +207,13 @@ def filter_data_from_db(filters=None, columns=None):
         conn = openconnection()
         cursor = conn.cursor()
 
-        if columns:
-            column_str = ", ".join(f"`{col}`" for col in columns)
-        else:
+        # If no columns selected, select all
+        if not columns or len(columns) == 0:
             column_str = "*"
+        else:
+            column_str = ", ".join(f"`{col}`" for col in columns)
 
         query = f"SELECT {column_str} FROM `DataDetail`"
-
         if filters:
             conditions = []
             for (col, op, val) in filters:
@@ -207,174 +224,259 @@ def filter_data_from_db(filters=None, columns=None):
         results = cursor.fetchall()
         column_names = [desc[0] for desc in cursor.description]
         return pd.DataFrame(results, columns=column_names)
-
     except Exception as e:
         print(f"Error occurred: {e}")
         return pd.DataFrame()
-
     finally:
         if cursor:
             cursor.close()
         if conn:
             conn.close()
 
-def build_filter_ui():
-    win = GraphWin("Filter Data", 1100, 800)
-    win.setBackground("#FFFFFF")
+def build_filters_page(win):
+    title = Text(Point(450, 40), "Add Filters (Football Theme)")
+    title.setSize(16)
+    title.setTextColor("white")
+    title.setStyle("bold")
+    title.draw(win)
 
-    # Left sidebar
-    sidebar = Rectangle(Point(0, 0), Point(200, 800))
-    sidebar.setFill("#2E8B57")
-    sidebar.draw(win)
-
-    # Left-side buttons: Back and Submit Data
-    back_button, back_txt = create_button(win, Point(20, 20), Point(180, 60), "Back", "#1E2A39", "white")
-    submit_button, submit_txt = create_button(win, Point(20, 80), Point(180, 120), "Submit Data", "#1E2A39", "white")
-
-    create_label(win, "Data Filtering Tool", Point(600, 50), size=20, style="bold")
+    instructions = Text(Point(450, 70), "Add as many filters as you want, then click Next Step.\nThis will get you to the column selection page.")
+    instructions.setSize(12)
+    instructions.setTextColor("white")
+    instructions.draw(win)
 
     available_columns = get_headers()
-
-    # Lists to keep track of columns to display and filters
-    selected_display_columns = []
     applied_filters = []
 
-    # Text objects to show user selections
-    displayed_columns_text = Text(Point(600, 120), "No columns selected.")
-    displayed_filters_text = Text(Point(600, 160), "No filters applied.")
-    displayed_columns_text.setSize(12)
-    displayed_filters_text.setSize(12)
-    displayed_columns_text.draw(win)
-    displayed_filters_text.draw(win)
+    filters_display = Text(Point(450, 280), "No filters yet.")
+    filters_display.setSize(12)
+    filters_display.setTextColor("white")
+    filters_display.draw(win)
 
-    # Filter inputs (main area)
-    col_label = Text(Point(600, 250), "Filter Column:")
-    op_label  = Text(Point(600, 300), "Operator:")
-    val_label = Text(Point(600, 350), "Value:")
+    col_label = Text(Point(290, 120), "Column:")
+    op_label  = Text(Point(290, 160), "Operator:")
+    val_label = Text(Point(290, 200), "Value:")
     for lbl in (col_label, op_label, val_label):
         lbl.setSize(12)
+        lbl.setTextColor("white")
         lbl.draw(win)
 
-    col_box  = Rectangle(Point(650, 235), Point(950, 265))
-    op_box   = Rectangle(Point(650, 285), Point(950, 315))
-    val_box  = Rectangle(Point(650, 335), Point(950, 365))
+    col_box = Rectangle(Point(340, 105), Point(520, 135))
+    op_box  = Rectangle(Point(340, 145), Point(520, 175))
+    val_box = Rectangle(Point(340, 185), Point(520, 215))
     for box in (col_box, op_box, val_box):
-        box.setOutline("black")
         box.setFill("white")
+        box.setOutline("white")
         box.draw(win)
 
-    col_text = Text(Point(800, 250), "Select column")
-    op_text  = Text(Point(800, 300), "Select operator")
-    val_text = Text(Point(800, 350), "Select value")
-    for t in (col_text, op_text, val_text):
-        t.setSize(10)
-        t.draw(win)
+    col_text = Text(Point(430, 120), "Select column")
+    col_text.setSize(10)
+    col_text.setTextColor("black")
+    col_text.draw(win)
 
-    # Add Filter button (placed near the filter boxes)
-    add_filter_button, add_filter_txt = create_button(
-        win, Point(980, 290), Point(1080, 330), "Add Filter", "#1E2A39", "white"
+    op_text = Text(Point(430, 160), "Select operator")
+    op_text.setSize(10)
+    op_text.setTextColor("black")
+    op_text.draw(win)
+
+    val_text = Text(Point(430, 200), "Select value")
+    val_text.setSize(10)
+    val_text.setTextColor("black")
+    val_text.draw(win)
+
+    selected_col = None
+    selected_op  = None
+    selected_val = None
+
+    add_filter_btn, add_filter_txt = create_button(
+        win, Point(540, 105), Point(640, 135), "Add Filter",
+        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
     )
-
-    selected_filter_col = None
-    selected_operator   = None
-    selected_value      = None
-
-    # Column to Display (main area)
-    disp_col_label = Text(Point(600, 450), "Display Column:")
-    disp_col_label.setSize(12)
-    disp_col_label.draw(win)
-
-    disp_col_box = Rectangle(Point(650, 435), Point(950, 465))
-    disp_col_box.setOutline("black")
-    disp_col_box.setFill("white")
-    disp_col_box.draw(win)
-
-    disp_col_text = Text(Point(800, 450), "Select column")
-    disp_col_text.setSize(10)
-    disp_col_text.draw(win)
-
-    # Add Column button (placed near the column box)
-    add_col_button, add_col_txt = create_button(
-        win, Point(980, 435), Point(1080, 475), "Add Column", "#1E2A39", "white"
+    next_step_btn, next_step_txt = create_button(
+        win, Point(540, 145), Point(640, 175), "Next Step",
+        fill_color=color_rgb(0,128,255), text_color="white", text_size=12
     )
-
-    selected_display_col = None
-
-    result_df = pd.DataFrame()
+    clear_filters_btn, clear_filters_txt = create_button(
+        win, Point(540, 185), Point(640, 215), "Clear All",
+        fill_color=color_rgb(200, 128, 0), text_color="white", text_size=12
+    )
 
     while True:
         click = win.getMouse()
+        if click is None:
+            continue
 
-        if is_click_in_rectangle(click, back_button):
-            print("Back clicked.")
-            # If you want to return an empty df or something:
-            win.close()
-            return pd.DataFrame()
+        x, y = click.getX(), click.getY()
 
-        if is_click_in_rectangle(click, submit_button):
-            # Generate final data with chosen columns & filters
-            result_df = filter_data_from_db(filters=applied_filters, columns=selected_display_columns)
-            print("Final Data:")
-            print(result_df)
-            win.close()
-            return result_df
-
-        # If user clicks the filter column box
-        if is_click_in_rectangle(click, col_box):
-            selected_filter_col = create_scrollable_dropdown(win, "Filter Column", available_columns, Point(800, 250))
-            col_text.setText(selected_filter_col if selected_filter_col else "Select column")
-            selected_operator = None
-            selected_value = None
+        if 340 <= x <= 520 and 105 <= y <= 135:
+            selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,120))
+            col_text.setText(selected_col if selected_col else "Select column")
+            selected_op = None
+            selected_val = None
             op_text.setText("Select operator")
             val_text.setText("Select value")
 
-        # If user clicks operator box
-        if is_click_in_rectangle(click, op_box) and selected_filter_col:
-            operators = get_operators_for_column(selected_filter_col)
-            selected_operator = create_scrollable_dropdown(win, "Operator", operators, Point(800, 300))
-            op_text.setText(selected_operator if selected_operator else "Select operator")
-            selected_value = None
+        if 340 <= x <= 520 and 145 <= y <= 175 and selected_col:
+            operators = get_operators_for_column(selected_col)
+            selected_op = create_scrollable_dropdown(win, "", operators, Point(430,160))
+            op_text.setText(selected_op if selected_op else "Select operator")
+            selected_val = None
             val_text.setText("Select value")
 
-        # If user clicks value box
-        if is_click_in_rectangle(click, val_box) and selected_filter_col and selected_operator:
-            unique_values = get_unique_values(selected_filter_col)
-            selected_value = create_scrollable_dropdown(win, "Value", unique_values, Point(800, 350))
-            val_text.setText(str(selected_value) if selected_value else "Select value")
+        if 340 <= x <= 520 and 185 <= y <= 215 and selected_col and selected_op:
+            unique_vals = get_unique_values(selected_col)
+            selected_val = create_scrollable_dropdown(win, "", unique_vals, Point(430,200))
+            val_text.setText(str(selected_val) if selected_val else "Select value")
 
-        # Add Filter clicked
-        if is_click_in_rectangle(click, add_filter_button):
-            if selected_filter_col and selected_operator and (selected_value is not None):
-                applied_filters.append((selected_filter_col, selected_operator, selected_value))
-                filters_str = [f"{col} {op} '{val}'" for (col, op, val) in applied_filters]
-                displayed_filters_text.setText(" AND\n".join(filters_str))
-                # Reset
-                selected_filter_col = None
-                selected_operator   = None
-                selected_value      = None
+        # Add Filter
+        if 540 <= x <= 640 and 105 <= y <= 135:
+            if selected_col and selected_op and selected_val is not None:
+                applied_filters.append((selected_col, selected_op, selected_val))
+                filters_str = [f"{c} {o} '{v}'" for (c, o, v) in applied_filters]
+                filters_display.setText(" AND\n".join(filters_str))
+                selected_col = None
+                selected_op = None
+                selected_val = None
                 col_text.setText("Select column")
                 op_text.setText("Select operator")
                 val_text.setText("Select value")
 
-        # If user clicks the display column box
-        if is_click_in_rectangle(click, disp_col_box):
-            selected_display_col = create_scrollable_dropdown(win, "Display Column", available_columns, Point(800, 450))
-            disp_col_text.setText(selected_display_col if selected_display_col else "Select column")
+        # Next Step
+        if 540 <= x <= 640 and 145 <= y <= 175:
+            return applied_filters
 
-        # Add Column clicked
-        if is_click_in_rectangle(click, add_col_button) and selected_display_col:
-            if selected_display_col not in selected_display_columns:
-                selected_display_columns.append(selected_display_col)
-                displayed_columns_text.setText(", ".join(selected_display_columns))
-            selected_display_col = None
-            disp_col_text.setText("Select column")
+        # Clear All
+        if 540 <= x <= 640 and 185 <= y <= 215:
+            applied_filters.clear()
+            filters_display.setText("No filters yet.")
+            selected_col = None
+            selected_op = None
+            selected_val = None
+            col_text.setText("Select column")
+            op_text.setText("Select operator")
+            val_text.setText("Select value")
+
+def build_columns_page(win, filters):
+    for item in win.items[:]:
+        item.undraw()
+    win.items.clear()
+
+    sidebar_color = color_rgb(31, 27, 58)
+    sidebar = Rectangle(Point(0,0), Point(200,500))
+    sidebar.setFill(sidebar_color)
+    sidebar.setOutline(sidebar_color)
+    sidebar.draw(win)
+
+    title = Text(Point(450, 40), "Select Columns to Display")
+    title.setSize(16)
+    title.setTextColor("white")
+    title.setStyle("bold")
+    title.draw(win)
+
+    instructions = Text(Point(450, 70), "Add columns, then click Submit. \nIf you select no columns, all columns will be displayed.")
+    instructions.setSize(12)
+    instructions.setTextColor("white")
+    instructions.draw(win)
+
+    back_btn, back_txt = create_button(
+        win, Point(20,20), Point(180,60), "Back",
+        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+    )
+    submit_btn, submit_txt = create_button(
+        win, Point(20,80), Point(180,120), "Submit",
+        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+    )
+
+    available_columns = get_headers()
+    selected_columns = []
+    columns_display = Text(Point(450, 280), "No columns selected.")
+    columns_display.setSize(12)
+    columns_display.setTextColor("white")
+    columns_display.draw(win)
+
+    col_label = Text(Point(290, 140), "Display Column:")
+    col_label.setSize(12)
+    col_label.setTextColor("white")
+    col_label.draw(win)
+
+    disp_box = Rectangle(Point(340,125), Point(520,155))
+    disp_box.setFill("white")
+    disp_box.setOutline("white")
+    disp_box.draw(win)
+
+    disp_text = Text(Point(430,140), "Select column")
+    disp_text.setSize(10)
+    disp_text.setTextColor("black")
+    disp_text.draw(win)
+
+    add_col_btn, add_col_txt = create_button(
+        win, Point(540,125), Point(640,155), "Add Column",
+        fill_color=color_rgb(28,195,170), text_color="white", text_size=12
+    )
+
+    selected_col = None
+
+    while True:
+        click = win.getMouse()
+        if click is None:
+            continue
+        x, y = click.getX(), click.getY()
+
+        if 20 <= x <= 180 and 20 <= y <= 60:
+            return None  # back to filters
+
+        if 20 <= x <= 180 and 80 <= y <= 120:
+            # If no columns selected, everything is selected
+            df = filter_data_from_db(filters=filters, columns=selected_columns if selected_columns else None)
+            return df
+
+        if 340 <= x <= 520 and 125 <= y <= 155:
+            selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,140))
+            disp_text.setText(selected_col if selected_col else "Select column")
+
+        if 540 <= x <= 640 and 125 <= y <= 155 and selected_col:
+            if selected_col not in selected_columns:
+                selected_columns.append(selected_col)
+                columns_display.setText(", ".join(selected_columns))
+            selected_col = None
+            disp_text.setText("Select column")
+
+def build_2_page_ui():
+    win = GraphWin("Football Data Filtering", 900, 500)
+    bg_color = color_rgb(44, 40, 85)
+    win.setBackground(bg_color)
+
+    sidebar_color = color_rgb(31, 27, 58)
+    sidebar = Rectangle(Point(0,0), Point(200,500))
+    sidebar.setFill(sidebar_color)
+    sidebar.setOutline(sidebar_color)
+    sidebar.draw(win)
+
+    filters = build_filters_page(win)
+    if filters is None:
+        win.close()
+        return pd.DataFrame()
+
+    while True:
+        df = build_columns_page(win, filters)
+        if df is None:
+            # user clicked back => re-draw filter page
+            for item in win.items[:]:
+                item.undraw()
+            win.items.clear()
+            sidebar = Rectangle(Point(0,0), Point(200,500))
+            sidebar.setFill(sidebar_color)
+            sidebar.setOutline(sidebar_color)
+            sidebar.draw(win)
+            filters = build_filters_page(win)
+        else:
+            win.close()
+            return df
 
 def main():
-    df = build_filter_ui()
-
+    final_df = build_2_page_ui()
     print("\nData returned to main():")
-    print(df)
-    return df
+    print(final_df)
 
 if __name__ == "__main__":
     main()
