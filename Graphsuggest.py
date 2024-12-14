@@ -100,7 +100,7 @@ def StackedBarchart(x, y, filename):
     plt.legend(title=y, bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
     # Save the figure
-    plt.tight_layout()  # To ensure the legend fits without overlapping
+    #plt.tight_layout()  # To ensure the legend fits without overlapping
     plt.savefig(filename)
     plt.close()
 
@@ -278,7 +278,7 @@ def GraphOptions(selected):
     win = GraphWin("Graph Options", 800, 600)
     win.setBackground("darkgreen")
 
-    bg_image = Image(Point(400, 300), "pic.gif")
+    bg_image = Image(Point(400, 300), "images/pic.gif")
     bg_image.draw(win)
 
     title = Text(Point(400, 50), f"Select a Graph for {', '.join(selected)}")

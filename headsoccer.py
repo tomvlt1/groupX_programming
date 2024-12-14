@@ -84,7 +84,7 @@ def run_headsoccer():
     click_start_time = None
     shot_out_of_control = False
     score = 0
-    while score < 5:
+    while score < 3:
         # Detect mouse click for power bar
         mouse_pressed = win.checkMouse()
         if mouse_pressed:
