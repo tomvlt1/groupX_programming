@@ -10,7 +10,8 @@ from FootClick import run_footclick
 from headsoccer import run_headsoccer
 #from visualize import run_visualize  # Import the visualize function
 import time
-from FileSelect import file_selector  # Import the file_selector function
+from FileSelect import file_selector
+from filter import main as filtermain # Import the file_selector function
 
 
 def create_window():
@@ -151,12 +152,6 @@ def create_mini_game_area(win):
 
     return mini_game_area, mini_game_left, mini_game_top, mini_game_right, mini_game_bottom
 
-def select_file():
-    # If you want an actual file dialog, you'd handle that with tkinter or similar.
-    # For now, placeholders:
-    file_path = "files/file_to_import.csv"
-    return file_path
-
 def create_dashboard():
     win = create_window()
     if not win:
@@ -225,18 +220,26 @@ def create_dashboard():
             # Visualize button
 
             # Profile button
-            elif is_click_in_rectangle(click, buttons.get("Select Dataset")):
-                # Use FileSelect.py's file_selector function
-                selected_file = file_selector("target_folder")
+            if is_click_in_rectangle(click, buttons.get("Visualize Data")):
+                # Instead of run_visualize(), call build_filter_ui()
+                result_df = filtermain()  # or build_filter_ui() can also return a df
+                if result_df is not None:
+                    print("Filtered DataFrame:", result_df)
+                # Possibly do something else with result_df
 
-            # FootClick Game button
+            # Import Dataset
+            elif is_click_in_rectangle(click, buttons.get("Import Dataset")):
+                userId = getIDUser()
+                if userId:
+                    # your import logic
+                    pass
+
+            # Other button logic...
             elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
                 run_footclick()
-
-            # HeadSoccer Game button
             elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
                 run_headsoccer()
-
+       
             # Visualize Data button
             
 

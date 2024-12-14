@@ -450,14 +450,17 @@ def build_2_page_ui():
     sidebar.setOutline(sidebar_color)
     sidebar.draw(win)
 
+    # Page 1: Filters
     filters = build_filters_page(win)
     if filters is None:
         win.close()
         return pd.DataFrame()
 
+    # Page 2: Columns
     while True:
         df = build_columns_page(win, filters)
         if df is None:
+            # user clicked back => re-draw filter page
             for item in win.items[:]:
                 item.undraw()
             win.items.clear()
@@ -467,14 +470,22 @@ def build_2_page_ui():
             sidebar.draw(win)
             filters = build_filters_page(win)
         else:
+            # We got final dataframe or user closed
             win.close()
             return df
 
 def main():
     final_df = build_2_page_ui()
-    #print("\nData returned to main():")
-    #print(final_df)
-    return final_df
+    # Once the user finishes the 2-page filter UI, we then call PostFilter.py
+
+    from PostFilter import GraphOptions   # Import here to avoid circular references
+    selected_option = GraphOptions()       # This will open the "Variable to Graph" / "Graph to Variable" window
+
+    print("User selected option:", selected_option)
+    return final_df, selected_option
 
 if __name__ == "__main__":
-    main()
+    final_df, selected_option = main()
+    print("\nData returned to main():")
+    print(final_df)
+    print(f"Post-Filter Option: {selected_option}")
