@@ -1,21 +1,25 @@
-from graphics import GraphWin,Point, Text
-from graphics import *
+from graphics import GraphWin,Point, Text,Rectangle, Polygon, Image,Line
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import pandas as pd
-from load_data import data
+from DataFunctions import select_datadetail_User
+from Globals import *
 
-data = data.dropna()
+
+
+
 
 def IsNumerical(column):
+    data =select_datadetail_User()
     return data[column].dtype in ['int64', 'float64']
 
 
 def IsCategorical(column):
+    data =select_datadetail_User()
     return data[column].dtype == 'object' or pd.api.types.is_categorical_dtype(data[column])
 
 def Histogram(column, filename):
+    data =select_datadetail_User()
     plt.figure()
     plt.hist(data[column], bins=10, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.title(f'Histogram of {column}', color='white')
@@ -26,6 +30,7 @@ def Histogram(column, filename):
 
 
 def Boxplot(column, filename):
+    data =select_datadetail_User()
     plt.figure()
     data.boxplot(column=column, patch_artist=True, sym="ro", boxprops=dict(facecolor='#006400', color='black'))  # Dark Green
     plt.title(f'Box Plot of {column}', color='white')
@@ -34,6 +39,7 @@ def Boxplot(column, filename):
 
 
 def Barchart(column, filename):
+    data =select_datadetail_User()
     plt.figure()
     counts = data[column].value_counts()
     plt.bar(counts.index, counts.values, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
@@ -45,6 +51,7 @@ def Barchart(column, filename):
 
 
 def Piechart(column, filename):
+    data =select_datadetail_User()
     plt.figure()
     counts = data[column].value_counts()
     num_colors = len(counts)
@@ -58,6 +65,7 @@ def Piechart(column, filename):
 
 
 def ScatterPlot(x, y, filename):
+    data =select_datadetail_User()
     plt.figure()
     plt.scatter(data[x], data[y], color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.title(f'Scatter Plot: {x} vs {y}', color='white')
@@ -68,6 +76,7 @@ def ScatterPlot(x, y, filename):
 
 
 def LineChart(x, y, filename):
+    data =select_datadetail_User()
     plt.figure()
     plt.plot(data[x], data[y], color='#006400', alpha=0.7)  # Dark Green
     plt.title(f'Line Chart: {x} vs {y}', color='white')
@@ -78,6 +87,7 @@ def LineChart(x, y, filename):
 
 
 def StackedBarChart(x, y, filename):
+    data =select_datadetail_User()
     plt.figure()
     cross_tab = pd.crosstab(data[x], data[y])
     cross_tab.plot(kind='bar', stacked=True, colormap='Greens')  # Darker green shades are used here
@@ -87,6 +97,7 @@ def StackedBarChart(x, y, filename):
 
 
 def Heatmap(x, y, filename):
+    data =select_datadetail_User()
     pivot_table = data.pivot_table(index=x, columns=y, aggfunc='size', fill_value=0)
     plt.figure()
     plt.imshow(pivot_table, cmap='Greens', interpolation='nearest')  # Darker green shades for the heatmap
@@ -94,11 +105,9 @@ def Heatmap(x, y, filename):
     plt.title(f'Heatmap: {x} vs {y}', color='white')
     plt.savefig(filename)
     plt.close()
-
-
-
-
+    
 def HeatmapWithTwoNumericals(cat_var, numvar1, numvar2, filename, data, agg_func='mean'):
+    data =select_datadetail_User()
     try:
         if not pd.api.types.is_numeric_dtype(data[numvar2]):
             print(f"Column '{numvar2}' is not numeric. Attempting to convert...")
@@ -124,10 +133,8 @@ def HeatmapWithTwoNumericals(cat_var, numvar1, numvar2, filename, data, agg_func
         print(f"Error: {e}")
 
 
-
-
-
-def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
+def ThreeDScatterplot(numvar1, numvar2, numvar3, filename):
+    data =select_datadetail_User()
     try:
         # Extract data
         x = data[numvar1]
@@ -171,6 +178,7 @@ def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
 
 
 def VariableSelection():
+    data =select_datadetail_User()
     win = GraphWin("Variable Selector", 800, 600)
     title = Text(Point(400, 40), "Select Variables (Up to 3)")
     title.setSize(20)
@@ -206,8 +214,9 @@ def VariableSelection():
         text = Text(rect.getCenter(), "")  # Placeholder text
         text.setSize(12)  # Adjust font size as needed
         texts.append(text)
-
-    def draw_visible():
+    
+    def draw_visible(data):
+       
         """Draw exactly 6 variables based on the scroll offset."""
         # Undraw all current items
         for rect in rectangles:
@@ -218,23 +227,22 @@ def VariableSelection():
         # Determine which variables to display
         start = scroll_offset * visible_count
         end = start + visible_count
+        if not data.empty:
+            for i in range(start, min(end, len(data.columns))):
+                index = i - start
+                rect = rectangles[index]
+                text = texts[index]
 
-        for i in range(start, min(end, len(data.columns))):
-            index = i - start
-            rect = rectangles[index]
-            text = texts[index]
+                # Update rectangle color based on selection
+                rect.setFill("lightgreen" if data.columns[i] in selected else "lightgrey")
 
-            # Update rectangle color based on selection
-            rect.setFill("lightgreen" if data.columns[i] in selected else "lightgrey")
+                # Update text to match variable name
+                text.setText(data.columns[i])              
+                # Draw the updated rectangle and text
+                rect.draw(win)
+                text.draw(win)
 
-            # Update text to match variable name
-            text.setText(data.columns[i])
-
-            # Draw the updated rectangle and text
-            rect.draw(win)
-            text.draw(win)
-
-    draw_visible()
+    draw_visible(data)
 
     # Submit button positioned at the bottom center
     submit_btn = Rectangle(Point(300, 520), Point(500, 570))  # Adjusted for bottom
@@ -247,20 +255,21 @@ def VariableSelection():
     while True:
         click = win.getMouse()
 
-        if 300 < click.x < 500 and 520 < click.y < 570:  # Submit button clicked
+        if  is_click_in_rectangle(click,submit_btn): 
             break
 
         # Check for clicks on the up arrow (right side)
-        if 710 < click.x < 770 and 160 < click.y < 200:  # Up arrow clicked
+        elif 710 < click.x < 770 and 160 < click.y < 200:  # Up arrow clicked
             if scroll_offset > 0:
                 scroll_offset -= 1
-                draw_visible()
+                draw_visible(data)
 
         # Check for clicks on the down arrow (right side)
-        if 710 < click.x < 770 and 410 < click.y < 440:  # Down arrow clicked
+        elif 710 < click.x < 770 and 410 < click.y < 440:  # Down arrow clicked
             if (scroll_offset + 1) * visible_count < len(data.columns):
                 scroll_offset += 1
-                draw_visible()
+                draw_visible(data)
+
 
         # Check for clicks on visible rectangles
         start = scroll_offset * visible_count
@@ -288,7 +297,7 @@ def VariableSelection():
 def GraphOptions(selected):
     win = GraphWin("Graph Options", 800, 600)
 
-    bg_image = Image(Point(400, 300), "pic.gif")
+    bg_image = Image(Point(400, 300), "images/pic.gif")
     bg_image.draw(win)
 
     title = Text(Point(400, 30), f"Select a Graph for {', '.join(selected)}")
@@ -448,4 +457,4 @@ def Graphsuggest_main():
                     continue  # User clicked back in the graph viewer, return to graph options
                 else:
                     break
-main()
+
