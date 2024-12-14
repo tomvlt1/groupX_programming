@@ -12,10 +12,10 @@ def ClearWindow(win):
 # (which will help make user experience better) so the users just have to drop the file in the directory.
 # we will be using the os module, the input will be a directory, and the output will be a list of files in the directory.
 # we also only want to keep the files that are relevant to the user.
-# We will only keep the files that end with .sql, .txt or .csv as these are the only files that work in my SQL server.
+# We will only keep the files that end with .txt or .csv as these are the only files that work in my SQL server and that we have worked.
 def ListFiles(directory):
     all_files = os.listdir(directory)
-    return [f for f in all_files if f.endswith(('.sql', '.txt', '.csv'))]
+    return [f for f in all_files if f.endswith(( '.txt', '.csv'))]
 
 
 # Once the files are found, we will display them in the window.
@@ -28,6 +28,7 @@ def ListFiles(directory):
 #we are placing these boxses, just like the title, in the center of the window
 # we also want to place
 def DrawFileSelector(win, files):
+    
     ClearWindow(win)
     title = Text(Point(win.getWidth() / 2, 20), "Select a File")
     title.setSize(16)
