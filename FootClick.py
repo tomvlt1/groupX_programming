@@ -81,11 +81,7 @@ def display_average_time(avg_time, win):
     time_label.draw(win)
 
 def run_footclick():
-    try:
-        getQuantity = int(input("How many footballs do you want to click? "))
-    except ValueError:
-        print("Invalid input. Please enter an integer.")
-        return
+
 
     win = GraphWin("Football Click Game ⚽", 500, 500)
     draw_football_net(win)  # Draw the football net background
@@ -95,7 +91,7 @@ def run_footclick():
     football, patches = make_football(win)
     start = time.time()
 
-    while count < getQuantity:
+    while count < 5:
         pt = win.checkMouse()
         if pt:
             if is_click(football, pt):

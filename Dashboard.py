@@ -1,4 +1,5 @@
 # Dashboard.py
+
 from graphics import *
 from Globals import *
 from DataFunctions import *
@@ -7,7 +8,7 @@ from Graphsuggest import Graphsuggest_main
 from GetRandomStats import GetRandomFacts, GetColumnNames
 from FootClick import run_footclick
 from headsoccer import run_headsoccer
-#from graph_1 import run_graph_1
+#from visualize import run_visualize  # Import the visualize function
 import time
 
 def create_window():
@@ -32,41 +33,39 @@ def create_sidebar(win):
     p1 = Point(20, 90)
     p2 = Point(180, 130)
 
-    buttons = []
+    buttons = {}
 
     # Existing buttons
     new_button, new_buttontxt = create_button(win, p1, p2, "New Match", color_rgb(28, 195, 170), "white", size=12)
-    buttons.append(new_button)
+    buttons["New Match"] = new_button
 
     back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png",
                                            size=(20, 20), vout=color_rgb(28, 195, 170))
-    buttons.append(back_button)
+    buttons["Back"] = back_button
 
     y_offset = 90
     p1 = Point(p1.getX(), p1.getY() + y_offset)
     p2 = Point(p2.getX(), p2.getY() + y_offset)
     button_titles = [("Import Dataset", "btoImport"),
-                     ("Choose Dataset", "btoChoose"),
-                     ("Visualize",      "btoVisualize"),
-                     ("Profile",        "btoProfile")]
+                     ("Choose Dataset", "btoChoose")]
 
     for btnlabel, btnid in button_titles:
         btn, txt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
+        buttons[btnlabel] = btn
         y_offset = 50
         p1 = Point(p1.getX(), p1.getY() + y_offset)
         p2 = Point(p2.getX(), p2.getY() + y_offset)
-        buttons.append(btn)
 
     # Now add the new three buttons
     extra_titles = [("FootClick Game", "footclick"),
                     ("HeadSoccer Game", "headsoccer"),
-                    ("Graph_1", "graph1")]
+                    ("Visualize Data", "visualize")]  # Renamed for clarity
     for btnlabel, btnid in extra_titles:
         btn, txt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
+        buttons[btnlabel] = btn
         y_offset = 50
         p1 = Point(p1.getX(), p1.getY() + y_offset)
         p2 = Point(p2.getX(), p2.getY() + y_offset)
-        buttons.append(btn)
 
     return buttons
 
@@ -163,7 +162,7 @@ def create_dashboard():
     if not win:
         return
 
-    buttons = create_sidebar(win)
+    buttons = create_sidebar(win)  # Now returns a dictionary
     overview_boxes = create_overview_section(win)
     refresh_button = RefreshButton(850, 60, win)
 
@@ -198,7 +197,7 @@ def create_dashboard():
                 update_overview_section(win, overview_boxes, new_facts)
 
             # Import dataset
-            elif is_click_in_rectangle(click, buttons[2]):
+            elif is_click_in_rectangle(click, buttons.get("Import Dataset")):
                 userId = getIDUser()
                 if userId:
                     vectorobjects = show_import_message(win, Point(520, 70))
@@ -231,34 +230,31 @@ def create_dashboard():
                                 break
 
             # Visualize button
-            elif is_click_in_rectangle(click, buttons[4]):
-                userId = getIDUser()
-                if userId:
-                    statistics(userId)
+            #elif is_click_in_rectangle(click, buttons.get("Visualize")):
+             #   userId = getIDUser()
+             #   if userId:
+             #       statistics(userId)
 
             # Profile button
-            elif is_click_in_rectangle(click, buttons[5]):
-                userId = getIDUser()
-                if userId:
-                    AccountGUI(userId)
+            #elif is_click_in_rectangle(click, buttons.get("Profile")):
+             #   userId = getIDUser()
+             #   if userId:
+                    #AccountGUI(userId)
 
-            # New Match, Import Dataset, etc., can be handled here as needed
-            # Additional buttons: FootClick Game, HeadSoccer Game, Graph_1
-            elif is_click_in_rectangle(click, buttons[6]):
-                # FootClick Game button clicked
+            # FootClick Game button
+            elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
                 run_footclick()
 
-            elif is_click_in_rectangle(click, buttons[7]):
-                # HeadSoccer Game button clicked
+            # HeadSoccer Game button
+            elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
                 run_headsoccer()
 
-            elif is_click_in_rectangle(click, buttons[8]):
-                # Graph_1 button clicked
-                run_graph_1()
+            # Visualize Data button
+            elif is_click_in_rectangle(click, buttons.get("Visualize Data")):
+                run_visualize()
 
-            elif is_click_in_rectangle(click, buttons[1]):
-                # Back button clicked
-                LoginGUI()
+            # Back button
+            
 
         time.sleep(0.05)
 
