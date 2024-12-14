@@ -398,7 +398,7 @@ def DisplayGraph(filename, title_text):
     return False
 
 
-def main():
+def Graphsuggest_main():
     while True:
         selected_variables = VariableSelection()
 
