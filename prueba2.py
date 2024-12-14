@@ -2,11 +2,16 @@ from graphics import *
 from Globals import *
 from DataFunctions import *
 from graph_1 import *
+
 from FootGameHome import FootGameHomeMain
-from Graphsuggest import Graphsuggest_main
+from Graphsuggest import *
 import time
 
 
+
+#********FUNCTIONS********
+
+  
 def login_user(input1,input2):
     username = input1.getText()  # Get the username from the input field
     password = input2.getText()  # Get the password directly from the input field   
@@ -19,6 +24,8 @@ def login_user(input1,input2):
     else:
         messages(vmessage)
         LoginGUI()
+        
+
 
 def RegisterGUI():
     oldwin=getCurrentWindow()   
@@ -297,6 +304,8 @@ def display_year_selection(win, years):
                 close_text.undraw()
                 return year  # Return the selected year
 
+
+# Function to display teams for selection (without pagination)
 def display_team_selection(win, teams):
     # Label for selecting a team
     team_label = create_label(win, "Select Team:", Point(620, 100), 16, "#1E2A39", "bold")
@@ -655,6 +664,56 @@ def create_dashboard():
     win.close()
     
 
+def Graphsuggest_main():
+    while True:
+        selected_variables = VariableSelection()
+
+        if selected_variables:
+            while True:  # Add an inner loop for navigation between variable and graph selection
+                selected_graph, selected_variables = GraphOptions(selected_variables)
+
+                if selected_graph is None:  # Back arrow clicked
+                    break  # Go back to the variable selection screen
+
+                # Generate and display the selected graph
+                if selected_graph == "Histogram":
+                    Histogram(selected_variables[0], "graph.png")
+                    title_text = f"Histogram of {selected_variables[0]}"
+                elif selected_graph == "Boxplot":
+                    Boxplot(selected_variables[0], "graph.png")
+                    title_text = f"Box Plot of {selected_variables[0]}"
+                elif selected_graph == "Bar Chart":
+                    Barchart(selected_variables[0], "graph.png")
+                    title_text = f"Bar Chart of {selected_variables[0]}"
+                elif selected_graph == "Pie Chart":
+                    Piechart(selected_variables[0], "graph.png")
+                    title_text = f"Pie Chart of {selected_variables[0]}"
+                elif selected_graph == "Scatter Plot":
+                    ScatterPlot(selected_variables[0], selected_variables[1], "graph.png")
+                    title_text = f"Scatter Plot: {selected_variables[0]} vs {selected_variables[1]}"
+                elif selected_graph == "Line Chart":
+                    LineChart(selected_variables[0], selected_variables[1], "graph.png")
+                    title_text = f"Line Chart: {selected_variables[0]} vs {selected_variables[1]}"
+                elif selected_graph == "Stacked Bar Chart":
+                    StackedBarChart(selected_variables[0], selected_variables[1], "graph.png")
+                    title_text = f"Stacked Bar Chart: {selected_variables[0]} vs {selected_variables[1]}"
+                elif selected_graph == "Heatmap":
+                    Heatmap(selected_variables[0], selected_variables[1], "graph.png")
+                    title_text = f"Heatmap: {selected_variables[0]} vs {selected_variables[1]}"
+                elif selected_graph == "3D Scatterplot":
+                    ThreeDScatterplot(selected_variables[0], selected_variables[1],selected_variables[2],"graph.png",data=data)
+                    title_text = f"3D Scatter Plot for {selected_variables[0]} vs {selected_variables[1]} vs {selected_variables[2]} "
+                elif selected_graph == "Heatmap With Two Numericals":
+                    HeatmapWithTwoNumericals(selected_variables[0], selected_variables[1], selected_variables[2], "graph.png", data=data, agg_func='mean')
+                    title_text = f"Heatmap: {selected_variables[0]} vs {selected_variables[1]} vs {selected_variables[2]}"
+
+                else:
+                    print("Graph type not implemented!")
+
+                if DisplayGraph("graph.png", title_text):
+                    continue  # User clicked back in the graph viewer, return to graph options
+                else:
+                    break
 
 
 def select_file():
