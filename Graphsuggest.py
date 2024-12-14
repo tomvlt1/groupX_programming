@@ -361,25 +361,32 @@ def DisplayGraph(filename, title_text):
     title.setStyle("bold")
     title.draw(win)
 
-    graph_image = Image(Point(400, 300), filename)
-    graph_image.draw(win)
+    try:
+        # Load and display the image (ensure the graph file exists)
+        graph_image = Image(Point(400, 300), filename)
+        graph_image.draw(win)
+    except Exception as e:
+        print(f"Error displaying graph: {e}")
+        return False
 
-    back_arrow = Line(Point(50, 50), Point(100, 50))  # Starting at (50, 50) to (100, 50)
-    back_arrow.setArrow('first')  # Arrow facing left
-    back_arrow.setWidth(3)
-    back_arrow.setFill("white")
-    back_arrow.draw(win)
+    # Add a close button
+    close_button = Rectangle(Point(350, 550), Point(450, 590))
+    close_button.setFill("lightgreen")
+    close_button.draw(win)
+
+    close_text = Text(close_button.getCenter(), "Close")
+    close_text.setTextColor("darkgreen")
+    close_text.setStyle("bold")
+    close_text.draw(win)
 
     while True:
         click = win.getMouse()
-        if 700 < click.x < 800 and 550 < click.y < 600:  # Close button region
+        if close_button.getP1().x <= click.x <= close_button.getP2().x and \
+           close_button.getP1().y <= click.y <= close_button.getP2().y:
             break
-        if 50 < click.x < 100 and 40 < click.y < 60:  # Back arrow region
-            win.close()
-            return True  # Indicating that the user wants to go back
+
     win.close()
     return False
-
 
 def main():
     while True:
