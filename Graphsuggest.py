@@ -14,7 +14,7 @@ from matplotlib.colors import ListedColormap
 
 
 try:
-    data = pd.read_csv('laliga.csv')  # Replace with the actual path to your dataset
+    data = pd.read_csv('temp_data.csv')  
     print("Dataset loaded successfully!")
 except FileNotFoundError:
     print("Error: Dataset file not found. Please check the file path.")
