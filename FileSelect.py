@@ -1,3 +1,5 @@
+# FileSelect.py
+
 from Globals import (
     create_button,
     create_label,
@@ -8,19 +10,15 @@ from Globals import (
 import os
 from graphics import GraphWin, Point
 
-# Simplified file selector
 def list_files(directory, extensions=(".txt", ".csv")):
-    """List files in a directory with specific extensions."""
     return [f for f in os.listdir(directory) if f.endswith(extensions)]
 
 def clear_window(win):
-    """Clears all elements from the window."""
     for item in win.items[:]:
         item.undraw()
     win.update()
 
 def draw_file_selector(win, files):
-    """Draws the file selector interface in the window."""
     clear_window(win)
     create_label(win, "Select a File", Point(win.getWidth() / 2, 20), size=16, style="bold")
     
@@ -42,7 +40,10 @@ def draw_file_selector(win, files):
     return buttons
 
 def file_selector(folder_name, win_width=screen_width, win_height=screen_height):
-    """Creates a file selection interface."""
+    """
+    Opens a separate window to let the user select a file from `folder_name`.
+    Returns the full path to the selected file, or raises FileNotFoundError if folder/files are missing.
+    """
     win = GraphWin("File Selector", win_width, win_height)
     win.setBackground("dark green")
     
@@ -61,14 +62,3 @@ def file_selector(folder_name, win_width=screen_width, win_height=screen_height)
             if is_click_in_rectangle(click, rect):
                 win.close()
                 return os.path.join(target_dir, file)
-
-# Main function
-def main():
-    try:
-        selected_file = file_selector("target_folder")
-        print(f"Selected file: {selected_file}")
-    except FileNotFoundError as e:
-        print(e)
-
-if __name__ == "__main__":
-    main()

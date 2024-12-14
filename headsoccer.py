@@ -83,8 +83,8 @@ def run_headsoccer():
     powering = False
     click_start_time = None
     shot_out_of_control = False
-
-    while True:
+    score = 0
+    while score < 5:
         # Detect mouse click for power bar
         mouse_pressed = win.checkMouse()
         if mouse_pressed:
@@ -119,6 +119,7 @@ def run_headsoccer():
                     if goalie_x1 <= ball_x <= goalie_x2 and 60 <= ball_y <= 150:
                         print("Goalkeeper saved it!")
                     else:
+                        score += 1
                         print("GOAL!!!")
                 else:
                     print("Missed! The shot was outside the goal area.")
