@@ -1,4 +1,4 @@
-from LoginNew import LoginGUI
+from Login import LoginGUI
 from Dashboard import create_dashboard
 
 def main():

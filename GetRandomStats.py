@@ -2,7 +2,6 @@ import mysql.connector
 import random
 import time
 
-# Database configuration
 db_config = {
     "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
     "user": "MATCHIEAdmin",
@@ -12,11 +11,10 @@ db_config = {
 
 def GetRandomFacts(fact_qtt):
     facts = []
-    random.seed(time.time())  # Changes the seed every time the program is called
+    random.seed(time.time())  
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
-    # Predefined list of meaningful columns for match-level facts
     fact_queries = [
         {
             "description": "fouls committed by Away Team",
@@ -62,13 +60,11 @@ def GetRandomFacts(fact_qtt):
         },
     ]
 
-    # Shuffle the queries to introduce randomness
     random.shuffle(fact_queries)
 
     for i in range(min(fact_qtt, len(fact_queries))):
         fact = fact_queries[i]
         try:
-            # Query for the specific fact
             query = f"""
                 SELECT {fact['additional_info']}, {fact['column']}
                 FROM DataDetail
@@ -88,14 +84,11 @@ def GetRandomFacts(fact_qtt):
     return facts
 
 def GetColumnNames(table_name):
-    #for debugging
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        
-        # Query to fetch column names
         cursor.execute(f"SHOW COLUMNS FROM `{table_name}`;")
-        columns = [f"`{column[0]}`" for column in cursor.fetchall()]  # Properly escape column names
+        columns = [f"`{col[0]}`" for col in cursor.fetchall()]
     except mysql.connector.Error as err:
         print(f"Error: {err}")
         columns = []
@@ -106,9 +99,8 @@ def GetColumnNames(table_name):
             conn.close()
     return columns
 
-
+# If testing directly:
 if __name__ == "__main__":
-    print(GetRandomFacts(5))  # Example output: ['Team with most Goals: Real Madrid, 100', 'Random Team: Barcelona', 'Team with most Yellow Cards: Real Betis, 50']
-    #print(GetColumnNames("DataDetail"))  # Example output: ['`Team`', '`Goals`', '`Yellow Cards`', '`Red Cards`', '`Fouls`', '`Corners`', '`Shots`', '`Shots on Target`', '`Possession`', '`Passes`', '`Pass Accuracy`', '`Distance Covered (Kms)`', '`Cleansheets`', '`Goals Conceded`', '`Saves`', '`Passes Completed`', '`Last
-    
+    print(GetRandomFacts(5))
+    print(GetColumnNames("DataDetail"))
     print("hello world \n hello")

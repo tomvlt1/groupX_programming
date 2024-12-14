@@ -5,8 +5,10 @@ from FootGameHome import FootGameHomeMain
 from Graphsuggest import Graphsuggest_main
 import time
 
+# Import the stats functions from the separate GetRandomStats.py
+from GetRandomStats import GetRandomFacts, GetColumnNames
+
 def create_window():
-    """Create the main application window."""
     userid = getIDUser()
     if userid:
         oldwin = getCurrentWindow()
@@ -18,10 +20,9 @@ def create_window():
         win.setBackground(color_rgb(44, 40, 85))
         return win
     else:
-        LoginGUI()  # We assume you imported this from Login.py or handle it in main.py
+        LoginGUI()
 
 def create_sidebar(win):
-    """Create the sidebar with navigation buttons."""
     sidebar = Rectangle(Point(0, 0), Point(200, 500))
     sidebar.setFill(color_rgb(31, 27, 58))
     sidebar.draw(win)
@@ -33,7 +34,7 @@ def create_sidebar(win):
     new_button, new_buttontxt = create_button(win, p1, p2, "New Match", color_rgb(28, 195, 170), "white", size=12)
     buttons.append(new_button)
 
-    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png", size=(20, 20), vout=color_rgb(28, 195, 170))
+    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png", size=(20, 20), vout=color_rgb(28,195,170))
     buttons.append(back_button)
 
     y_offset = 90
@@ -54,7 +55,6 @@ def create_sidebar(win):
     return buttons
 
 def RefreshButton(x, y, win):
-    """Create a refresh button."""
     p1 = Point(x - 25, y - 25)
     p2 = Point(x + 25, y + 25)
     color1 = color_rgb(255, 255, 255)
@@ -72,7 +72,6 @@ def PreviewButton(x, y, win):
     return preview_button, preview_text, lock_text
 
 def WarningMessage(x, y, win):
-    """Create a warning message inside the match box."""
     warning = Text(Point(x, y), "This will lock the dashboard until the game ends (30 - 60 seconds).")
     warning.setSize(14)
     warning.setTextColor("red")
@@ -81,7 +80,6 @@ def WarningMessage(x, y, win):
     return warning
 
 def create_overview_section(win):
-    """Create the initial overview section."""
     overview_boxes = []
     overview_y_start = 20
     x_offset = 220
@@ -93,12 +91,12 @@ def create_overview_section(win):
         overview_boxes.append(overview_box)
         x_offset += 200
 
+    # Use the imported GetRandomFacts() function
     facts = GetRandomFacts(3)
     update_overview_section(win, overview_boxes, facts)
     return overview_boxes
 
 def update_overview_section(win, overview_boxes, facts):
-    """Update the overview section with new facts."""
     for i, fact in enumerate(facts):
         overview_boxes[i].setFill("white")
         for item in win.items[:]:
@@ -126,7 +124,6 @@ def update_overview_section(win, overview_boxes, facts):
             text_obj.draw(win)
 
 def create_mini_game_area(win):
-    """Create the mini-game area."""
     mini_game_left = 220
     mini_game_top = 140
     mini_game_right = 880
@@ -139,13 +136,9 @@ def create_mini_game_area(win):
     return mini_game_area, mini_game_left, mini_game_top, mini_game_right, mini_game_bottom
 
 def select_file():
-    # If you want an actual file dialog, you'd handle that with tkinter or similar. 
-    # For now, placeholders:
-    file_path = "files/file_to_import.csv"
-    return file_path
+    return "files/file_to_import.csv"
 
 def create_dashboard():
-    """Create the main dashboard."""
     win = create_window()
     if not win:
         return
@@ -162,9 +155,8 @@ def create_dashboard():
 
     while True:
         click = win.checkMouse()
-
         if click:
-            # Preview button
+            # Preview
             if not mini_game_active and is_click_in_rectangle(click, preview_button):
                 mini_game_active = True
                 preview_button.undraw()
@@ -180,7 +172,58 @@ def create_dashboard():
                 warning.draw(win)
                 mini_game_active = False
 
-            # Refresh button
+            # Refresh => Regenerate random facts
             if is_click_in_rectangle(click, refresh_button):
-                facts = GetRandomFacts(3)
-       
+                new_facts = GetRandomFacts(3)
+                update_overview_section(win, overview_boxes, new_facts)
+
+            # Import dataset
+            elif is_click_in_rectangle(click, buttons[2]):
+                userId = getIDUser()
+                if userId:
+                    vectorobjects = show_import_message(win, Point(520, 70))
+                    if vectorobjects:
+                        while True:
+                            click_point = win.getMouse()
+                            if is_click_in_rectangle(click_point, vectorobjects[4]):  # OK
+                                for obj in vectorobjects:
+                                    obj.undraw()
+                                file_path = select_file()
+                                result1, verror = check_csv_file(file_path)
+                                if result1:
+                                    result, last_insert_id, vmessage = create_load_record(userId, file_path)
+                                    if result:
+                                        result1, vmessage = import_csv_to_database(file_path, int(userId), int(last_insert_id))
+                                        if result1:
+                                            messages(vmessage)
+                                            break
+                                        else:
+                                            messages(vmessage)
+                                            break
+                                    else:
+                                        messages(verror)
+                                        break
+                            elif is_click_in_rectangle(click_point, vectorobjects[5]):  # Cancel
+                                for obj in vectorobjects:
+                                    obj.undraw()
+                                break
+
+            # Visualize
+            elif is_click_in_rectangle(click, buttons[4]):
+                userId = getIDUser()
+                if userId:
+                    statistics(userId)
+
+            # Profile
+            elif is_click_in_rectangle(click, buttons[5]):
+                userId = getIDUser()
+                if userId:
+                    AccountGUI(userId)
+
+            # Choose Dataset or go back
+            elif is_click_in_rectangle(click, buttons[1]):
+                LoginGUI()
+
+        time.sleep(0.05)
+
+    win.close()
