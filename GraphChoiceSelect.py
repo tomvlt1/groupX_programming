@@ -271,7 +271,6 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
 
 
 def display_graph(numerical,categorical,selected,dataset):
-    file_name_number = random.randint(1, 250000)
     filename = "graph.png"
     if selected[0] == "Histogram":
         plt.hist(dataset[numerical[0]],15, histtype='stepfilled', align = 'mid', color = "g")
