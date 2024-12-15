@@ -2,6 +2,7 @@ from graphics import *
 from Globals import is_click_in_rectangle, create_label, create_button, create_scrollable_dropdown
 from DataFunctions import openconnection
 import pandas as pd
+import time
 
 def get_headers():
     conn = None
@@ -73,7 +74,12 @@ def get_operators_for_column(column_name):
     else:
         return ["="]  # For text columns, only '='
 
-def filter_data_from_db(filters=None, columns=None, order_by_column=None, order_by_direction=None, is_unique=False):
+def filter_data_from_db(filters=None, columns=None,
+                        order_by_column=None, order_by_direction=None,
+                        unique_column=None):
+    """
+    Modifies the query to apply DISTINCT on the specified unique_column, if any.
+    """
     conn = None
     cursor = None
     try:
@@ -86,17 +92,25 @@ def filter_data_from_db(filters=None, columns=None, order_by_column=None, order_
         else:
             column_str = ", ".join(f"`{col}`" for col in columns)
 
-        # If user wants unique rows, use DISTINCT
-        select_clause = "DISTINCT" if is_unique else ""
+        # If a unique column is specified, use DISTINCT on that column.
+        if unique_column:
+            select_clause = f"DISTINCT `{unique_column}`"
+            if column_str != "*":
+                select_clause += f", {column_str}"
+        else:
+            select_clause = column_str
 
-        query = f"SELECT {select_clause} {column_str} FROM `DataDetail`"
+        if select_clause.strip().startswith(","):
+            select_clause = select_clause.lstrip(",")
+
+        query = f"SELECT {select_clause} FROM `DataDetail`"
+
         if filters:
             conditions = []
             for (col, op, val) in filters:
                 conditions.append(f"`{col}` {op} '{val}'")
             query += " WHERE " + " AND ".join(conditions)
 
-        # Add ORDER BY if user selected a column and direction
         if order_by_column and order_by_direction:
             query += f" ORDER BY `{order_by_column}` {order_by_direction}"
 
@@ -115,32 +129,24 @@ def filter_data_from_db(filters=None, columns=None, order_by_column=None, order_
             conn.close()
 
 def build_filters_page(win):
-    title = Text(Point(450, 40), "Add Filters (Football Theme)")
-    title.setSize(16)
-    title.setTextColor("white")
-    title.setStyle("bold")
-    title.draw(win)
-
-    instructions = Text(Point(450, 70), "Add as many filters as you want, then click Next Step.\nThis will get you to the column selection page.")
-    instructions.setSize(12)
-    instructions.setTextColor("white")
-    instructions.draw(win)
+    # Use create_label with vcolor param
+    title = create_label(win, "Add Filters (Football Theme)", Point(450, 40), size=16, vcolor="white", style="bold")
+    instructions = create_label(
+        win,
+        "Add as many filters as you want, then click Next Step.\nThis will get you to the column selection page.",
+        Point(450, 70),
+        size=12,
+        vcolor="white"
+    )
 
     available_columns = get_headers()
     applied_filters = []
 
-    filters_display = Text(Point(450, 280), "No filters yet.")
-    filters_display.setSize(12)
-    filters_display.setTextColor("white")
-    filters_display.draw(win)
+    filters_display = create_label(win, "No filters yet.", Point(450, 280), size=12, vcolor="white")
 
-    col_label = Text(Point(290, 120), "Column:")
-    op_label  = Text(Point(290, 160), "Operator:")
-    val_label = Text(Point(290, 200), "Value:")
-    for lbl in (col_label, op_label, val_label):
-        lbl.setSize(12)
-        lbl.setTextColor("white")
-        lbl.draw(win)
+    col_label = create_label(win, "Column:", Point(290, 120), size=12, vcolor="white")
+    op_label  = create_label(win, "Operator:", Point(290, 160), size=12, vcolor="white")
+    val_label = create_label(win, "Value:", Point(290, 200), size=12, vcolor="white")
 
     col_box = Rectangle(Point(340, 105), Point(520, 135))
     op_box  = Rectangle(Point(340, 145), Point(520, 175))
@@ -150,20 +156,9 @@ def build_filters_page(win):
         box.setOutline("white")
         box.draw(win)
 
-    col_text = Text(Point(430, 120), "Select column")
-    col_text.setSize(10)
-    col_text.setTextColor("black")
-    col_text.draw(win)
-
-    op_text = Text(Point(430, 160), "Select operator")
-    op_text.setSize(10)
-    op_text.setTextColor("black")
-    op_text.draw(win)
-
-    val_text = Text(Point(430, 200), "Select value")
-    val_text.setSize(10)
-    val_text.setTextColor("black")
-    val_text.draw(win)
+    col_text = create_label(win, "Select column", Point(430, 120), size=10, vcolor="black")
+    op_text = create_label(win, "Select operator", Point(430, 160), size=10, vcolor="black")
+    val_text = create_label(win, "Select value", Point(430, 200), size=10, vcolor="black")
 
     selected_col = None
     selected_op  = None
@@ -187,10 +182,8 @@ def build_filters_page(win):
         if click is None:
             continue
 
-        x, y = click.getX(), click.getY()
-
         # Column Box
-        if 340 <= x <= 520 and 105 <= y <= 135:
+        if is_click_in_rectangle(click, Rectangle(Point(340,105), Point(520,135))):
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,120))
             col_text.setText(selected_col if selected_col else "Select column")
             selected_op = None
@@ -199,7 +192,7 @@ def build_filters_page(win):
             val_text.setText("Select value")
 
         # Operator Box
-        if 340 <= x <= 520 and 145 <= y <= 175 and selected_col:
+        if is_click_in_rectangle(click, Rectangle(Point(340,145), Point(520,175))) and selected_col:
             operators = get_operators_for_column(selected_col)
             selected_op = create_scrollable_dropdown(win, "", operators, Point(430,160))
             op_text.setText(selected_op if selected_op else "Select operator")
@@ -207,13 +200,13 @@ def build_filters_page(win):
             val_text.setText("Select value")
 
         # Value Box
-        if 340 <= x <= 520 and 185 <= y <= 215 and selected_col and selected_op:
+        if is_click_in_rectangle(click, Rectangle(Point(340,185), Point(520,215))) and selected_col and selected_op:
             unique_vals = get_unique_values(selected_col)
             selected_val = create_scrollable_dropdown(win, "", unique_vals, Point(430,200))
             val_text.setText(str(selected_val) if selected_val else "Select value")
 
         # Add Filter
-        if 540 <= x <= 640 and 105 <= y <= 135:
+        if is_click_in_rectangle(click, Rectangle(Point(540,105), Point(640,135))):
             if selected_col and selected_op and selected_val is not None:
                 applied_filters.append((selected_col, selected_op, selected_val))
                 filters_str = [f"{c} {o} '{v}'" for (c, o, v) in applied_filters]
@@ -226,11 +219,11 @@ def build_filters_page(win):
                 val_text.setText("Select value")
 
         # Next Step
-        if 540 <= x <= 640 and 145 <= y <= 175:
+        if is_click_in_rectangle(click, Rectangle(Point(540,145), Point(640,175))):
             return applied_filters
 
         # Clear All
-        if 540 <= x <= 640 and 185 <= y <= 215:
+        if is_click_in_rectangle(click, Rectangle(Point(540,185), Point(640,215))):
             applied_filters.clear()
             filters_display.setText("No filters yet.")
             selected_col = None
@@ -251,16 +244,11 @@ def build_columns_page(win, filters):
     sidebar.setOutline(sidebar_color)
     sidebar.draw(win)
 
-    title = Text(Point(450, 40), "Select Columns to Display")
-    title.setSize(16)
-    title.setTextColor("white")
-    title.setStyle("bold")
-    title.draw(win)
-
-    instructions = Text(Point(450, 70), "Add columns, then click Submit.\nIf none selected, all columns will be displayed.")
-    instructions.setSize(12)
-    instructions.setTextColor("white")
-    instructions.draw(win)
+    title = create_label(win, "Select Columns to Display", Point(450, 40), size=16, vcolor="white", style="bold")
+    instructions = create_label(
+        win, "Add columns, then click Submit.\nIf none selected, all columns will be displayed.",
+        Point(450, 70), size=12, vcolor="white"
+    )
 
     back_btn, back_txt = create_button(
         win, Point(20,20), Point(180,60), "Back",
@@ -273,155 +261,141 @@ def build_columns_page(win, filters):
 
     available_columns = get_headers()
     selected_columns = []
-    columns_display = Text(Point(450, 280), "No columns selected.")
-    columns_display.setSize(12)
-    columns_display.setTextColor("white")
-    columns_display.draw(win)
+    columns_display = create_label(win, "No columns selected.", Point(450, 280), size=12, vcolor="white")
 
-    col_label = Text(Point(290, 140), "Display Column:")
-    col_label.setSize(12)
-    col_label.setTextColor("white")
-    col_label.draw(win)
+    col_label = create_label(win, "Display Column:", Point(290, 140), size=12, vcolor="white")
 
     disp_box = Rectangle(Point(340,125), Point(520,155))
     disp_box.setFill("white")
     disp_box.setOutline("white")
     disp_box.draw(win)
 
-    disp_text = Text(Point(430,140), "Select column")
-    disp_text.setSize(10)
-    disp_text.setTextColor("black")
-    disp_text.draw(win)
+    disp_text = create_label(win, "Select column", Point(430,140), size=10, vcolor="black")
 
     add_col_btn, add_col_txt = create_button(
         win, Point(540,125), Point(640,155), "Add Column",
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
-    # --- New UI for Order By (column dropdown + direction dropdown + button) ---
-    order_by_label = Text(Point(750, 140), "Order By:")
-    order_by_label.setSize(12)
-    order_by_label.setTextColor("white")
-    order_by_label.draw(win)
+    # --- Order By UI ---
+    order_by_label = create_label(win, "Order By:", Point(750, 140), size=12, vcolor="white")
 
     order_box = Rectangle(Point(700,125), Point(880,155))
     order_box.setFill("white")
     order_box.setOutline("white")
     order_box.draw(win)
 
-    order_text = Text(Point(790,140), "Select column")
-    order_text.setSize(10)
-    order_text.setTextColor("black")
-    order_text.draw(win)
+    order_text = create_label(win, "Select column", Point(790,140), size=10, vcolor="black")
 
-    direction_label = Text(Point(750, 200), "Direction:")
-    direction_label.setSize(12)
-    direction_label.setTextColor("white")
-    direction_label.draw(win)
+    direction_label = create_label(win, "Direction:", Point(750, 200), size=12, vcolor="white")
 
     direction_box = Rectangle(Point(700,185), Point(880,215))
     direction_box.setFill("white")
     direction_box.setOutline("white")
     direction_box.draw(win)
 
-    direction_text = Text(Point(790,200), "ASC / DESC")
-    direction_text.setSize(10)
-    direction_text.setTextColor("black")
-    direction_text.draw(win)
+    direction_text = create_label(win, "ASC / DESC", Point(790,200), size=10, vcolor="black")
 
     order_btn, order_btn_txt = create_button(
         win, Point(700,230), Point(880,260), "Apply Sort",
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
-    # ---------------------------------------------------------------------------
 
-    # --- New unique feature (checkbox-like toggle) ---
-    unique_label = Text(Point(450, 330), "Toggle Unique Rows:")
-    unique_label.setSize(12)
-    unique_label.setTextColor("white")
-    unique_label.draw(win)
+    # --- Unique Feature ---
+    unique_label = create_label(win, "Select Unique Column:", Point(450, 330), size=12, vcolor="white")
 
-    # Simple toggle button
+    unique_box = Rectangle(Point(340,350), Point(520,380))
+    unique_box.setFill("white")
+    unique_box.setOutline("white")
+    unique_box.draw(win)
+
+    unique_text = create_label(win, "Select column", Point(430,365), size=10, vcolor="black")
+
     unique_btn, unique_btn_txt = create_button(
-        win, Point(390,350), Point(510,380), "Unique OFF",
+        win, Point(540,350), Point(640,380), "Unique OFF",
         fill_color=color_rgb(100, 100, 100), text_color="white", vout="grey", size=12
     )
+    unique_column = None
     is_unique = False
-    # -------------------------------------------------
 
-    selected_col = None
     order_by_col = None
     order_by_dir = None
+    selected_col = None
 
     while True:
         click = win.getMouse()
         if click is None:
             continue
-        x, y = click.getX(), click.getY()
 
         # Back to filters
-        if 20 <= x <= 180 and 20 <= y <= 60:
+        if is_click_in_rectangle(click, Rectangle(Point(20,20), Point(180,60))):
             return None
 
         # Submit
-        if 20 <= x <= 180 and 80 <= y <= 120:
+        if is_click_in_rectangle(click, Rectangle(Point(20,80), Point(180,120))):
             df = filter_data_from_db(
                 filters=filters,
                 columns=selected_columns if selected_columns else None,
                 order_by_column=order_by_col,
                 order_by_direction=order_by_dir,
-                is_unique=is_unique
+                unique_column=unique_column if is_unique else None
             )
             return df
 
         # Display column box
-        if 340 <= x <= 520 and 125 <= y <= 155:
+        if is_click_in_rectangle(click, Rectangle(Point(340,125), Point(520,155))):
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,140))
             disp_text.setText(selected_col if selected_col else "Select column")
 
         # Add Column
-        if 540 <= x <= 640 and 125 <= y <= 155 and selected_col:
-            if selected_col not in selected_columns:
+        if is_click_in_rectangle(click, Rectangle(Point(540,125), Point(640,155))):
+            if selected_col and (selected_col not in selected_columns):
                 selected_columns.append(selected_col)
                 columns_display.setText(", ".join(selected_columns))
             selected_col = None
             disp_text.setText("Select column")
 
         # Order By column box
-        if 700 <= x <= 880 and 125 <= y <= 155:
+        if is_click_in_rectangle(click, Rectangle(Point(700,125), Point(880,155))):
             order_by_col = create_scrollable_dropdown(win, "", available_columns, Point(790,140))
             order_text.setText(order_by_col if order_by_col else "Select column")
 
         # Direction box
-        if 700 <= x <= 880 and 185 <= y <= 215:
+        if is_click_in_rectangle(click, Rectangle(Point(700,185), Point(880,215))):
             direction_options = ["ASC", "DESC"]
             order_by_dir = create_scrollable_dropdown(win, "", direction_options, Point(790,200))
             direction_text.setText(order_by_dir if order_by_dir else "ASC / DESC")
 
         # Apply Sort button
-        if 700 <= x <= 880 and 230 <= y <= 260:
+        if is_click_in_rectangle(click, Rectangle(Point(700,230), Point(880,260))):
             if order_by_col and order_by_dir:
-                # Change button color and text
-                order_btn.setFill(color_rgb(0, 200, 0))  # Change to green
+                order_btn.setFill(color_rgb(0, 200, 0))
                 order_btn_txt.setText("Sort Applied")
-
-                # Pause briefly to show the effect
-                win.update()  # Force immediate redraw
+                win.update()
                 time.sleep(1)
-
-                # Reset button to original state
-                order_btn.setFill(color_rgb(28, 195, 170))  # Original color
+                order_btn.setFill(color_rgb(28,195,170))
                 order_btn_txt.setText("Apply Sort")
 
-        # Toggle Unique Rows button
-        if 390 <= x <= 510 and 350 <= y <= 380:
-            is_unique = not is_unique
-            if is_unique:
-                unique_btn_txt.setText("Unique ON")
-                unique_btn.setFill(color_rgb(28,195,170))
+        # Unique Column dropdown
+        if is_click_in_rectangle(click, Rectangle(Point(340,350), Point(520,380))):
+            unique_column = create_scrollable_dropdown(win, "", available_columns, Point(430,365))
+            unique_text.setText(unique_column if unique_column else "Select column")
+
+        # Unique On/Off button
+        if is_click_in_rectangle(click, Rectangle(Point(540,350), Point(640,380))):
+            if unique_column:
+                is_unique = not is_unique
+                if is_unique:
+                    unique_btn_txt.setText(f"Unique ON ({unique_column})")
+                    unique_btn.setFill(color_rgb(28,195,170))
+                else:
+                    unique_btn_txt.setText("Unique OFF")
+                    unique_btn.setFill(color_rgb(100,100,100))
             else:
-                unique_btn_txt.setText("Unique OFF")
-                unique_btn.setFill(color_rgb(100,100,100))
+                alert_text = create_label(win, "Select a column for uniqueness!", Point(450, 430), size=10, vcolor="red")
+                win.update()
+                time.sleep(2)
+                alert_text.undraw()
 
 def build_2_page_ui():
     win = GraphWin("Football Data Filtering", 900, 500)
@@ -459,8 +433,6 @@ def build_2_page_ui():
 
 def main():
     final_df = build_2_page_ui()
-    # Once the user finishes the 2-page filter UI, we then call PostFilter.py
-
     from PostFilter import GraphOptions
     selected_option = GraphOptions()
     return "Data returned to main()", selected_option
