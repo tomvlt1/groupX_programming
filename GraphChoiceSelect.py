@@ -272,7 +272,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
 
 def display_graph(numerical,categorical,selected,dataset):
     file_name_number = random.randint(1, 250000)
-    filename = f"graph_{file_name_number}.png"
+    filename = "graph.png"
     if selected[0] == "Histogram":
         plt.hist(dataset[numerical[0]],15, histtype='stepfilled', align = 'mid', color = "g")
         plt.ylabel('Observations')
@@ -336,6 +336,7 @@ def displayer(filename):
         click = win.getMouse()
         if 350 < click.x < 450 and 545 < click.y < 595:
             break
+    os.remove(filename)
 
 
 def main():
@@ -347,8 +348,8 @@ def main():
 
 
 
-#main()
-
+if __name__ == '__main__':
+    main()
 
 
 
