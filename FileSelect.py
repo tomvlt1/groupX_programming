@@ -62,3 +62,8 @@ def file_selector(folder_name, win_width=screen_width, win_height=screen_height)
             if is_click_in_rectangle(click, rect):
                 win.close()
                 return os.path.join(target_dir, file)
+
+
+if __name__ == "__main__":
+    selected_file = file_selector("target_folder")
+    print(f"Selected File: {selected_file}")

@@ -112,7 +112,7 @@ def AccountGUI(userId):
                 ("ShirtNumber", 340, "Shirt Number", user_data[4]),
                 ("PrimaryColor", 390, "Primary Color", user_data[5]),
                 ("SecondaryColor", 430, "Secondary color", user_data[6]),
-                ("DateOfBirth", 470, "Date Of Birth", user_data[7]),
+                ("DateOfBirth", 470, "Date Of Birth (yyyy-mm-dd)", user_data[7]),
                 ("Gender", 520, "Gender", user_data[8]),
                 ("Nationality", 570, "Nationality", user_data[9]),
                 ("FavoriteTeam", 620, "FavoriteTeam", user_data[10])
