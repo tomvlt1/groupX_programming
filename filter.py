@@ -73,26 +73,32 @@ def get_operators_for_column(column_name):
     else:
         return ["="]  # For text columns, only '='
 
-
-def filter_data_from_db(filters=None, columns=None):
+def filter_data_from_db(filters=None, columns=None, order_by_column=None, order_by_direction=None, is_unique=False):
     conn = None
     cursor = None
     try:
         conn = openconnection()
         cursor = conn.cursor()
 
-        # If no columns selected, select all
+        # If no columns selected, select all columns
         if not columns or len(columns) == 0:
             column_str = "*"
         else:
             column_str = ", ".join(f"`{col}`" for col in columns)
 
-        query = f"SELECT {column_str} FROM `DataDetail`"
+        # If user wants unique rows, use DISTINCT
+        select_clause = "DISTINCT" if is_unique else ""
+
+        query = f"SELECT {select_clause} {column_str} FROM `DataDetail`"
         if filters:
             conditions = []
             for (col, op, val) in filters:
                 conditions.append(f"`{col}` {op} '{val}'")
             query += " WHERE " + " AND ".join(conditions)
+
+        # Add ORDER BY if user selected a column and direction
+        if order_by_column and order_by_direction:
+            query += f" ORDER BY `{order_by_column}` {order_by_direction}"
 
         cursor.execute(query)
         results = cursor.fetchall()
@@ -102,7 +108,6 @@ def filter_data_from_db(filters=None, columns=None):
     except Exception as e:
         print(f"Error occurred: {e}")
         return pd.DataFrame()
-
     finally:
         if cursor:
             cursor.close()
@@ -164,7 +169,6 @@ def build_filters_page(win):
     selected_op  = None
     selected_val = None
 
-    # Use create_button from Globals
     add_filter_btn, add_filter_txt = create_button(
         win, Point(540, 105), Point(640, 135), "Add Filter",
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
@@ -253,7 +257,7 @@ def build_columns_page(win, filters):
     title.setStyle("bold")
     title.draw(win)
 
-    instructions = Text(Point(450, 70), "Add columns, then click Submit. \nIf you select no columns, all columns will be displayed.")
+    instructions = Text(Point(450, 70), "Add columns, then click Submit.\nIf none selected, all columns will be displayed.")
     instructions.setSize(12)
     instructions.setTextColor("white")
     instructions.draw(win)
@@ -294,7 +298,60 @@ def build_columns_page(win, filters):
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
+    # --- New UI for Order By (column dropdown + direction dropdown + button) ---
+    order_by_label = Text(Point(750, 140), "Order By:")
+    order_by_label.setSize(12)
+    order_by_label.setTextColor("white")
+    order_by_label.draw(win)
+
+    order_box = Rectangle(Point(700,125), Point(880,155))
+    order_box.setFill("white")
+    order_box.setOutline("white")
+    order_box.draw(win)
+
+    order_text = Text(Point(790,140), "Select column")
+    order_text.setSize(10)
+    order_text.setTextColor("black")
+    order_text.draw(win)
+
+    direction_label = Text(Point(750, 200), "Direction:")
+    direction_label.setSize(12)
+    direction_label.setTextColor("white")
+    direction_label.draw(win)
+
+    direction_box = Rectangle(Point(700,185), Point(880,215))
+    direction_box.setFill("white")
+    direction_box.setOutline("white")
+    direction_box.draw(win)
+
+    direction_text = Text(Point(790,200), "ASC / DESC")
+    direction_text.setSize(10)
+    direction_text.setTextColor("black")
+    direction_text.draw(win)
+
+    order_btn, order_btn_txt = create_button(
+        win, Point(700,230), Point(880,260), "Apply Sort",
+        fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
+    )
+    # ---------------------------------------------------------------------------
+
+    # --- New unique feature (checkbox-like toggle) ---
+    unique_label = Text(Point(450, 330), "Toggle Unique Rows:")
+    unique_label.setSize(12)
+    unique_label.setTextColor("white")
+    unique_label.draw(win)
+
+    # Simple toggle button
+    unique_btn, unique_btn_txt = create_button(
+        win, Point(390,350), Point(510,380), "Unique OFF",
+        fill_color=color_rgb(100, 100, 100), text_color="white", vout="grey", size=12
+    )
+    is_unique = False
+    # -------------------------------------------------
+
     selected_col = None
+    order_by_col = None
+    order_by_dir = None
 
     while True:
         click = win.getMouse()
@@ -308,7 +365,13 @@ def build_columns_page(win, filters):
 
         # Submit
         if 20 <= x <= 180 and 80 <= y <= 120:
-            df = filter_data_from_db(filters=filters, columns=selected_columns if selected_columns else None)
+            df = filter_data_from_db(
+                filters=filters,
+                columns=selected_columns if selected_columns else None,
+                order_by_column=order_by_col,
+                order_by_direction=order_by_dir,
+                is_unique=is_unique
+            )
             return df
 
         # Display column box
@@ -324,6 +387,42 @@ def build_columns_page(win, filters):
             selected_col = None
             disp_text.setText("Select column")
 
+        # Order By column box
+        if 700 <= x <= 880 and 125 <= y <= 155:
+            order_by_col = create_scrollable_dropdown(win, "", available_columns, Point(790,140))
+            order_text.setText(order_by_col if order_by_col else "Select column")
+
+        # Direction box
+        if 700 <= x <= 880 and 185 <= y <= 215:
+            direction_options = ["ASC", "DESC"]
+            order_by_dir = create_scrollable_dropdown(win, "", direction_options, Point(790,200))
+            direction_text.setText(order_by_dir if order_by_dir else "ASC / DESC")
+
+        # Apply Sort button
+        if 700 <= x <= 880 and 230 <= y <= 260:
+            if order_by_col and order_by_dir:
+                # Change button color and text
+                order_btn.setFill(color_rgb(0, 200, 0))  # Change to green
+                order_btn_txt.setText("Sort Applied")
+
+                # Pause briefly to show the effect
+                win.update()  # Force immediate redraw
+                time.sleep(1)
+
+                # Reset button to original state
+                order_btn.setFill(color_rgb(28, 195, 170))  # Original color
+                order_btn_txt.setText("Apply Sort")
+
+        # Toggle Unique Rows button
+        if 390 <= x <= 510 and 350 <= y <= 380:
+            is_unique = not is_unique
+            if is_unique:
+                unique_btn_txt.setText("Unique ON")
+                unique_btn.setFill(color_rgb(28,195,170))
+            else:
+                unique_btn_txt.setText("Unique OFF")
+                unique_btn.setFill(color_rgb(100,100,100))
+
 def build_2_page_ui():
     win = GraphWin("Football Data Filtering", 900, 500)
     bg_color = color_rgb(44, 40, 85)
@@ -338,14 +437,13 @@ def build_2_page_ui():
     # Page 1: Filters
     filters = build_filters_page(win)
     if filters is None:
-        #win.close()
         return pd.DataFrame()
 
     # Page 2: Columns
     while True:
         df = build_columns_page(win, filters)
         if df is None:
-            # user clicked back => re-draw filter page
+            # User clicked back => re-draw filter page
             for item in win.items[:]:
                 item.undraw()
             win.items.clear()
@@ -355,20 +453,18 @@ def build_2_page_ui():
             sidebar.draw(win)
             filters = build_filters_page(win)
         else:
-            # We got final dataframe or user closed
             win.close()
             df.to_csv("temp_data.csv", index=False)
             return "temp_data.csv"
-
 
 def main():
     final_df = build_2_page_ui()
     # Once the user finishes the 2-page filter UI, we then call PostFilter.py
 
-    from PostFilter import GraphOptions   # Import here to avoid circular references
-    selected_option = GraphOptions()       # This will open the "Variable to Graph" / "Graph to Variable" window
-
+    from PostFilter import GraphOptions
+    selected_option = GraphOptions()
     return "Data returned to main()", selected_option
+
 if __name__ == "__main__":
     final_df, selected_option = main()
     print("\nData returned to main():")
