@@ -4,6 +4,7 @@ import random
 import time
 import mysql.connector
 
+#sorry for global code robert, but we were short on time and this was the only way to make it work for now.
 # Database configuration
 db_config = {
     "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
@@ -252,7 +253,7 @@ def simulate_mini_game(win, home_team, away_team, home_score, away_score):
             pass_ball_between_players(ball, players_away)  # Away team pass
 
         # Randomly determine if a goal attempt happens by a striker
-        if random.random() < 0.3:  # 30% chance for a goal attempt
+        if random.random() < 0.5:  # 40% chance for a goal attempt
             if current_home_score < target_home_score and random.random() < 0.5:
                 scoring_team = "home"
                 strikers = strikers_home
