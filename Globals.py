@@ -2,10 +2,16 @@
 from graphics import *
 
 # Screen dimensions
-screen_width = 1280  # Width
-screen_height = 720  # Height
-screen_widthHome = 900  # Width
+screen_width = 900  # Width
+screen_height = 500  # Height
+screen_widthHome = 800  # Width
 screen_heightHome = 500  # Height
+
+colorblueBac=color_rgb(31, 27, 58)
+colorvlueButtons=color_rgb(44, 40, 85)
+colorvlueButtons1=color_rgb(84, 80, 125)
+colorgreen="#F8F9FA"
+colorcream=color_rgb(242, 237, 228)
 
 session = {}
 
@@ -16,7 +22,15 @@ def getIDUser():
 def setCurrentWindow(Win):
     session['CurrentWindow']= Win
 def getCurrentWindow():
-    return session.get('CurrentWindow', None)   
+    return session.get('CurrentWindow', None)  
+def setFilters(vfilter):
+    session['Filters']= vfilter
+def getFilters():
+    return session.get('Filters', [])    
+def setDataset(IdFileLoad):
+    session['IdFileLoad']=IdFileLoad
+def getDataset():
+    return session.get('IdFileLoad', None)   
 
   
 def is_click_in_rectangle(click_point, rectangle):
@@ -46,6 +60,7 @@ def is_click_in_text_area(click_point, text_object):
         # Verificar si el clic está dentro del área estimada
         return x1 <= click_point.getX() <= x2 and y1 <= click_point.getY() <= y2
     return False
+
 
 def create_button(win,p1, p2, label, fill_color, text_color,vout="grey",size=14):
     button = Rectangle(p1,p2)
@@ -384,3 +399,4 @@ def create_scrollable_dropdown(win, label, options, position, width=15, visible_
                             down_text.undraw()
                         selected_text.setText(str(val_opt))
                         return val_opt
+                    

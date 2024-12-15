@@ -1,6 +1,32 @@
 #The user will have selected the number of variables he wants and assigned it as independent or dependent
 #The user will select the graph of interest based on the list of graphs available
 
+#if the user selects a histogram, then he must have selected only one variable
+    #Plot the histogram of the variable selected by the user
+#if the user selects bar chart, he needs 2 categorical variables maximum with one numetical
+    #if 1 variable was selected
+        #plot the bar  chart with one variable
+    #if the user selects 2 variables
+        #plot a stacked bar plot with the two variables
+#if the user selects two categorical variables and grouped bar chart
+    #make grouped bar chart
+#if the user selects a box plot then he must have selected a maxim of 2 variables
+    #if the user has selected one variable that is numerical
+        #make the box plot with one variable
+    #if the user has selected 2 variables one that is numerical and one that is categorical
+        #make the box plot with 2 variable
+#if the user selects a violin plot then he must have selected a maxim of 2 variables
+    #if the user has selected one variable that is numerical
+        #make the violin plot with one variable
+    #if the user has selected 2 variables one that is numerical and one that is categorical
+        #make the violin plot with 2 variable
+#if the user selects a scatter plot, 2 numerical variables should have been selected
+    #plot the scatter plot with the two variables
+#if the user a pie chart he must have selected a pie chart he must have selected a numerical and a categorical variable
+    #plot the pie chart with the variables requested by the user
+#if the user selects a scatter plot, 3 numerical variables should have been selected
+    #plot the scatter plot with the three variables
+# scatter, Stacked
 
 
 
@@ -24,7 +50,7 @@ def GraphSelection():
     rectangles = []
     selected = []
     y_start = 100
-    graph_possibilities = ["Bar chart","Box Plot", "Scatter Plot", "Pie Chart", "Histogram"]
+    graph_possibilities = ["Bar chart (Simple and Stacked)","Box Plot", "Scatter Plot", "Pie Chart", "Histogram"]
     loop_counter = 0
     for i in graph_possibilities:
         rect = Rectangle(Point(100, y_start + loop_counter * 70), Point(700, y_start + loop_counter * 70 + 50))
@@ -46,7 +72,7 @@ def GraphSelection():
 
     while True:
         click = win.getMouse()
-        if 350 < click.x < 450 and 500 < click.y < 550 and len(selected)>=2:
+        if 350 < click.x < 450 and 500 < click.y < 550:
             break
 
         for rect, col, text in rectangles:
@@ -78,7 +104,7 @@ def variable_split():
     return numerical_display, categorical_display, dataset
 
 
-def VariableOptions(selected,numerical_display,categorical_display,dataset,):
+def VariableOptions(selected,numerical_display,categorical_display,dataset):
     win = GraphWin("Variable Options", 800, 600)
 
     win.setBackground('dark green')
@@ -107,21 +133,18 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
 
     avalible_choices = []
     if selected[0] == 'Histogram':
-        options_limit = 1
         avalible_choices.extend(numerical_display)
-    if selected[0] == "Bar chart":
+    if selected[0] == "Bar chart (Simple and Stacked)":
         avalible_choices.extend(numerical_display)
         avalible_choices.extend(categorical_display)
-        options_limit = 2
     if selected[0] == "Box Plot":
         avalible_choices.extend(numerical_display)
-        options_limit = 1
+        avalible_choices.extend(categorical_display)
     if selected[0] == "Scatter Plot":
         avalible_choices.extend(numerical_display)
-        options_limit = 3
     if selected[0] == "Pie Chart":
+        avalible_choices.extend(numerical_display)
         avalible_choices.extend(categorical_display)
-        options_limit = 1
 
 
 
@@ -139,7 +162,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
     def page_setter(counter_for_display,page_number,avalible_choices):
         rectangles.clear()
         for i in avalible_choices[page_number*6:page_number*6+6]:
-            counter_for_display = counter_for_display+1
+            counter_for_display=counter_for_display+1
             rect = Rectangle(Point(300, y_base + counter_for_display * vertical_spacing), Point(500, y_base + counter_for_display * vertical_spacing + 50))
 
             if i in selected_options:
@@ -159,10 +182,10 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
 
 
     submit_btn = Rectangle(Point(350, 525), Point(450, 575))
-    submit_btn.setFill("LightGreen")
+    submit_btn.setFill("green")
     submit_btn.draw(win)
     submit_text = Text(submit_btn.getCenter(), "Submit")
-    submit_text.setTextColor("darkgreen")
+    submit_text.setTextColor("white")
     submit_text.draw(win)
 
 
@@ -171,70 +194,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
         click = win.getMouse()
 
         if 350 < click.x < 450 and 525 < click.y < 575:
-            if selected[0] == "Scatter Plot" and len(selected_options) == 1:
-                print(selected_options)
-
-                warning = Rectangle(Point(150, 225), Point(650, 275))
-                warning.setFill("White")
-                warning.draw(win)
-                warningmessage = Text(warning.getCenter(), "Select mode than one variable")
-                warningmessage.setTextColor("Black")
-                warningmessage.draw(win)
-                win.getMouse()
-                warningmessage.undraw()
-                warning.undraw()
-            elif selected[0] == "Bar chart" and len(selected_options) != 2:
-                    warning = Rectangle(Point(150, 225), Point(650, 275))
-                    warning.setFill("White")
-                    warning.draw(win)
-                    warningmessage = Text(warning.getCenter(), "you must select more variables")
-                    warningmessage.setTextColor("Black")
-                    warningmessage.draw(win)
-                    win.getMouse()
-                    warningmessage.undraw()
-                    warning.undraw()
-
-            elif selected[0] == "Bar chart":
-
-                numericalLap1 = []
-                categoricalLap1 = []
-
-                for i in selected_options:
-                    if isinstance(dataset[i][2], float) or isinstance(dataset[i][2], int):
-                            numericalLap1.append(i)
-                    else:
-                            categoricalLap1.append(i)
-
-                if len(numericalLap1) != 1:
-                    print(categoricalLap1)
-                    print(numericalLap1)
-                    warning = Rectangle(Point(150, 225), Point(650, 275))
-                    warning.setFill("White")
-                    warning.draw(win)
-                    warningmessage = Text(warning.getCenter(), "You must select one numerical variable")
-                    warningmessage.setTextColor("Black")
-                    warningmessage.draw(win)
-                    win.getMouse()
-                    warningmessage.undraw()
-                    warning.undraw()
-                elif len(categoricalLap1) != 1:
-                    print(categoricalLap1)
-                    print(numericalLap1)
-                    warning = Rectangle(Point(150, 225), Point(650, 275))
-                    warning.setFill("White")
-                    warning.draw(win)
-                    warningmessage = Text(warning.getCenter(), "You must select one categorical variable")
-                    warningmessage.setTextColor("Black")
-                    warningmessage.draw(win)
-                    win.getMouse()
-                    warningmessage.undraw()
-                    warning.undraw()
-
-                else:
-                    break
-            else:
-                break
-
+            break
 
         if 705 < click.x < 775 and 160 < click.y < 210:
             page_number = page_number-1
@@ -251,7 +211,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
                 if option in selected_options:
                     selected_options.remove(option)
                     rect.setFill("lightgrey")
-                elif len(selected_options) < options_limit:
+                elif len(selected_options) <3:
                     selected_options.append(option)
                     rect.setFill("lightgreen")
                 break
@@ -267,29 +227,46 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset,):
         else:
             categorical.append(i)
 
+    print("selected numericals are: ", numerical,"carecoriacals are",categorical)
+
+    print("These are the variables selected",numerical,"\n","categorical",categorical)
+
     return numerical, categorical
 
 
 def display_graph(numerical,categorical,selected,dataset):
-    filename = "graph.png"
+    file_name_number = random.randint(1, 250000)
+    filename = f"graph_{file_name_number}.png"
     if selected[0] == "Histogram":
         plt.hist(dataset[numerical[0]],15, histtype='stepfilled', align = 'mid', color = "g")
         plt.ylabel('Observations')
         plt.xlabel(f'{numerical[0]}', color="Black")
         plt.title(f'{numerical[0]} ', color="Black")
         plt.savefig(filename)
-    elif selected[0] == "Bar chart":
+    elif selected[0] == "Bar chart (Simple and Stacked)" and len(categorical) <= 2 and len(numerical) <= 1:
         if len(categorical) == 1 and len(numerical)  == 1:
             plt.bar(dataset[categorical[0]], dataset[numerical[0]], color="g", align='center')
             plt.ylabel(f'{numerical[0]}', color="Black")
             plt.xlabel(f'{categorical[0]}', color="Black")
-            plt.title(f'{categorical[0]} vs. {numerical[0]}', color="Black")
+            plt.title(f'{numerical[0]} ', color="Black")
             plt.savefig(filename)
-    elif selected[0] == "Box Plot" and len(numerical) == 1:
+        elif len(categorical) == 2 and len(numerical) == 0:
+            plt.figure()
+            cross_tab = pd.crosstab(dataset[numerical[0]],dataset[ numerical[1]])
+            cross_tab.plot(kind='bar', stacked=True, colormap='Greens')
+            plt.title(f'{numerical[0]} vs {numerical[1]}', color='w')
+            plt.savefig(filename)
+    elif selected[0] == "Box Plot" and len(categorical) <= 1 and len(numerical) == 1:
         if len(numerical) ==1 and len(categorical) ==0:
             plt.boxplot(dataset[numerical[0]], sym='gx', widths=0.75, notch=True)
             plt.ylabel(f'{numerical[0]}', color='Black')
             plt.title(f'{numerical[0]} ', color='Black')
+            plt.savefig(filename)
+        elif len(categorical) == 1 and len(categorical) == 1:
+            plt.boxplot(dataset[numerical[0]], labels = dataset[categorical[0]].unique(), sym='gx', widths=0.75, notch=True)
+            plt.xlabel('Entries')
+            plt.ylabel('Values')
+            plt.title('Histogram')
             plt.savefig(filename)
     elif selected[0] == "Scatter Plot" and len(numerical) <= 3 and len(categorical) == 0:
         if len(numerical) == 2:
@@ -309,14 +286,19 @@ def display_graph(numerical,categorical,selected,dataset):
             axis.set_zlabel(f'{numerical[2]}', color="Black")
             plt.title(f'{numerical[0]} vs. {numerical[1]} vs. {numerical[2]}', color="Black")
             plt.savefig(filename)
-    elif selected[0] == "Pie Chart" and len(categorical) ==1:
-        if len(categorical) == 1:
-            reference = categorical[0]
-            datanew = dataset.groupby(reference).size().reset_index(name='Count')
+    elif selected[0] == "Pie Chart" and len(categorical) ==1 or len(numerical) == 1:
+        if len(numerical) == 1:
+            datanew = dataset.groupby(numerical[0]).size()
+        elif len(categorical) == 1:
+            datanew = dataset.groupby(categorical[0]).size()
+
+
+        print(datanew.columns)
+
         plt.xlabel('Entries')
         plt.ylabel('Values')
         plt.title('Histogram')
-        plt.pie(datanew['Count'], labels = datanew[reference] , autopct='%1.1f%%', counterclock=False, shadow=False)
+        plt.pie(datanew[1], labels=datanew[0], autopct='%1.1f%%', counterclock=False, shadow=False)
         plt.savefig(filename)
     return filename
 
@@ -335,7 +317,6 @@ def displayer(filename):
         click = win.getMouse()
         if 350 < click.x < 450 and 545 < click.y < 595:
             break
-    os.remove(filename)
 
 
 def main():
@@ -347,8 +328,8 @@ def main():
 
 
 
-if __name__ == '__main__':
-    main()
+#main()
+
 
 
 

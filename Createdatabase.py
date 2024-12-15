@@ -1,22 +1,29 @@
 import mysql.connector
+from config import *
+
 
 # Conexión a MySQL
-db_config = {
-    "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
-    "user": "MATCHIEAdmin",
-    "password": "IeUniversity123",
-    "database":"LaLiga"
-}
+db_host = host
+db_user = user
+db_password = password
+db_name = database
 
+# Database connection details
+db_config = {
+    "host": db_host,
+    "user": db_user,
+    "password": db_password,
+    "database":db_name 
+}
 try:
     db_connection = mysql.connector.connect(**db_config)
     cursor = db_connection.cursor()
 
-    # Crear base de datos LaLiga
+    # LaLiga
     cursor.execute("CREATE DATABASE IF NOT EXISTS LaLiga;")
-    cursor.execute("USE LaLiga;")  # Seleccionamos la base de datos
+    cursor.execute("USE LaLiga;")  
 
-    # Crear la tabla User
+    # User
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS User (
     idUser INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,9 +31,7 @@ try:
     FirstName VARCHAR(255),
     LastName VARCHAR(255),
     Password VARCHAR(255),
-    ShirtNumber INT,
-    PrimaryColor VARCHAR(255),
-    SecondaryColor VARCHAR(255),
+    ShirtNumber INT,    
     DateOfBirth DATE,
     Gender VARCHAR(50),
     Nationality VARCHAR(255),
@@ -35,7 +40,7 @@ try:
         """)
 
 
-    # Crear la tabla Load
+    #  Load
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS LoadFiles (
         idLoad INT AUTO_INCREMENT PRIMARY KEY,
@@ -47,7 +52,7 @@ try:
     );
     """)
 
-    # Crear la tabla DataDetail
+    # DataDetail
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS DataDetail (
         `idDataDetail` INT AUTO_INCREMENT PRIMARY KEY,    
@@ -97,8 +102,14 @@ try:
         FOREIGN KEY (idLoad) REFERENCES LoadFiles(idLoad)
     );
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS  `TeamIcons` (
+                    `Team`  VARCHAR(255),
+                    `Icon`  VARCHAR(255)
+                    ) ;
+        """)
 
-    # Confirmar y cerrar la conexión
+    
     db_connection.commit()
     print("OK")
 
@@ -110,5 +121,4 @@ except mysql.connector.Error as err:
         cursor.close()
     if db_connection:
         db_connection.close()
-
 

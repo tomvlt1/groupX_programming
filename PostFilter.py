@@ -9,6 +9,7 @@ def GraphOptions():
     """
     A window with two buttons: 'Variable to Graph' and 'Graph to Variable'.
     """
+
     win = GraphWin("Graph Options", 800, 600)
     win.setBackground("darkgreen")
 

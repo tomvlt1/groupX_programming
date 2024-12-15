@@ -7,19 +7,25 @@ from FootGameHome import FootGameHomeMain
 from GetRandomStats import GetRandomFacts, GetColumnNames
 from FootClick import run_footclick
 from headsoccer import run_headsoccer
-#from visualize import run_visualize  # Import the visualize function
-import time
 from FileSelect import file_selector
+from ChooseDataset import dataset_selector
+from ChooseYear import display_year_selection
+from ChooseTeam import display_team_selection
 from filter import main as filtermain # Import the file_selector function
+from main_statistics import *
+
+
+import time
 
 
 def create_window():
+    from Login import LoginGUI # Import inside the function to avoid circular dependency
     userid = getIDUser()
     if userid:
         oldwin = getCurrentWindow()
         if oldwin:
             oldwin.close()
-        winHome = GraphWin("Football Dashboard UI", 900, 500)
+        winHome = GraphWin("Football Dashboard UI", screen_width, screen_height)
         setCurrentWindow(winHome)
         win = getCurrentWindow()
         win.setBackground(color_rgb(44, 40, 85))
@@ -32,15 +38,15 @@ def create_sidebar(win):
     sidebar.setFill(color_rgb(31, 27, 58))
     sidebar.draw(win)
 
-    p1 = Point(20, 90)
-    p2 = Point(180, 130)
+    p1 = Point(20, 40)
+    p2 = Point(180, 80)
 
     buttons = {}
 
     # Existing buttons
 
-    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back.png",
-                                           size=(20, 20), vout=color_rgb(28, 195, 170))
+    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",
+                                           size=(20, 20), vout=colorblueBac)
     buttons["Back"] = back_button
 
     y_offset = 90
@@ -50,7 +56,7 @@ def create_sidebar(win):
                      ("Choose Dataset", "btoChoose")]
 
     for btnlabel, btnid in button_titles:
-        btn, txt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
+        btn, txt = create_button(win, p1, p2, btnlabel, colorvlueButtons, colorcream, size=12)
         buttons[btnlabel] = btn
         y_offset = 50
         p1 = Point(p1.getX(), p1.getY() + y_offset)
@@ -59,9 +65,10 @@ def create_sidebar(win):
     # Now add the new three buttons
     extra_titles = [("FootClick Game", "footclick"),
                     ("HeadSoccer Game", "headsoccer"),
-                    ("Visualize Data", "visualize")]  # Renamed for clarity
+                    ("Main statistics", "btoMainstatistics"),
+                    ("Visualize Data", "visualize"),("Profile", "btoProfile")]  
     for btnlabel, btnid in extra_titles:
-        btn, txt = create_button(win, p1, p2, btnlabel, color_rgb(44, 40, 85), "white", size=12)
+        btn, txt = create_button(win, p1, p2, btnlabel, colorvlueButtons, colorcream, size=12)
         buttons[btnlabel] = btn
         y_offset = 50
         p1 = Point(p1.getX(), p1.getY() + y_offset)
@@ -151,7 +158,125 @@ def create_mini_game_area(win):
 
     return mini_game_area, mini_game_left, mini_game_top, mini_game_right, mini_game_bottom
 
+
+def statistics(userId):   
+    from Login import LoginGUI # Import inside the function to avoid circular dependency
+    oldwin = getCurrentWindow()   
+    if oldwin:
+        oldwin.close()  
+    winStatistics = GraphWin("Statistics Page", screen_widthHome, screen_heightHome)
+    setCurrentWindow(winStatistics)
+    win = getCurrentWindow()    
+    win.setBackground(colorcream) 
+    left_background = Rectangle(Point(0, 0), Point(400, 500))
+    left_background.setFill(colorblueBac)
+    left_background.setOutline(colorblueBac)
+    left_background.draw(win)
+    
+    drawFootballField(win,Point(400, 0), Point(800, 500)) 
+    title = create_label(win, "MAIN STATISTICS",Point(200, 50),20,colorcream,"bold")
+ 
+
+    team_buttons = []  # To keep track of the team buttons and clear them when needed
+    team_menu_shown = False  # Track if the team menu is shown
+
+    if userId:   
+        gr1_button,txt11 = create_button(win, Point(80, 100), Point(330, 150), "Team Performance", colorvlueButtons,colorcream)
+        gr2_button,txt111 = create_button(win, Point(80, 160), Point(330, 210), "Possession vs effectiveness", colorvlueButtons,colorcream)
+        gr3_button,txt112 = create_button(win, Point(80, 220), Point(330, 270), "Shooting Statistics", colorvlueButtons,colorcream)
+        
+        back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout= colorblueBac)
+   
+        while True:
+            try:
+                click = win.getMouse()
+
+                if is_click_in_rectangle(click, back_button):
+                    LoginGUI()
+                    break
+
+                elif is_click_in_rectangle(click, gr1_button):                  
+
+                       selected_year = display_year_selection()
+                       if selected_year is not None:   
+                            selected_team= display_team_selection(selected_year)                               
+                            # Generate graph for selected team and year
+                            if selected_team:
+                                generate_graphs_1(selected_year, selected_team)     
+                elif is_click_in_rectangle(click, gr2_button):
+                        selected_year = display_year_selection()
+                        if selected_year is not None:
+                            selected_team= display_team_selection(selected_year)                               
+                            # Generate graph for selected team and year
+                            if selected_team:
+                                generate_graphs_2(selected_year, selected_team)         
+                elif is_click_in_rectangle(click, gr3_button):               
+                     # Fetch years and display selection
+                    selected_year = display_year_selection()
+                    if selected_year is not None:
+                        plot_shots(selected_year)    
+                                   
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                LoginGUI()
+                break
+    else:        
+        LoginGUI()
+       
+def display_files_selection(win, vfiles):
+    # Label for selecting year
+    files_label = create_label(win, "Select file:", Point(250, 150), 16, "#1E2A39", "bold")
+    files_buttons = []
+    idx=1
+  
+    for i in range(len(vfiles)):
+        idload,vfile, vdata = vfiles[i]
+        btn, txt13 = create_button(win, Point(200, 130 + (idx * 40)), Point(750, 170 + (idx * 40)), str(vfile + ' ' + str(vdata)), "#4682B4", "white",size=9)
+        idx+=1
+        files_buttons.append((idload, btn, txt13))
+    
+    # Create the "X" to close the selection
+    close_button = Rectangle(Point(330, 140), Point(350,160))  # Position of the "X"
+    close_button.setFill("#4682B4")
+    close_button.setOutline("#4682B4")
+    close_button.draw(win)
+
+    # Create the "X" text inside the button
+    close_text = Text(Point(340, 150), "X")
+    close_text.setSize(16)
+    close_text.setTextColor("white")
+    close_text.draw(win)
+
+    # Wait for the user to click
+    while True:
+        click = win.getMouse()
+
+        # Check if the "X" was clicked
+        if is_click_in_rectangle(click, close_button):
+            # Undraw the buttons, label, and "X" when closing
+            for _, b, c in files_buttons:
+                b.undraw()
+                c.undraw()
+            files_label.undraw()
+            close_button.undraw()
+            close_text.undraw()
+            return None  # Return None if the selection is closed
+        
+        # Check if a year button was clicked
+        for idload, btn, vtxt in files_buttons:
+            if is_click_in_rectangle(click, btn):
+                # Undraw all buttons and the label when a year is selected
+                for _, b, c in files_buttons:
+                    b.undraw()
+                    c.undraw()
+                files_label.undraw()
+                close_button.undraw()
+                close_text.undraw()
+                return idload # Return the selected year
+
+
 def create_dashboard():
+    from Login import LoginGUI, AccountGUI  # Import inside the function to avoid circular dependency
     win = create_window()
     if not win:
         return
@@ -186,7 +311,7 @@ def create_dashboard():
                 mini_game_active = False
 
             # Refresh button => Regenerate random facts
-            if is_click_in_rectangle(click, refresh_button):
+            elif is_click_in_rectangle(click, refresh_button):
                 new_facts = GetRandomFacts(3)
                 update_overview_section(win, overview_boxes, new_facts)
 
@@ -196,11 +321,12 @@ def create_dashboard():
                 if userId:
                     try:
                         # Use FileSelect.py's file_selector function
-                        selected_file = file_selector("target_folder")  # Replace "target_folder" with your actual folder
+                        selected_file, selected_fileName= file_selector("target_folder",500,400)  
                         # Proceed to import the selected file into the database
+                        print(selected_file)
                         result1, verror = check_csv_file(selected_file)
                         if result1:
-                            result, last_insert_id, vmessage = create_load_record(userId, selected_file)
+                            result, last_insert_id, vmessage = create_load_record(userId,selected_fileName)
                             if result:
                                 result1, vmessage = import_csv_to_database(selected_file, int(userId), int(last_insert_id))
                                 if result1:
@@ -219,26 +345,39 @@ def create_dashboard():
             # Visualize button
 
             # Profile button
-            if is_click_in_rectangle(click, buttons.get("Visualize Data")):
-                # Instead of run_visualize(), call build_filter_ui()
-                result_df = filtermain()  # or build_filter_ui() can also return a df
-                if result_df is not None:
-                    print("Filtered DataFrame:", result_df)
-                # Possibly do something else with result_df
+            elif is_click_in_rectangle(click, buttons.get("Visualize Data")):
+                if getDataset() is None:
+                    messages("Select Dataset")
+                else:
+                    # Instead of run_visualize(), call build_filter_ui()
+                    result_df = filtermain()  # or build_filter_ui() can also return a df
+                    if result_df is not None:
+                        print("Filtered DataFrame:", result_df)
+                    # Possibly do something else with result_df
 
             # Import Dataset
-            elif is_click_in_rectangle(click, buttons.get("Import Dataset")):
+            elif is_click_in_rectangle(click, buttons.get("Choose Dataset")):
                 userId = getIDUser()
                 if userId:
-                    # your import logic
-                    pass
-
+                    idload,vtxt=dataset_selector(320,600)
+                    setDataset(idload) 
+                    messages(f'your dataset for the study will be {vtxt}') 
+                   
             # Other button logic...
             elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
                 run_footclick()
             elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
                 run_headsoccer()
-       
+            elif is_click_in_rectangle(click, buttons.get("Back")):
+                session.clear
+                LoginGUI()
+            elif is_click_in_rectangle(click, buttons.get("Main statistics")):
+                if getDataset() is None:
+                    messages("Select Dataset")
+                else:
+                    statistics(getIDUser())
+            elif is_click_in_rectangle(click, buttons.get("Profile")):
+                AccountGUI(getIDUser())       
             # Visualize Data button
             
 
