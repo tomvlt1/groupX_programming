@@ -101,10 +101,13 @@ def create_user(data):
             vmessage= vmessage + " Shirt Number must be an integer" 
             vcheck=1        
     try:
-        dob = datetime.strptime(data[7], '%Y-%m-%d').date()
+        date_string = data[5].strip()
+        
+        dob = datetime.strptime(date_string, '%Y-%m-%d').date()  # Ensure the date is in the format mm-dd-yyyy
+        
     except ValueError:
-        vmessage= vmessage + " Date of Birth must be in the format yyyy-mm-dd"
-        vcheck=1
+        vmessage = vmessage + " Date of Birth must be in the format yyyy-mm-dd"
+        vcheck = 1
    
     if vcheck==0:
         try: 
@@ -122,22 +125,20 @@ def create_user(data):
             else:        
                 query = """
                 INSERT INTO User 
-                (UserName, FirstName, LastName, Password, ShirtNumber, PrimaryColor, SecondaryColor, 
+                (UserName, FirstName, LastName, Password, ShirtNumber,
                 DateOfBirth, Gender, Nationality, FavoriteTeam) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 values = (
                     data[2],  # Username
                     data[0],  # First Name
                     data[1],  # Last Name
                     data[3],  # Password
-                    shirt_number,  # Shirt Number 
-                    data[5],  # Shirt Color
-                    data[6],  # SecondaryColor
+                    shirt_number,  # Shirt Number                    
                     dob,  # Date of Birth
-                    data[8],  # Gender
-                    data[9],  # Nationality
-                    data[10]   # Favorite Team
+                    data[6],  # Gender
+                    data[7],  # Nationality
+                    data[8]   # Favorite Team
                 )
                 # Ejecutar la consulta SQL para insertar los valores
                 cursor.execute(query, values)
@@ -166,8 +167,7 @@ def get_user_data(user_id):
 
         query = """
         SELECT 
-            FirstName, LastName, UserName, Password, ShirtNumber, PrimaryColor, 
-            SecondaryColor, DateOfBirth, Gender, Nationality, FavoriteTeam 
+            FirstName, LastName, UserName, Password, ShirtNumber, DateOfBirth, Gender, Nationality, FavoriteTeam 
         FROM User 
         WHERE IdUser = %s
         """
@@ -186,9 +186,11 @@ def get_user_data(user_id):
     
 # Function to modify user data
 def modify_user(user_id, data):
-
-    
+    db_connection = None  # Inicializa la variable antes de usarla
+    cursor = None
     vcheck=0
+    vmessage=''
+    # Validaciones de los datos
     if not all(data):  # Verifica si hay algún campo vacío en la lista data
         vmessage="All fields must be filled" 
         vcheck=1
@@ -199,21 +201,22 @@ def modify_user(user_id, data):
             vmessage= vmessage + " Shirt Number must be an integer" 
             vcheck=1        
     try:
-        dob = datetime.strptime(data[7], '%Y-%m-%d').date()
+        date_string = data[5].strip()
+        
+        dob = datetime.strptime(date_string, '%Y-%m-%d').date()  # Ensure the date is in the format mm-dd-yyyy
+        
     except ValueError:
-        vmessage= vmessage + " Date of Birth must be in the format yyyy-mm-dd"
-        vcheck=1
+        vmessage = vmessage + " Date of Birth must be in the format yyyy-mm-dd"
+        vcheck = 1
    
     if vcheck==0:
-        try:
-          
+        try:     
             db_connection = openconnection()
             cursor = db_connection.cursor()
-
             query = """
             UPDATE User
             SET UserName = %s, FirstName = %s, LastName = %s, Password = %s, ShirtNumber = %s, 
-                PrimaryColor = %s, SecondaryColor = %s, DateOfBirth = %s, Gender = %s, 
+                DateOfBirth = %s, Gender = %s, 
                 Nationality = %s, FavoriteTeam = %s
             WHERE IdUser = %s
             """
@@ -224,13 +227,11 @@ def modify_user(user_id, data):
                 data[0],    # FirstName
                 data[1],    # LastName
                 data[3],    # Password
-                data[4],    # ShirtNumber (Make sure 'shirt_number' is defined if it’s not part of 'data')
-                data[5],    # PrimaryColor
-                data[6],    # SecondaryColor
-                data[7],    # DateOfBirth (assuming it's in data[7])
-                data[8],    # Gender
-                data[9],    # Nationality
-                data[10],   # FavoriteTeam
+                data[4],    # ShirtNumber (Make sure 'shirt_number' is defined if it’s not part of 'data')                
+                dob,    # DateOfBirth (assuming it's in data[5])
+                data[6],    # Gender
+                data[7],    # Nationality
+                data[8],   # FavoriteTeam
                 user_id     # IdUser
                 ))
             db_connection.commit()
@@ -239,16 +240,16 @@ def modify_user(user_id, data):
             db_connection.close()
             vresult=True
             vmessage= "User data updated successfully"
- 
-        except Exception as e:
+        except:
             vmessage = "Error"
             vresult = False
         finally:
             cursor.close()
             db_connection.close()
         return vresult, vmessage
+    
     else:
-        return False, vmessage
+         return False, vmessage
     
 # Function to delete user data
 def delete_user(user_id):  
@@ -511,37 +512,43 @@ def create_load_record(user_id, file_path):
     return vresult, last_insert_id ,vmessage
 
 def select_datadetail(year, iduser):
-    db_connection = None
-    cursor = None
-   
-    try:       
+    idLoad=getDataset()
+    if idLoad is not None:
+          
+        db_connection = None
+        cursor = None
+    
+        try:       
+            
+            db_connection = openconnection()
+            cursor = db_connection.cursor()
         
-        db_connection = openconnection()
-        cursor = db_connection.cursor()
-       
-        query = "SELECT * FROM DataDetail WHERE year = %s AND idUser = %s"
-        cursor.execute(query, (int(year), int(iduser)))
-      
-        results = cursor.fetchall()   
-        column_names = [desc[0] for desc in cursor.description] 
-       
-        if results:        
-            datos = pd.DataFrame(results, columns=column_names)
-            return True, datos
-        else: 
+            query = "SELECT * FROM DataDetail WHERE year = %s AND idUser = %s AND `idLoad` = %s"
+            cursor.execute(query, (int(year), int(iduser),int(idLoad),))
+        
+            results = cursor.fetchall()   
+            column_names = [desc[0] for desc in cursor.description] 
+        
+            if results:        
+                datos = pd.DataFrame(results, columns=column_names)
+                return True, datos
+            else: 
+                return False, None
+        except:     
             return False, None
-    except:     
-        return False, None
-    finally:       
-        if cursor:
-            cursor.close()
-        if db_connection:
-            db_connection.close()
+        finally:       
+            if cursor:
+                cursor.close()
+            if db_connection:
+                db_connection.close()
 
 def select_datadetail_User():
-    iduser=getIDUser()
-    
-    if iduser:
+    iduser1=getIDUser()
+    idLoad1=getDataset()
+    if iduser1 is not None and idLoad1 is not None:
+        iduser=int(iduser1)
+        idLoad=int(idLoad1)    
+
         db_connection = None
         cursor = None
     
@@ -549,8 +556,8 @@ def select_datadetail_User():
             db_connection = openconnection()
             cursor = db_connection.cursor()       
             
-            query = "SELECT * FROM DataDetail WHERE idUser = %s"
-            cursor.execute(query, (int(iduser),))
+            query = "SELECT * FROM DataDetail WHERE `idUser` = %s AND `idLoad` = %s"
+            cursor.execute(query, (iduser, idLoad,))
       
             records = cursor.fetchall()   
             
@@ -569,125 +576,144 @@ def select_datadetail_User():
    
 # Fetch the available years from the database
 def fetch_years():
-    iduser=int(getIDUser())
-   
-    try:
-        db_connection = openconnection()
-        cursor = db_connection.cursor()
-        cursor.execute("SELECT DISTINCT `year` FROM DataDetail WHERE `idUser` = %s ORDER BY `year` ASC", (iduser,))
-        years = [row[0] for row in cursor.fetchall()]
-        return years
-    except :        
+    iduser=getIDUser()
+    idLoad=getDataset()
+    if iduser is not None and idLoad is not None:
+        iduser=int(iduser)
+        idLoad=int( idLoad)
+        try:
+            db_connection = openconnection()
+            cursor = db_connection.cursor()
+            cursor.execute("SELECT DISTINCT `year` FROM DataDetail WHERE `idUser` = %s AND `idLoad` = %s ORDER BY `year` ASC", (iduser, idLoad,))
+            years = [row[0] for row in cursor.fetchall()]
+            return years
+        except :        
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            if db_connection:
+                db_connection.close()
+    else:
         return []
-    finally:
-        if cursor:
-            cursor.close()
-        if db_connection:
-            db_connection.close()
 
 # Fetch the teams for a given year from the database
 def fetch_teams_for_year(year):
-    iduser=int(getIDUser())
+    iduser=getIDUser()
+    idLoad=getDataset()
+    if iduser is not None and idLoad is not None:
+        iduser=int(iduser)
+        idLoad=int( idLoad)
    
-    try:
-        db_connection = openconnection()
-        cursor = db_connection.cursor()
-        #cursor.execute("SELECT DISTINCT `Home Team` FROM DataDetail WHERE `year` = %s ORDER BY `Home Team` ASC", (year,))        
-        cursor.execute("SELECT DISTINCT  dd.`Home Team`, COALESCE(ti.`icon`, '') AS `icon` FROM DataDetail dd LEFT JOIN TeamIcons ti ON dd.`Home Team` = ti.`Team` WHERE `year` = %s  AND dd.`idUser` = %s ORDER BY dd.`Home Team` ASC", (year,iduser,))
-        teams = [(row[0], row[1]) for row in cursor.fetchall()]
-        return teams
-    except:        
+        try:
+            db_connection = openconnection()
+            cursor = db_connection.cursor()
+            #cursor.execute("SELECT DISTINCT `Home Team` FROM DataDetail WHERE `year` = %s ORDER BY `Home Team` ASC", (year,))        
+            cursor.execute("SELECT DISTINCT  dd.`Home Team`, COALESCE(ti.`icon`, '') AS `icon` FROM DataDetail dd LEFT JOIN TeamIcons ti ON dd.`Home Team` = ti.`Team` WHERE `year` = %s  AND dd.`idUser` = %s AND dd.`idLoad` = %s ORDER BY dd.`Home Team` ASC", (year,iduser,idLoad,))
+            teams = [(row[0], row[1]) for row in cursor.fetchall()]
+            return teams
+        except:        
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            if db_connection:
+                db_connection.close()
+    else:
         return []
-    finally:
-        if cursor:
-            cursor.close()
-        if db_connection:
-            db_connection.close()
-            
+   
             
 def GetRandomFacts(fact_qtt):
-    facts = []
-    random.seed(time.time())  # Changes the seed every time the program is called
-    db_connection = None  # Inicializa la variable antes de usarla
-    cursor = None
-    try:
-        # Connect to the database
-        conn = openconnection()
-        cursor = db_connection.cursor()        
-        # Predefined list of meaningful columns for match-level facts
-        fact_queries = [
-            {
-                "description": "fouls committed by Away Team",
-                "column": "`Away Team Fouls`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-            {
-                "description": "fouls committed by Home Team",
-                "column": "`Home Team Fouls`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-            {
-                "description": "highest excitement",
-                "column": "`Match Excitement`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-            {
-                "description": "yellow cards for Home Team",
-                "column": "`Home Team Yellow Cards`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-            {
-                "description": "yellow cards for Away Team",
-                "column": "`Away Team Yellow Cards`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-            {
-                "description": "shots on target by Home Team",
-                "column": "`Home Team On Target Shots`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-            {
-                "description": "shots on target by Away Team",
-                "column": "`Away Team On Target Shots`",
-                "additional_info": "`Home Team`, `Away Team`",
-                "order": "DESC"
-            },
-        ]
+    iduser1=getIDUser()
+    idLoad1=getDataset()
+    if iduser1 is not None and idLoad1 is not None:
+        iduser=int(iduser1)
+        idLoad=int(idLoad1)    
+    
+        facts = []
+        random.seed(time.time())  # Changes the seed every time the program is called
+        db_connection = None  # Inicializa la variable antes de usarla
+        cursor = None
+        try:
+            # Connect to the database
+            conn = openconnection()
+            cursor = db_connection.cursor()        
+            # Predefined list of meaningful columns for match-level facts
+            fact_queries = [
+                {
+                    "description": "fouls committed by Away Team",
+                    "column": "`Away Team Fouls`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+                {
+                    "description": "fouls committed by Home Team",
+                    "column": "`Home Team Fouls`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+                {
+                    "description": "highest excitement",
+                    "column": "`Match Excitement`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+                {
+                    "description": "yellow cards for Home Team",
+                    "column": "`Home Team Yellow Cards`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+                {
+                    "description": "yellow cards for Away Team",
+                    "column": "`Away Team Yellow Cards`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+                {
+                    "description": "shots on target by Home Team",
+                    "column": "`Home Team On Target Shots`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+                {
+                    "description": "shots on target by Away Team",
+                    "column": "`Away Team On Target Shots`",
+                    "additional_info": "`Home Team`, `Away Team`",
+                    "order": "DESC"
+                },
+            ]
 
-        # Shuffle the queries to introduce randomness
-        random.shuffle(fact_queries)
+            # Shuffle the queries to introduce randomness
+            random.shuffle(fact_queries)
 
-        for i in range(min(fact_qtt, len(fact_queries))):
-            fact = fact_queries[i]
-            try:
-                # Query for the specific fact
-                query = f"""
-                    SELECT {fact['additional_info']}, {fact['column']}
-                    FROM DataDetail
-                    ORDER BY {fact['column']} {fact['order']}
-                    LIMIT 1;
-                """
-                cursor.execute(query)
-                result = cursor.fetchone()
-                if result:
-                    home_team, away_team, value = result
-                    facts.append(f"{fact['description']}\n{home_team} - {away_team}\n{fact['column'].strip('`')}: {value}")
-                    return facts
-            except:        
-                return []
-    except:        
-        return []
-    finally:
-        if cursor:
-            cursor.close()
-        if db_connection:
-            db_connection.close()
+            for i in range(min(fact_qtt, len(fact_queries))):
+                fact = fact_queries[i]
+                try:
+                    # Query for the specific fact
+                    query = f"""
+                        SELECT {fact['additional_info']}, {fact['column']}
+                        FROM DataDetail WHERE `idUser` = %s AND `idLoad` = %s
+                        ORDER BY {fact['column']} {fact['order']}
+                        LIMIT 1;
+                    """
+                    cursor.execute(query, (iduser, idLoad,))
+                    result = cursor.fetchone()
+                    if result:
+                        home_team, away_team, value = result
+                        facts.append(f"{fact['description']}\n{home_team} - {away_team}\n{fact['column'].strip('`')}: {value}")
+                        return facts
+                except:        
+                    return []
+        except:        
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            if db_connection:
+                db_connection.close()
+    else:
+        return None
             
   
 
@@ -708,3 +734,143 @@ def GetColumnNames(table_name):
         if conn:
             conn.close()
     return columns
+
+def filter_data_from_db(filters=None, columns=None):
+    iduser1=getIDUser()
+    idLoad1=getDataset()
+    print("Hola")
+    if iduser1 is not None and idLoad1 is not None:
+        iduser=int(iduser1)
+        idLoad=int(idLoad1)    
+        conn = None
+        cursor = None
+        try:
+            conn = openconnection()
+            cursor = conn.cursor()
+
+            # If no columns selected, select all
+            if not columns or len(columns) == 0:
+                column_str = "*"
+            else:
+                column_str = ", ".join(f"`{col}`" for col in columns)
+
+            query = f"SELECT {column_str} FROM `DataDetail` WHERE `idUser` = %s AND `idLoad` = %s"
+            if filters:
+                query +=  " AND "
+                conditions = []
+                for (col, op, val) in filters:
+                    conditions.append(f"`{col}` {op} '{val}'")
+                query +=  " AND ".join(conditions)
+            print(query)
+            cursor.execute(query, (iduser, idLoad,))
+            results = cursor.fetchall()
+            column_names = [desc[0] for desc in cursor.description]
+            return pd.DataFrame(results, columns=column_names)
+
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return pd.DataFrame()
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    else:
+        return None
+            
+def get_unique_values(column_name):
+    iduser1=getIDUser()
+    idLoad1=getDataset()
+    if iduser1 is not None and idLoad1 is not None:
+        iduser=int(iduser1)
+        idLoad=int(idLoad1)    
+        conn = None
+        cursor = None
+        try:
+            conn = openconnection()
+            cursor = conn.cursor()
+            query = f"SELECT DISTINCT `{column_name}` FROM `DataDetail` WHERE `idUser` = %s AND `idLoad` = %s"
+            cursor.execute(query, (iduser, idLoad,))
+            results = cursor.fetchall()
+            return [row[0] for row in results if row[0] is not None]
+        except Exception as e:
+            print(f"Error fetching unique values: {e}")
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    else:
+        return []
+
+def get_column_datatype(column_name):
+    conn = None
+    cursor = None
+    try:
+        conn = openconnection()
+        cursor = conn.cursor()
+        query = f"SELECT `{column_name}` FROM `DataDetail` WHERE `{column_name}` IS NOT NULL LIMIT 1"
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result:
+            if isinstance(result[0], (int, float)):
+                return "numerical"
+            else:
+                return "text"
+    except Exception as e:
+        print(f"Error determining datatype for column {column_name}: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    return "text"
+
+
+def get_operators_for_column(column_name):
+    """
+    Removed 'LIKE' operator as requested. Only basic operators remain.
+    """
+    datatype = get_column_datatype(column_name)
+    if datatype == "numerical":
+        return ["=", ">", "<", ">=", "<="]
+    else:
+        return ["="]  # For text columns, only '='
+    
+def get_headers():
+    conn = None
+    cursor = None
+    try:
+        conn = openconnection()
+        cursor = conn.cursor()
+        cursor.execute("SHOW COLUMNS FROM `DataDetail`")
+        headers = [row[0] for row in cursor.fetchall()]
+        return headers[1:]  # Exclude first column if you don't need it
+    except Exception as e:
+        print(f"Error fetching headers: {e}")
+        return []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+# Fetch the available years from the database
+def Select_Load_Files():
+    iduser=int(getIDUser())
+   
+    try:
+        db_connection = openconnection()
+        cursor = db_connection.cursor()
+        cursor.execute("SELECT idLoad,file_path,DATE_FORMAT(LoadDate, '%Y-%m-%d')  FROM LoadFiles WHERE `idUser` = %s ORDER BY idLoad DESC", (iduser,))
+        vfiles= cursor.fetchall()
+        return vfiles
+    except :        
+        return []
+    finally:
+        if cursor:
+            cursor.close()
+        if db_connection:
+            db_connection.close() 

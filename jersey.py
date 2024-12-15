@@ -14,7 +14,9 @@
 
 from graphics import *
 
+# Define a dictionary of team colors with primary and secondary colors
 team_colors = {
+    "BASE": {"primary": "#FFFFFF", "secondary": "#000000"},
     "MÁLAGA": {"primary": "#4AADD4", "secondary": "#FFFFFF"},
     "SEVILLA FC": {"primary": "#D71A28", "secondary": "#FFFFFF"},
     "GRANADA": {"primary": "#E30613", "secondary": "#FFFFFF"},
@@ -48,56 +50,124 @@ team_colors = {
     "CÁDIZ CF": {"primary": "#FFD700", "secondary": "#0000FF"},
 }
 
-def draw_custom_jersey(win, team_chosen, username, favorite_number):
-    if team_chosen not in team_colors:
-        print("Invalid team chosen. Please select a valid team.")
-        return
-    
-    primary_color = team_colors[team_chosen]["primary"]
-    secondary_color = team_colors[team_chosen]["secondary"]
+def draw_custom_jersey(win, p1, p2, team_chosen, username, favorite_number, jersey_objects=None):
+    """
+    Draws a custom jersey within the specified rectangular area defined by p1 and p2.
 
-    torso = Rectangle(Point(150, 80), Point(350, 380))
+    Parameters:
+    - win: GraphWin object where the jersey will be drawn.
+    - p1: Point object representing the top-left corner of the drawing area.
+    - p2: Point object representing the bottom-right corner of the drawing area.
+    - team_chosen: String representing the selected team.
+    - username: String representing the user's name.
+    - favorite_number: Integer representing the user's favorite number.
+    """
+    if jersey_objects:
+        for obj in jersey_objects:
+            obj.undraw()  
+            
+
+    
+    team_chosen = team_chosen.lower()
+    team_colors_lower = {}  
+    for key, value in team_colors.items():        
+        team_colors_lower[key.lower()] = value
+
+    
+    if team_chosen.lower() not in team_colors_lower:
+        team_chosen = "base"  # Default value in lowercase
+    
+
+    # Retrieve primary and secondary colors for the selected team
+    primary_color = team_colors_lower[team_chosen]["primary"]
+    secondary_color = team_colors_lower[team_chosen]["secondary"]
+    
+    # Calculate width and height based on input points
+    area_width = p2.getX() - p1.getX()
+    area_height = p2.getY() - p1.getY()
+    
+    # Define proportions for jersey elements
+    # These proportions can be adjusted as needed
+    torso_top_left = Point(p1.getX() + 0.25 * area_width, p1.getY() + 0.2 * area_height)
+    torso_bottom_right = Point(p1.getX() + 0.75 * area_width, p1.getY() + 0.8 * area_height)
+    
+    left_sleeve_points = [
+        Point(p1.getX() + 0.25 * area_width, p1.getY() + 0.2 * area_height),
+        Point(p1.getX() + 0.10 * area_width, p1.getY() + 0.5 * area_height),
+        Point(p1.getX() + 0.25 * area_width, p1.getY() + 0.5 * area_height)
+    ]
+    
+    right_sleeve_points = [
+        Point(p1.getX() + 0.75 * area_width, p1.getY() + 0.2 * area_height),
+        Point(p1.getX() + 0.90 * area_width, p1.getY() + 0.5 * area_height),
+        Point(p1.getX() + 0.75 * area_width, p1.getY() + 0.5 * area_height)
+    ]
+    
+    collar_top_left = Point(p1.getX() + 0.40 * area_width, p1.getY() + 0.10 * area_height)
+    collar_bottom_right = Point(p1.getX() + 0.60 * area_width, p1.getY() + 0.20 * area_height)
+    
+    # Draw torso
+    torso = Rectangle(torso_top_left, torso_bottom_right)
     torso.setFill(primary_color)
     torso.setOutline("black")
-    torso.setWidth(3)
+    torso.setWidth(int(0.005 * area_width))  # Line width proportional to area
     torso.draw(win)
-
-    left_sleeve = Polygon(Point(150, 80), Point(100, 200), Point(150, 200))
+    
+    # Draw left sleeve
+    left_sleeve = Polygon(left_sleeve_points)
     left_sleeve.setFill(secondary_color)
     left_sleeve.setOutline("black")
-    left_sleeve.setWidth(3)
+    left_sleeve.setWidth(int(0.005 * area_width))
     left_sleeve.draw(win)
-
-    right_sleeve = Polygon(Point(350, 80), Point(400, 200), Point(350, 200))
+    
+    # Draw right sleeve
+    right_sleeve = Polygon(right_sleeve_points)
     right_sleeve.setFill(secondary_color)
     right_sleeve.setOutline("black")
-    right_sleeve.setWidth(3)
+    right_sleeve.setWidth(int(0.005 * area_width))
     right_sleeve.draw(win)
-
-    collar = Rectangle(Point(215, 70), Point(285, 90))
+    
+    # Draw collar
+    collar = Rectangle(collar_top_left, collar_bottom_right)
     collar.setFill(secondary_color)
     collar.setOutline("black")
-    collar.setWidth(2)
+    collar.setWidth(int(0.003 * area_width))
     collar.draw(win)
-
-    username_text = Text(Point(250, 140), username.upper())
-    username_text.setSize(20)
+    
+    # Draw username
+    username_position = Point(p1.getX() + 0.5 * area_width, p1.getY() + 0.45 * area_height)
+    username_text = Text(username_position, username.upper())
+    username_text.setSize(int(0.05 * area_height))  # Size proportional to height
     username_text.setTextColor(secondary_color)
     username_text.setStyle("bold")
     username_text.draw(win)
-
-    number_text = Text(Point(250, 200), str(favorite_number))
-    number_text.setSize(30)
+    
+    # Draw favorite number
+    number_position = Point(p1.getX() + 0.5 * area_width, p1.getY() + 0.65 * area_height)
+    number_text = Text(number_position, str(favorite_number))
+    number_text.setSize(int(0.07 * area_height))  # Size proportional to height
     number_text.setTextColor(secondary_color)
     number_text.setStyle("bold")
     number_text.draw(win)
+    
+    return [torso, left_sleeve, right_sleeve, collar, username_text, number_text]
 
 def main():
+    # Initialize a graphics window
     win = GraphWin("Football Jersey", 500, 400)
-    draw_custom_jersey(win, "REAL MADRID", "PlayerOne", 10)
+
+    # Define two points to represent the drawing area
+    p1 = Point(50, 50)
+    p2 = Point(450, 350)
+    jersey_objects=[]
+    # Draw a jersey with dynamic resizing based on p1 and p2
+    jersey_objects =draw_custom_jersey(win, p1, p2, "REAL MADRID", "PlayerOne", 1,jersey_objects)
+
+    # Wait for a mouse click before closing the window
     win.getMouse()
     win.close()
 
 
-if '__name__' == '__main__':
+# Ensure the program runs correctly when executed
+if __name__ == '__main__':
     main()

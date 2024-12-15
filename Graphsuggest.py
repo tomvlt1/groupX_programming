@@ -4,13 +4,13 @@
 #From the possible graphs, the user will choose the one they prefer
 
 
-from graphics import GraphWin, Rectangle, Point, Text, Image, Line
 from graphics import *
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
 from matplotlib.colors import ListedColormap
+from Globals import *
 
 
 try:
@@ -37,6 +37,8 @@ def Histogram(column, filename):
     plt.hist(data[column], bins=10, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.xlabel(f'{column}', color='black')  # X-axis label color to black
     plt.ylabel('Frequency', color='black')  # Y-axis label color to black
+    
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
 
@@ -44,6 +46,8 @@ def Boxplot(column, filename):
     plt.figure()
     data.boxplot(column=column, patch_artist=True, sym="ro", boxprops=dict(facecolor='#006400', color='black'))  # Dark Green
     plt.ylabel('Values', color='black')  # Y-axis label color to black
+    
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
 
@@ -53,6 +57,8 @@ def Barchart(column, filename):
     plt.bar(counts.index, counts.values, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.xlabel('Categories', color='black')  # X-axis label color to black
     plt.ylabel('Counts', color='black')  # Y-axis label color to black
+   
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
 
@@ -64,6 +70,8 @@ def Piechart(column, filename):
     explode = [0.2 if count == max(counts.values) else 0 for count in counts.values]
     plt.pie(counts.values, labels=counts.index, autopct='%1.1f%%', startangle=90,
             explode=explode, colors=dark_green_shades, counterclock=False, shadow=True)
+   
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
 
@@ -72,6 +80,8 @@ def Scatterplot(x, y, filename):
     plt.scatter(data[x], data[y], color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.xlabel(f'{x}', color='black')  # X-axis label color to black
     plt.ylabel(f'{y}', color='black')  # Y-axis label color to black
+    
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
 
@@ -80,9 +90,10 @@ def Linechart(x, y, filename):
     plt.plot(data[x], data[y], color='#006400', alpha=0.7)  # Dark Green
     plt.xlabel(f'{x}', color='black')  # X-axis label color to black
     plt.ylabel(f'{y}', color='black')  # Y-axis label color to black
+    
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
-
 
 def StackedBarchart(x, y, filename):
     plt.figure()
@@ -101,6 +112,8 @@ def StackedBarchart(x, y, filename):
 
     # Save the figure
     #plt.tight_layout()  # To ensure the legend fits without overlapping
+   
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
 
@@ -116,9 +129,10 @@ def Heatmap(x, y, filename):
     plt.ylabel(f'{y}', color='black')  # Y-axis label color to black
     plt.title(f'Heatmap of {x} vs {y}', color='black')  # Set title color to black
     plt.tight_layout()
+    
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
-
 
 def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, agg_func='mean', filename="graph.png"):
     data[numerical_color] = pd.to_numeric(data[numerical_color], errors='coerce')
@@ -142,12 +156,10 @@ def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, ag
     plt.ylabel(f'{categorical}', color='black')  # Y-axis label color to black
 
     plt.tight_layout()  # To ensure the layout is properly adjusted
+      
+    #plt.show(block=True)
     plt.savefig(filename)
     plt.close()
-
-
-
-
 
 def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
     plane = plt.figure()
@@ -156,19 +168,23 @@ def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
     axis.set_xlabel(f'{numvar1}', color="black")  # Set axis label color to black
     axis.set_ylabel(f'{numvar2}', color="black")  # Set axis label color to black
     axis.set_zlabel(f'{numvar3}', color="black")  # Set axis label color to black
+       
+    #plane.show(block=True)
     plt.savefig(filename)
-
+    plt.close()
 
 
 
 def VariableSelection():
+    
+    oldwin = getCurrentWindow()
+    if oldwin:
+        oldwin.close()
     win = GraphWin("Variable Selector", 800, 600)
+    setCurrentWindow(win)
     win.setBackground("Darkgreen")
-    title = Text(Point(400, 50), "Select Variables (Up to 3)")
-    title.setSize(20)
-    title.setTextColor("white")
-    title.setStyle("bold")
-    title.draw(win)
+    title = create_label(win, "Select Variables (Up to 3)", Point(400, 50), 20, colorcream, "bold")
+  
 
     up_arrow = Polygon(Point(740, 170), Point(710, 200), Point(770, 200))  # Smaller triangle pointing up
     up_arrow.setFill("white")
@@ -177,6 +193,12 @@ def VariableSelection():
     down_arrow = Polygon(Point(740, 440), Point(710, 410), Point(770, 410))  # Smaller triangle pointing down
     down_arrow.setFill("white")
     down_arrow.draw(win)
+    
+    back_arrow = Line(Point(50, 57), Point(100, 57))
+    back_arrow.setArrow('first')
+    back_arrow.setWidth(3)
+    back_arrow.setFill("white")
+    back_arrow.draw(win)
 
     rectangles = []
     texts = []
@@ -189,12 +211,9 @@ def VariableSelection():
 
     # Create a list of rectangles and placeholder texts for all variables
     for i in range(visible_count):
-        rect = Rectangle(Point(x_start, y_start + i * 70), Point(x_start + 550, y_start + i * 70 + 50))  # Wider for centering
-        rect.setFill("lightgrey")
+        rect, text =create_button(win,Point(x_start, y_start + i * 70), Point(x_start + 550, y_start + i * 70 + 50), "", "lightgrey","black",vout="lightgrey",size=12)
+       
         rectangles.append(rect)
-
-        text = Text(rect.getCenter(), "")  # Placeholder text
-        text.setSize(12)  # Adjust font size as needed
         texts.append(text)
 
     def draw_visible():
@@ -225,31 +244,30 @@ def VariableSelection():
     draw_visible()
 
     # Submit button positioned at the bottom center
-    submit_btn = Rectangle(Point(300, 520), Point(500, 570))  # Adjusted for bottom
-    submit_btn.setFill("lightgreen")
-    submit_btn.draw(win)
-    submit_text = Text(submit_btn.getCenter(), "Submit")
-    submit_text.setTextColor("darkgreen")
-    submit_text.setStyle("bold")
-    submit_text.draw(win)
-
+    submit_btn, submit_text =create_button(win,Point(300, 520), Point(500, 570), "Submit", "lightgreen","darkgreen",vout="lightgreen",size=12)
+      
     while True:
         click = win.getMouse()
 
-        if 300 < click.x < 500 and 520 < click.y < 570:  # Submit button clicked
+        if is_click_in_rectangle(click, submit_btn): # Submit button clicked
             break
 
         # Check for clicks on the up arrow (right side)
-        if 710 < click.x < 770 and 160 < click.y < 200:  # Up arrow clicked
+        elif 710 < click.x < 770 and 160 < click.y < 200:  # Up arrow clicked
+
             if scroll_offset > 0:
                 scroll_offset -= 1
                 draw_visible()
 
         # Check for clicks on the down arrow (right side)
-        if 710 < click.x < 770 and 410 < click.y < 440:  # Down arrow clicked
+        elif  710 < click.x < 770 and 410 < click.y < 440:  # Down arrow clicked
+
             if (scroll_offset + 1) * visible_count < len(data.columns):
                 scroll_offset += 1
                 draw_visible()
+                
+        if 50 < click.x < 100 and 55 < click.y < 58:  # Back arrow region  # If the back button is clicked            
+            main()
 
         # Check for clicks on visible rectangles
         start = scroll_offset * visible_count
@@ -260,7 +278,7 @@ def VariableSelection():
             rect = rectangles[index]
             text = texts[index]
 
-            if rect.getP1().x < click.x < rect.getP2().x and rect.getP1().y < click.y < rect.getP2().y:
+            if is_click_in_rectangle(click,  rect ):
                 col_name = data.columns[i]
                 if col_name in selected:
                     selected.remove(col_name)
@@ -275,17 +293,20 @@ def VariableSelection():
 
 
 def GraphOptions(selected):
+    
+      
+    oldwin = getCurrentWindow()
+    if oldwin:
+        oldwin.close()
     win = GraphWin("Graph Options", 800, 600)
+    setCurrentWindow(win)
     win.setBackground("darkgreen")
-
+    
     bg_image = Image(Point(400, 300), "images/pic.gif")
     bg_image.draw(win)
 
-    title = Text(Point(400, 50), f"Select a Graph for {', '.join(selected)}")
-    title.setSize(18)
-    title.setTextColor("white")
-    title.setStyle("bold")
-    title.draw(win)
+    title = create_label(win, f"Select a Graph for {', '.join(selected)}",Point(400, 50), 18, colorcream, "bold")
+  
 
     options = []
     if len(selected) == 1:
@@ -315,14 +336,7 @@ def GraphOptions(selected):
     vertical_spacing = 100
     buttons = []
     for i, option in enumerate(options):
-        rect = Rectangle(Point(300, y_base + i * vertical_spacing), Point(500, y_base + 50 + i * vertical_spacing))
-        rect.setFill("lightgreen")
-        rect.draw(win)
-
-        text = Text(rect.getCenter(), option)
-        text.setTextColor("black")
-        text.draw(win)
-
+        rect,text=create_button(win,Point(300, y_base + i * vertical_spacing), Point(500, y_base + 50 + i * vertical_spacing), option, "lightgreen","black","lightgreen",size=12)        
         buttons.append((rect, option))
 
     back_arrow = Line(Point(50, 57), Point(100, 57))
@@ -336,57 +350,51 @@ def GraphOptions(selected):
         click = win.getMouse()
 
         for rect, option in buttons:
-            if rect.getP1().x < click.x < rect.getP2().x and rect.getP1().y < click.y < rect.getP2().y:
+            if is_click_in_rectangle(click, rect):
                 selected_option = option
                 break
 
-        if 50 < click.x < 100 and 40 < click.y < 60:  # If the back button is clicked
-            win.close()
-            return None, None  # Return None for both variables and graph type to indicate going back
+        if 50 < click.x < 100 and 55 < click.y < 58:  # Back arrow region  # If the back button is clicked            
+            main()
 
         if selected_option:
             break
-
     win.close()
     return selected_option, selected  # Return the selected graph and variables
 
 
+
 def DisplayGraph(filename, title_text):
+   
+    oldwin = getCurrentWindow()
+    if oldwin:
+        oldwin.close()
     win = GraphWin("Graph Viewer", 800, 600)
+    setCurrentWindow(win)
     win.setBackground("darkgreen")
+    
+    title = create_label(win, title_text,Point(400, 30), 18, colorcream, "bold")
+  
 
-    title = Text(Point(400, 30), title_text)
-    title.setSize(18)
-    title.setTextColor("white")
-    title.setStyle("bold")
-    title.draw(win)
+    graph_image = Image(Point(400, 300), filename)
+    graph_image.draw(win)
 
-    try:
-        # Load and display the image (ensure the graph file exists)
-        graph_image = Image(Point(400, 300), filename)
-        graph_image.draw(win)
-    except Exception as e:
-        print(f"Error displaying graph: {e}")
-        return False
-
-    # Add a close button
-    close_button = Rectangle(Point(350, 550), Point(450, 590))
-    close_button.setFill("lightgreen")
-    close_button.draw(win)
-
-    close_text = Text(close_button.getCenter(), "Close")
-    close_text.setTextColor("darkgreen")
-    close_text.setStyle("bold")
-    close_text.draw(win)
+    back_arrow = Line(Point(50, 50), Point(100, 50))  # Starting at (50, 50) to (100, 50)
+    back_arrow.setArrow('first')  # Arrow facing left
+    back_arrow.setWidth(3)
+    back_arrow.setFill("white")
+    back_arrow.draw(win)
 
     while True:
         click = win.getMouse()
-        if close_button.getP1().x <= click.x <= close_button.getP2().x and \
-           close_button.getP1().y <= click.y <= close_button.getP2().y:
+        if 700 < click.x < 800 and 550 < click.y < 600:  # Close button region
             break
-
+        if 50 < click.x < 100 and 40 < click.y < 60:  # Back arrow region
+            main()
+            return True  # Indicating that the user wants to go back
     win.close()
     return False
+
 
 def main():
     while True:
@@ -444,6 +452,7 @@ def main():
                     continue  # User clicked back in the graph viewer, return to graph options
                 else:
                     break
+
 
 if __name__ == "__main__":
     main()

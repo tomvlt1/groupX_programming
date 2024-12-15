@@ -1,7 +1,7 @@
 from graphics import *
 from Globals import *
 from DataFunctions import *
-from graph_1 import *
+from main_statistics import *
 from FootGameHome import FootGameHomeMain
 from Graphsuggest import Graphsuggest_main
 import time

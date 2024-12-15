@@ -19,6 +19,8 @@ def clear_window(win):
     win.update()
 
 def draw_file_selector(win, files):
+    
+    
     clear_window(win)
     create_label(win, "Select a File", Point(win.getWidth() / 2, 20), size=16, style="bold")
     
@@ -44,8 +46,10 @@ def file_selector(folder_name, win_width=screen_width, win_height=screen_height)
     Opens a separate window to let the user select a file from `folder_name`.
     Returns the full path to the selected file, or raises FileNotFoundError if folder/files are missing.
     """
+    
+    
     win = GraphWin("File Selector", win_width, win_height)
-    win.setBackground("dark green")
+    win.setBackground("#2c2855")
     
     target_dir = os.path.join(os.getcwd(), folder_name)
     if not os.path.exists(target_dir):
@@ -61,9 +65,4 @@ def file_selector(folder_name, win_width=screen_width, win_height=screen_height)
         for rect, _, file in buttons:
             if is_click_in_rectangle(click, rect):
                 win.close()
-                return os.path.join(target_dir, file)
-
-
-if __name__ == "__main__":
-    selected_file = file_selector("target_folder")
-    print(f"Selected File: {selected_file}")
+                return os.path.join(target_dir, file),file

@@ -1,67 +1,71 @@
 from graphics import *
 from Globals import *
 from DataFunctions import *
-from Dashboard import create_dashboard
-import time
 from jersey import draw_custom_jersey
-def login_user(input1, input2):
+from Dashboard import create_dashboard
+
+
+  
+def login_user(input1,input2):
     username = input1.getText()  # Get the username from the input field
-    password = input2.getText()  # Get the password from the input field   
+    password = input2.getText()  # Get the password directly from the input field   
  
-    result, vmessage, username, user_id = validate_user(username, password)
+    result, vmessage,username, user_id = validate_user(username, password)
     if result:
         setIDUser(user_id)       
-        create_dashboard()  # We'll import this from Dashboard once we're in main.py
+        create_dashboard()
+        
     else:
         messages(vmessage)
         LoginGUI()
-
+        
 def RegisterGUI():
-    oldwin = getCurrentWindow()   
+    oldwin = getCurrentWindow()
     if oldwin:
-        oldwin.close()  
+        oldwin.close()
 
-    winRegisterGUI = GraphWin("FootViz Registration Page", 1100, 800)
+    winRegisterGUI = GraphWin("FootViz Registration Page", screen_widthHome, screen_heightHome)
     setCurrentWindow(winRegisterGUI)
-    win = getCurrentWindow()    
-    win.setBackground("#FFFFFF")  
+    win = getCurrentWindow()
+    win.setBackground(colorcream)
 
-    left_background = Rectangle(Point(0, 0), Point(500, 800))
-    left_background.setFill("#ADEFD1")
-    left_background.setOutline("#ADEFD1")
-    left_background.draw(win)
 
-    title = create_label(win, "REGISTER", Point(800, 60), 28, "#1E2A39", "bold")  
-    subtitle = create_label(win, "IT'S COMPLETELY FREE", Point(800, 100), 16, "#1E2A39", "normal")  
 
-    draw_custom_jersey(win,Point(30, 100), Point(470, 600),"BASE" ,"Username","0")
+    # Titles
+    title = create_label(win, "REGISTER", Point(550, 30), 20, colorblueBac, "bold")
+    subtitle = create_label(win, "IT'S COMPLETELY FREE", Point(550, 60), 12, colorblueBac, "normal")
 
+    left_background,image_left_background=create_image_button(win, Point(0, 0), Point(350, 500), "images/BackgroundRegister1.png", size=(350, 500), vout=colorblueBac)
+    jersey_objects=[]
+    # Draw jersey
+    jersey_objects =draw_custom_jersey(win,Point(100, 180), Point(250, 370),"base" ,"FOOTVIZ","0",jersey_objects)
+    # Registration fields
     fields = [
-        ("FirstName", 140, "First Name"),
-        ("LastName", 190, "Last Name"),
-        ("UserName", 240, "User Name"),
-        ("Password", 290, "Password"),
-        ("ShirtNumber", 340, "Shirt Number"),
-        ("PrimaryColor", 390, "Primary Color"),
-        ("SecondaryColor", 430, "Secondary Color"),
-        ("DateOfBirth", 470, "Date Of Birth"),
-        ("Gender", 520, "Gender"),
-        ("Nationality", 570, "Nationality"),
-        ("FavoriteTeam", 620, "FavoriteTeam")
+        ("FirstName", 100, "First Name"),
+        ("LastName", 140, "Last Name"),
+        ("UserName", 180, "User Name"),
+        ("Password", 220, "Password"),
+        ("ShirtNumber", 260, "Shirt Number"),
+        ("DateOfBirth", 300, "Date of Birth"),
+        ("Gender", 340, "Gender"),
+        ("Nationality", 380, "Nationality"),
+        ("FavoriteTeam", 420, "Favorite Team")
     ]
 
     entry_fields = {}
     for label, y, vtext in fields:
-        create_label(win, vtext, Point(680, y), 14, "#1E2A39")
-        entry = create_entry(win, Point(900, y), 30, vcolor="#F0F8FF")
+        label_text = create_label(win, vtext, Point(460, y), 12, colorblueBac)
+        entry = create_entry(win, Point(670, y), 25, 12, vfill="#F0F8FF")
         entry_fields[label] = entry
 
-    submit_button, txt4 = create_button(win, Point(700, 650), Point(900, 690), "Create Account", "#2E8B57", "white")
-    back_button, vim = create_image_button(win, Point(500, 0), Point(600, 50), "images/back.png", size=(20, 20), vout="#FFFFFF")
-
+    # Buttons
+    submit_button, txt_submit = create_button(win, Point(460, 450), Point(670, 490), "Create Account", colorvlueButtons, colorcream)    
+    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout=colorblueBac)
+  
     while True:
         try:
             click = win.getMouse()
+            # Check if the submit button is clicked
             if is_click_in_rectangle(click, submit_button):
                 data = [
                     entry_fields["FirstName"].getText(),
@@ -69,8 +73,6 @@ def RegisterGUI():
                     entry_fields["UserName"].getText(),
                     entry_fields["Password"].getText(),
                     entry_fields["ShirtNumber"].getText(),
-                    entry_fields["PrimaryColor"].getText(),
-                    entry_fields["SecondaryColor"].getText(),
                     entry_fields["DateOfBirth"].getText(),
                     entry_fields["Gender"].getText(),
                     entry_fields["Nationality"].getText(),
@@ -78,220 +80,167 @@ def RegisterGUI():
                 ]
                 result, error = create_user(data)
                 if result:
-                    LoginGUI()
-                    break
+                    LoginGUI()  # Go back to the login screen
+                   
                 else:
-                    messages(error)
-                    break
-
+                    messages(error)              
             elif is_click_in_rectangle(click, back_button):
-                LoginGUI()
-                break
+                LoginGUI() 
+                  
+ 
 
         except GraphicsError:
             break
 
 def AccountGUI(userId):
-    oldwin = getCurrentWindow()
+    oldwin = getCurrentWindow()   
     if oldwin:
-        oldwin.close()
-
-    winAccountGUI = GraphWin("FootViz Account Page", 1100, 800)
+        oldwin.close()  
+    winAccountGUI = GraphWin("FootViz Account Page", screen_widthHome, screen_heightHome)
     setCurrentWindow(winAccountGUI)
-    win = getCurrentWindow()
-    win.setBackground("#FFFFFF")
+    win = getCurrentWindow()    
+    win.setBackground(colorcream)  
 
     if userId:
+        # Fetch existing user data from the database for modification
         user_data = get_user_data(userId)
+        try:
+            date_string = user_data[5].strftime('%Y-%m-%d').strip()       
+            dob = datetime.strptime(date_string, '%Y-%m-%d').date()  # Ensure the date is in the format yyyy-mm-dd     
+        except ValueError:
+            dob =None
         if user_data:
             fields = [
-                ("FirstName", 140, "First Name", user_data[0]),
-                ("LastName", 190, "Last Name", user_data[1]),
-                ("UserName", 240, "User Name", user_data[2]),
-                ("Password", 290, "Password", user_data[3]),
-                ("ShirtNumber", 340, "Shirt Number", user_data[4]),
-                ("PrimaryColor", 390, "Primary Color", user_data[5]),
-                ("SecondaryColor", 430, "Secondary color", user_data[6]),
-                ("DateOfBirth", 470, "Date Of Birth (yyyy-mm-dd)", user_data[7]),
-                ("Gender", 520, "Gender", user_data[8]),
-                ("Nationality", 570, "Nationality", user_data[9]),
-                ("FavoriteTeam", 620, "FavoriteTeam", user_data[10])
+                ("FirstName", 100, "First Name", user_data[0]),
+                ("LastName", 140, "Last Name", user_data[1]),
+                ("UserName", 180, "User Name", user_data[2]),
+                ("Password", 220, "Password", user_data[3]),
+                ("ShirtNumber", 260, "Shirt Number", user_data[4]),
+                ("DateOfBirth", 300, "Date of Birth", dob),
+                ("Gender", 340, "Gender", user_data[6]),
+                ("Nationality", 380, "Nationality", user_data[7]),
+                ("FavoriteTeam", 420, "Favorite Team", user_data[8])
             ]
 
+            # Create Entry fields for each data item
             entry_fields = {}
-            for label, y, vtext, defaultvalue in fields:
-                create_label(win, vtext, Point(680, y), 14, "#1E2A39")
-                if label == "UserName":
-                    create_label(win, defaultvalue, Point(900, y), 14, "#1E2A39")
-                else:
-                    entry = create_entry(win, Point(900, y), 30, vcolor="#F0F8FF")
+            for label, y, vtext, defaultvalue in fields:      
+                if label=="UserName":
+                    create_label(win,defaultvalue,Point(480, y),12,colorblueBac,"bold")
+                else:  
+                    label_text = create_label(win, vtext, Point(460, y), 12, colorblueBac)
+                    entry = create_entry(win, Point(670, y), 25, 12, vfill="#F0F8FF")       
                     entry.setText(defaultvalue)
                     entry_fields[label] = entry
+                    
+            left_background,image_left_background=create_image_button(win, Point(0, 0), Point(350, 500), "images/BackgroundRegister1.png", size=(350, 500), vout=colorblueBac)
 
-            left_background = Rectangle(Point(0, 0), Point(500, 800))
-            left_background.setFill("#ADEFD1")
-            left_background.setOutline("#ADEFD1")
-            left_background.draw(win)
-            draw_custom_jersey(win,Point(30, 100), Point(470, 600), user_data[10].upper, user_data[2], user_data[4])
-            title = create_label(win, "YOUR PROFILE", Point(800, 60), 28, "#1E2A39", "bold")
-            vcolorbutton = "#2E8B57"
-            submit_button, txt6 = create_button(win, Point(700, 650), Point(810, 700), "Save", vcolorbutton, "white")
-            delete_button, txt7 = create_button(win, Point(850, 650), Point(960, 700), "Delete", vcolorbutton, "white")
-            back_button, vim = create_image_button(win, Point(0, 0), Point(100, 50), "images/back.png", size=(20, 20), vout="#ADEFD1")
+            jersey_objects=[]
+               # Draw jersey
+            jersey_objects =draw_custom_jersey(win,Point(100, 180), Point(250, 370),user_data[8] ,user_data[2],user_data[4],jersey_objects)
 
+            # Titles
+            title = create_label(win, "YOUR PROFILE", Point(550, 30), 20, colorblueBac, "bold")
+            subtitle = create_label(win, "Modify your details", Point(550, 60), 12, colorblueBac, "normal")
+
+            # Buttons
+            submit_button, txt6 = create_button(win, Point(370, 450), Point(560, 490), "Save", colorvlueButtons, colorcream)
+            delete_button, txt7 = create_button(win, Point(590, 450), Point(790, 490), "Delete Account", colorvlueButtons, colorcream)            
+            back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout= colorblueBac)
+  
             while True:
                 try:
                     click = win.getMouse()
+                    # Check if the submit button is clicked
                     if is_click_in_rectangle(click, submit_button):
                         data = [
                             entry_fields["FirstName"].getText(),
                             entry_fields["LastName"].getText(),
-                            user_data[2],
+                            user_data[2],  # UserName cannot be modified
                             entry_fields["Password"].getText(),
                             entry_fields["ShirtNumber"].getText(),
-                            entry_fields["PrimaryColor"].getText(),
-                            entry_fields["SecondaryColor"].getText(),
                             entry_fields["DateOfBirth"].getText(),
                             entry_fields["Gender"].getText(),
                             entry_fields["Nationality"].getText(),
                             entry_fields["FavoriteTeam"].getText()
                         ]
-                        result, error = modify_user(int(userId), data)
-                        if result:
-                            create_dashboard() 
-                            break
-                        else:
-                            messages(error)
-                            create_dashboard()
-                            break
-
+                        result, error = modify_user(int(userId), data)         
+                        messages(error)                      
+                        if result==True:  
+                            #refresh data and jersey
+                            user_data = get_user_data(userId)
+                            if jersey_objects:
+                                for obj in jersey_objects:
+                                    obj.undraw()  # Eliminar el objeto previamente dibujado
+                            draw_custom_jersey(win,Point(100, 180), Point(250, 370),user_data[8] ,user_data[2],user_data[4],jersey_objects )                                        
+                  
+                       
                     elif is_click_in_rectangle(click, back_button):
-                        create_dashboard()
+                        create_dashboard()  # Go back to the dashboard
                         break
 
                     elif is_click_in_rectangle(click, delete_button):
-                        result, error = delete_user(int(userId))
+                        result, error = delete_user(int(userId))  # Delete user
                         messages(error)
                         if result:
-                            LoginGUI()
+                            LoginGUI()  # Go back to the login screen
                         break
 
                 except:
-                    LoginGUI()
+                    LoginGUI()  # In case of error, go back to login screen
                     break
+
         else:
-            messages("Error retrieving user data.")
-            LoginGUI()
-    else:
-        LoginGUI()
+            messages("Error retrieving user data")
+            LoginGUI()  # Go back to the login screen
 
-def statistics(userId):
-    oldwin = getCurrentWindow()
-    if oldwin:
-        oldwin.close()
 
-    winStatistics = GraphWin("Statistics Page", 1100, 800)
-    setCurrentWindow(winStatistics)
-    win = getCurrentWindow()
-    win.setBackground("#FFFFFF")
-
-    left_background = Rectangle(Point(0, 0), Point(500, 800))
-    left_background.setFill("#ADEFD1")
-    left_background.setOutline("#ADEFD1")
-    left_background.draw(win)
-
-    drawFootballField(win, Point(550, 150), Point(950, 700))
-
-    title = create_label(win, "STATISTICS", Point(250, 60), 24, "#1E2A39", "bold")
-    vcolorbutton = "#2E8B57"
-
-    if userId:
-        gr1_button, txt11 = create_button(win, Point(100, 270), Point(350, 320), "Team Performance", vcolorbutton, "white")
-        gr2_button, txt111 = create_button(win, Point(100, 330), Point(350, 380), "Possession vs effectiveness", vcolorbutton, "white")
-        gr3_button, txt112 = create_button(win, Point(100, 390), Point(350, 440), "Shooting Statistics", vcolorbutton, "white")
-        gr4_button, txt113 = create_button(win, Point(100, 450), Point(350, 480), "Dynamics graphs", vcolorbutton, "white")
-        back_button, vim = create_image_button(win, Point(0, 0), Point(100, 50), "images/back.png", size=(20, 20), vout="#ADEFD1")
-
-        while True:
-            try:
-                click = win.getMouse()
-                if is_click_in_rectangle(click, back_button):
-                    LoginGUI()
-                    break
-
-                elif is_click_in_rectangle(click, gr1_button):
-                    years = fetch_years()
-                    if years:
-                        selected_year = display_year_selection(win, years)
-                        if selected_year:
-                            teams = fetch_teams_for_year(selected_year)
-                            if teams:
-                                selected_team = display_team_selection(win, teams)
-                                if selected_team:
-                                    generate_graphs_1(selected_year, selected_team)
-
-                elif is_click_in_rectangle(click, gr2_button):
-                    years = fetch_years()
-                    if years:
-                        selected_year = display_year_selection(win, years)
-                        if selected_year:
-                            teams = fetch_teams_for_year(selected_year)
-                            if teams:
-                                selected_team = display_team_selection(win, teams)
-                                if selected_team:
-                                    generate_graphs_2(selected_year, selected_team)
-
-                elif is_click_in_rectangle(click, gr3_button):
-                    years = fetch_years()
-                    if years:
-                        selected_year = display_year_selection(win, years)
-                        plot_shots(selected_year)
-
-                elif is_click_in_rectangle(click, gr4_button):
-                    Graphsuggest_main()
-            except Exception as e:
-                print(f"Error occurred: {e}")
-                LoginGUI()
-                break
-    else:
-        LoginGUI()
 
 def LoginGUI():
-    oldwin = getCurrentWindow()
+    oldwin=getCurrentWindow()    
     if oldwin:
         oldwin.close()
-
-    winLoginGUI = GraphWin("FootViz Login Page", 800, 500)
+    winLoginGUI = GraphWin("FootViz Login Page", screen_widthHome, screen_heightHome)
     setCurrentWindow(winLoginGUI)
-    win = getCurrentWindow()
-    win.setBackground("#FFFFFF")
-
+    win=getCurrentWindow()
+    win.setBackground(colorcream)
+    
     left_background = Rectangle(Point(0, 0), Point(400, 500))
-    left_background.setFill("#F8F9FA")
-    left_background.setOutline("#F8F9FA")
+    left_background.setFill(colorblueBac)
+    left_background.setOutline(colorblueBac)    
     left_background.draw(win)
-
-    title = create_label(win, "FOOTVIZ", Point(200, 50), 20, "#2E2E2E", "bold")
-    subtitle = create_label(win, "Login into your FootViz Account", Point(200, 80), 12, "#6C757D", "normal")
-
-    username_label = create_label(win, "Username", Point(130, 180), 12, "#6C757D")
-    username_field = create_entry(win, Point(200, 210), 25, 12, vfill="#F0F8FF")
-
-    password_label = create_label(win, "Password", Point(130, 260), 12, "#6C757D")
-    password_field = create_entry(win, Point(200, 290), 25, 12, vfill="#F0F8FF")
-
-    login_button, txt2 = create_button(win, Point(130, 330), Point(270, 370), "Login Now", "#2E8B57", "white")
-    register_button, txt3 = create_button(win, Point(130, 380), Point(270, 420), "Register", "#2E8B57", "white")
-
-    error_message = create_label(win, "", Point(200, 480), 12, "#FF6347")
-
-    drawFootballField(win, Point(400, 0), Point(800, 500))
-
+    title = create_label(win, "FOOTVIZ",Point(200, 50),20,colorcream,"bold")
+    subtitle = create_label(win,"Login into your FootViz Account",Point(200, 80), 12,colorcream,"normal")
+    username_label=create_label( win,"Username",Point(130, 180),12,colorcream)
+    username_field=create_entry(win,Point(200, 210),25,12,vfill="#F0F8FF")
+    password_label=create_label( win,"Password",Point(130, 260),12,colorcream)
+    password_field =create_entry(win,Point(200, 290),25,12,vfill="#F0F8FF")  
+    login_button,txt2 = create_button(win, Point(130, 330),Point(270, 370), "Login Now",  colorvlueButtons,colorcream)
+    register_button,txt3 = create_button(win, Point(130, 380), Point(270, 420), "Register",  colorvlueButtons,colorcream)
+    error_message = create_label (win,"",Point(200, 480),12,"#FF6347")
+    
+    drawFootballField(win,Point(400, 0), Point(800, 500))
+    
+     # Event loop for login interaction
     while True:
-        click_point = win.checkMouse()
-        if is_click_in_rectangle(click_point, login_button):
-            login_user(username_field, password_field)
+        click_point = win.checkMouse()  # Detect mouse clicks
+        # Check if the login button is clicked
+        if is_click_in_rectangle(click_point,login_button):
+            login_user(username_field,password_field)
             break
-        elif is_click_in_rectangle(click_point, register_button):
-            RegisterGUI()
+        elif is_click_in_rectangle(click_point,register_button):
+            RegisterGUI()   
+            break  
+    
+     # Event loop for login interaction
+    while True:
+        click_point = win.checkMouse()  # Detect mouse clicks
+        # Check if the login button is clicked
+        if is_click_in_rectangle(click_point,login_button):
+            login_user(username_field,password_field)
             break
+        elif is_click_in_rectangle(click_point,register_button):
+            RegisterGUI()   
+            break       
+
+LoginGUI()
