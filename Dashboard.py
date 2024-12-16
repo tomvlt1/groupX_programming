@@ -64,7 +64,7 @@ def create_sidebar(win):
 
     # Now add the new three buttons
     extra_titles = [("FootClick Game", "footclick"),
-                    ("HeadSoccer Game", "headsoccer"),
+                    ("Penalty game", "Penalty"),
                     ("Main statistics", "btoMainstatistics"),
                     ("Visualize Data", "visualize"),("Profile", "btoProfile")]  
     for btnlabel, btnid in extra_titles:
@@ -94,7 +94,7 @@ def PreviewButton(x, y, win):
     return preview_button, preview_text, lock_text
 
 def WarningMessage(x, y, win):
-    warning = Text(Point(x, y), "This will lock the dashboard until the game ends (30 - 60 seconds).")
+    warning = Text(Point(x, y), "This will lock the dashboard until the game ends (60 - 90 seconds).")
     warning.setSize(14)
     warning.setTextColor("red")
     warning.setStyle("bold")
@@ -366,7 +366,7 @@ def create_dashboard():
             # Other button logic...
             elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
                 run_footclick()
-            elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
+            elif is_click_in_rectangle(click, buttons.get("Penalty game")):
                 run_headsoccer()
             elif is_click_in_rectangle(click, buttons.get("Back")):
                 session.clear
