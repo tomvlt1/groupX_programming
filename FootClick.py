@@ -81,8 +81,6 @@ def display_average_time(avg_time, win):
     time_label.draw(win)
 
 def run_footclick():
-
-
     win = GraphWin("Football Click Game ⚽", 500, 500)
     draw_football_net(win)  # Draw the football net background
 
@@ -111,7 +109,7 @@ def run_footclick():
         print(f"Total time: {total_time:.2f}s, Count: {count}, Average time: {average_time:.2f}s")
         display_average_time(average_time, win)
 
-    win.getMouse()
+    time.sleep(2)
     win.close()
 
 if __name__ == "__main__":
