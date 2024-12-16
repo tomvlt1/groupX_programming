@@ -738,7 +738,7 @@ def GetColumnNames(table_name):
 def filter_data_from_db(filters=None, columns=None):
     iduser1=getIDUser()
     idLoad1=getDataset()
-    print("Hola")
+   
     if iduser1 is not None and idLoad1 is not None:
         iduser=int(iduser1)
         idLoad=int(idLoad1)    
@@ -747,7 +747,7 @@ def filter_data_from_db(filters=None, columns=None):
         try:
             conn = openconnection()
             cursor = conn.cursor()
-
+            column_str = "*"
             # If no columns selected, select all
             if not columns or len(columns) == 0:
                 column_str = "*"
@@ -760,7 +760,7 @@ def filter_data_from_db(filters=None, columns=None):
                 conditions = []
                 for (col, op, val) in filters:
                     conditions.append(f"`{col}` {op} '{val}'")
-                query +=  " AND ".join(conditions)
+                query +=" AND ".join(conditions)
             print(query)
             cursor.execute(query, (iduser, idLoad,))
             results = cursor.fetchall()

@@ -6,6 +6,7 @@ from GraphChoiceSelect import main as GraphChoiceSelect_main
 from Graphsuggest import main as GraphSuggestions_main
 
 def GraphOptions():
+    from filter import main as fmain
     """
     A window with two buttons: 'Variable to Graph' and 'Graph to Variable'.
     """
@@ -22,6 +23,13 @@ def GraphOptions():
                                           "Variable to Graph", fill_color="lightgreen", text_color="black", size=14)
     button2, button2_text = create_button(win, Point(300, 350), Point(500, 420),
                                           "Graph to Variable", fill_color="lightgreen", text_color="black", size=14)
+    
+    back_arrow = Line(Point(50, 57), Point(100, 57))
+    back_arrow.setArrow('first')
+    back_arrow.setWidth(3)
+    back_arrow.setFill("white")
+    back_arrow.draw(win)
+
 
     while True:
         click = win.getMouse()
@@ -30,10 +38,13 @@ def GraphOptions():
             win.close()
             GraphSuggestions_main()
 
-        if is_click_in_rectangle(click, button2):
+        elif is_click_in_rectangle(click, button2):
             #graph to variable
             win.close()
             GraphChoiceSelect_main()
+        elif 50 < click.x < 100 and 55 < click.y < 58:  # Back arrow region  # If the back button is clicked            
+            win.close()
+            fmain()
 
 if __name__ == "__main__":
     selected_option = GraphOptions()
