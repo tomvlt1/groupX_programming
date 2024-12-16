@@ -6,7 +6,7 @@ from Globals import (
     is_click_in_rectangle,create_image_button,
     screen_width,
     screen_height,
-    getIDUser,setDataset,colorcream,colorblueBac,
+    colorcream
 )
 from graphics import GraphWin, Point
 from DataFunctions import fetch_years
