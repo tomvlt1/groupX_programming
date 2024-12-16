@@ -35,10 +35,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from graphics import *
 import random
+from Globals import messages,create_button,is_click_in_rectangle
 
 
 
 def GraphSelection():
+    from Dashboard import create_dashboard
     win = GraphWin("Select a Graph", 800, 600)
     title = Text(Point(400, 40), "Which graph do you want?")
     title.setSize(20)
@@ -53,30 +55,28 @@ def GraphSelection():
     graph_possibilities = ["Bar chart (Simple and Stacked)","Box Plot", "Scatter Plot", "Pie Chart", "Histogram"]
     loop_counter = 0
     for i in graph_possibilities:
-        rect = Rectangle(Point(100, y_start + loop_counter * 70), Point(700, y_start + loop_counter * 70 + 50))
-        rect.setFill("lightgrey")
-        rect.draw(win)
-        text = Text(rect.getCenter(), i)
-        text.draw(win)
+        rect, text = create_button(win, Point(100, y_start + loop_counter * 70), Point(700, y_start + loop_counter * 70 + 50), i, "lightgrey", "Darkgreen")    
         rectangles.append((rect, i, text))
         loop_counter = loop_counter + 1
 
-
-    submit_btn = Rectangle(Point(350, 500), Point(450, 550))
-    submit_btn.setFill("lightgreen")
-    submit_btn.draw(win)
-    submit_text = Text(submit_btn.getCenter(), "Submit")
-    submit_text.setTextColor("Darkgreen")
-    submit_text.draw(win)
+    submit_btn, txt_submit = create_button(win, Point(200, 500), Point(300, 550), "Submit", "lightgreen", "Darkgreen",size=12)    
+    back_button, vim = create_button(win, Point(350, 500), Point(500, 550), "Go to Dashboard", "lightgreen", "Darkgreen",size=12)   
+  
 
 
     while True:
         click = win.getMouse()
-        if 350 < click.x < 450 and 500 < click.y < 550:
+        if is_click_in_rectangle(click, submit_btn):
+            if len (selected)<1:
+                 messages("Select option")     
+                 win.close()
+                 main()     
             break
-
+        if is_click_in_rectangle(click, back_button):
+            win.close()
+            create_dashboard()
         for rect, col, text in rectangles:
-            if rect.getP1().x < click.x < rect.getP2().x and rect.getP1().y < click.y < rect.getP2().y:
+            if is_click_in_rectangle(click, rect):
                 if selected == (rect, col):
                     rect.setFill("lightgrey")
                     selected = None
@@ -87,10 +87,12 @@ def GraphSelection():
                     selected = (rect, col)
                 break
     win.close()
+   
     finalselect = [selected[1]]
     return finalselect
 
 def variable_split():
+   
     dataset = pd.read_csv("temp_data.csv")
     numerical_display = []
     categorical_display = []
@@ -99,12 +101,14 @@ def variable_split():
             numerical_display.append(i)
         else:
             categorical_display.append(i)
-    print("displays",numerical_display,"\n",categorical_display)
+    #print("displays",numerical_display,"\n",categorical_display)
 
     return numerical_display, categorical_display, dataset
 
 
 def VariableOptions(selected,numerical_display,categorical_display,dataset):
+    from Dashboard import create_dashboard
+     
     win = GraphWin("Variable Options", 800, 600)
 
     win.setBackground('dark green')
@@ -136,7 +140,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset):
         avalible_choices.extend(numerical_display)
     if selected[0] == "Bar chart (Simple and Stacked)":
         avalible_choices.extend(numerical_display)
-        avalible_choices.extend(categorical_display)
+        avalible_choices.extend(categorical_display)        
     if selected[0] == "Box Plot":
         avalible_choices.extend(numerical_display)
         avalible_choices.extend(categorical_display)
@@ -162,39 +166,27 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset):
     def page_setter(counter_for_display,page_number,avalible_choices):
         rectangles.clear()
         for i in avalible_choices[page_number*6:page_number*6+6]:
-            counter_for_display=counter_for_display+1
-            rect = Rectangle(Point(300, y_base + counter_for_display * vertical_spacing), Point(500, y_base + counter_for_display * vertical_spacing + 50))
-
+            counter_for_display=counter_for_display+1 
             if i in selected_options:
-                rect.setFill("lightgreen")
+                rect, text = create_button(win, Point(300, y_base + counter_for_display * vertical_spacing), Point(500, y_base + counter_for_display * vertical_spacing + 50), i, "lightgreen", "black",size=12)                 
             else:
-                rect.setFill("lightgrey")
-            rect.draw(win)
-
-            text = Text(rect.getCenter(), i)
-            text.setTextColor("black")
-            text.draw(win)
-
+                rect, text = create_button(win, Point(300, y_base + counter_for_display * vertical_spacing), Point(500, y_base + counter_for_display * vertical_spacing + 50),i, "lightgrey", "black",size=12)                 
+           
             rectangles.append((rect, i, text))
-
-
     page_setter(counter_for_display, page_number, avalible_choices)
 
-
-    submit_btn = Rectangle(Point(350, 525), Point(450, 575))
-    submit_btn.setFill("green")
-    submit_btn.draw(win)
-    submit_text = Text(submit_btn.getCenter(), "Submit")
-    submit_text.setTextColor("white")
-    submit_text.draw(win)
-
+    submit_btn, txt_submit = create_button(win, Point(300, 525), Point(400, 575), "Submit", "green", "white",size=12)    
+    back_button, vim = create_button(win, Point(450, 525), Point(600, 575), "Go to Dashboard", "green", "white",size=12)       
+  
 
 
     while True:
         click = win.getMouse()
 
-        if 350 < click.x < 450 and 525 < click.y < 575:
+        if  is_click_in_rectangle(click, submit_btn):
             break
+        elif is_click_in_rectangle(click, back_button):
+            create_dashboard()
 
         if 705 < click.x < 775 and 160 < click.y < 210:
             page_number = page_number-1
@@ -207,7 +199,7 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset):
 
 
         for rect, option, text in rectangles:
-            if rect.getP1().x < click.x < rect.getP2().x and rect.getP1().y < click.y < rect.getP2().y:
+            if is_click_in_rectangle(click,rect):
                 if option in selected_options:
                     selected_options.remove(option)
                     rect.setFill("lightgrey")
@@ -227,42 +219,59 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset):
         else:
             categorical.append(i)
 
-    print("selected numericals are: ", numerical,"carecoriacals are",categorical)
+   # print("selected numericals are: ", numerical,"carecoriacals are",categorical)
 
-    print("These are the variables selected",numerical,"\n","categorical",categorical)
+   # print("These are the variables selected",numerical,"\n","categorical",categorical)
 
     return numerical, categorical
 
 
 def display_graph(numerical,categorical,selected,dataset):
-    file_name_number = random.randint(1, 250000)
-    filename = f"graph_{file_name_number}.png"
-    if selected[0] == "Histogram":
+    #file_name_number = random.randint(1, 250000)
+    #filename = f"graph_{file_name_number}.png"
+    filename ="graph_1.png"
+    vcontrol=0
+    plt.clf()  # Clean
+    plt.close()  # Close
+   
+    
+   
+    if selected[0] == "Histogram" and len(numerical) >0:
+        vcontrol=1
         plt.hist(dataset[numerical[0]],15, histtype='stepfilled', align = 'mid', color = "g")
         plt.ylabel('Observations')
         plt.xlabel(f'{numerical[0]}', color="Black")
         plt.title(f'{numerical[0]} ', color="Black")
+        
         plt.savefig(filename)
+        
+        
     elif selected[0] == "Bar chart (Simple and Stacked)" and len(categorical) <= 2 and len(numerical) <= 1:
+        
         if len(categorical) == 1 and len(numerical)  == 1:
+            vcontrol=1
             plt.bar(dataset[categorical[0]], dataset[numerical[0]], color="g", align='center')
             plt.ylabel(f'{numerical[0]}', color="Black")
             plt.xlabel(f'{categorical[0]}', color="Black")
             plt.title(f'{numerical[0]} ', color="Black")
+           
             plt.savefig(filename)
         elif len(categorical) == 2 and len(numerical) == 0:
+            vcontrol=1
             plt.figure()
-            cross_tab = pd.crosstab(dataset[numerical[0]],dataset[ numerical[1]])
+            cross_tab = pd.crosstab(dataset[categorical[0]],dataset[categorical[1]])
             cross_tab.plot(kind='bar', stacked=True, colormap='Greens')
-            plt.title(f'{numerical[0]} vs {numerical[1]}', color='w')
+            plt.title(f'{categorical[0]} vs {categorical[1]}', color='w')            
             plt.savefig(filename)
     elif selected[0] == "Box Plot" and len(categorical) <= 1 and len(numerical) == 1:
         if len(numerical) ==1 and len(categorical) ==0:
+            vcontrol=1
             plt.boxplot(dataset[numerical[0]], sym='gx', widths=0.75, notch=True)
             plt.ylabel(f'{numerical[0]}', color='Black')
             plt.title(f'{numerical[0]} ', color='Black')
             plt.savefig(filename)
         elif len(categorical) == 1 and len(categorical) == 1:
+            vcontrol=1
             plt.boxplot(dataset[numerical[0]], labels = dataset[categorical[0]].unique(), sym='gx', widths=0.75, notch=True)
             plt.xlabel('Entries')
             plt.ylabel('Values')
@@ -270,6 +279,7 @@ def display_graph(numerical,categorical,selected,dataset):
             plt.savefig(filename)
     elif selected[0] == "Scatter Plot" and len(numerical) <= 3 and len(categorical) == 0:
         if len(numerical) == 2:
+            vcontrol=1
             plt.scatter(dataset[numerical[0]], dataset[numerical[1]], s=[100], color='m')
             plt.xlabel('Entries')
             plt.ylabel('Values')
@@ -278,6 +288,7 @@ def display_graph(numerical,categorical,selected,dataset):
             plt.title(f'{numerical[0]} vs {numerical[1]} ', color="Black")
             plt.savefig(filename)
         elif len(numerical) == 3:
+            vcontrol=1
             plane = plt.figure()
             axis = plane.add_subplot(projection='3d')
             axis.scatter(dataset[numerical[0]], dataset[numerical[1]], dataset[numerical[2]])
@@ -286,21 +297,21 @@ def display_graph(numerical,categorical,selected,dataset):
             axis.set_zlabel(f'{numerical[2]}', color="Black")
             plt.title(f'{numerical[0]} vs. {numerical[1]} vs. {numerical[2]}', color="Black")
             plt.savefig(filename)
-    elif selected[0] == "Pie Chart" and len(categorical) ==1 or len(numerical) == 1:
+    elif (selected[0] == "Pie Chart" and len(categorical) ==1) or (selected[0] == "Pie Chart" and  len(numerical) == 1):
         if len(numerical) == 1:
+            vcontrol = 1
             datanew = dataset.groupby(numerical[0]).size()
         elif len(categorical) == 1:
+            vcontrol = 1
             datanew = dataset.groupby(categorical[0]).size()
-
-
-        print(datanew.columns)
-
         plt.xlabel('Entries')
         plt.ylabel('Values')
-        plt.title('Histogram')
-        plt.pie(datanew[1], labels=datanew[0], autopct='%1.1f%%', counterclock=False, shadow=False)
+        plt.title('Pie Chart')
+        # Usar valores y etiquetas de manera correcta
+        plt.pie(datanew.values, labels=datanew.index, autopct='%1.1f%%', counterclock=False, shadow=False)
         plt.savefig(filename)
-    return filename
+           
+    return filename,vcontrol,plt
 
 def displayer(filename):
     win = GraphWin("Show", 800, 600)
@@ -316,17 +327,29 @@ def displayer(filename):
     while True:
         click = win.getMouse()
         if 350 < click.x < 450 and 545 < click.y < 595:
-            break
+            win.close()
+            main()
+           
 
 
 def main():
+    
     selected = GraphSelection()
     numerical_display, categorical_display, dataset=variable_split()
     numerical, categorical = VariableOptions(selected,numerical_display,categorical_display,dataset)
-    filename = display_graph(numerical, categorical, selected,dataset)
-    displayer(filename)
-
-
+   
+    filename,vcontrol,ptl = display_graph(numerical, categorical, selected,dataset)
+    if vcontrol==0:
+        messages ("It is not possible to graph with these options")
+        main()
+        
+    else:  
+        # Get the current figure and resize it to show it large first
+        fig = plt.gcf()  
+        fig.set_size_inches(12, 8)       
+        plt.show()
+        displayer(filename)
+        
 
 #main()
 

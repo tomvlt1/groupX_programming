@@ -38,9 +38,13 @@ def Histogram(column, filename):
     plt.xlabel(f'{column}', color='black')  # X-axis label color to black
     plt.ylabel('Frequency', color='black')  # Y-axis label color to black
     
-    #plt.show(block=True)
+    
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def Boxplot(column, filename):
     plt.figure()
@@ -49,7 +53,11 @@ def Boxplot(column, filename):
     
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def Barchart(column, filename):
     plt.figure()
@@ -60,7 +68,11 @@ def Barchart(column, filename):
    
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def Piechart(column, filename):
     plt.figure()
@@ -73,7 +85,11 @@ def Piechart(column, filename):
    
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def Scatterplot(x, y, filename):
     plt.figure()
@@ -83,7 +99,11 @@ def Scatterplot(x, y, filename):
     
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def Linechart(x, y, filename):
     plt.figure()
@@ -93,7 +113,11 @@ def Linechart(x, y, filename):
     
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def StackedBarchart(x, y, filename):
     plt.figure()
@@ -115,7 +139,11 @@ def StackedBarchart(x, y, filename):
    
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 
 
@@ -132,7 +160,11 @@ def Heatmap(x, y, filename):
     
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, agg_func='mean', filename="graph.png"):
     data[numerical_color] = pd.to_numeric(data[numerical_color], errors='coerce')
@@ -159,7 +191,11 @@ def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, ag
       
     #plt.show(block=True)
     plt.savefig(filename)
-    plt.close()
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
     plane = plt.figure()
@@ -171,11 +207,14 @@ def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
        
     #plane.show(block=True)
     plt.savefig(filename)
-    plt.close()
-
-
+     # Get the current figure and resize it to show it large first
+    fig = plt.gcf()  
+    fig.set_size_inches(12, 8)       
+    plt.show()
+    #plt.close()
 
 def VariableSelection():
+    from Dashboard import create_dashboard
     
     oldwin = getCurrentWindow()
     if oldwin:
@@ -244,13 +283,18 @@ def VariableSelection():
     draw_visible()
 
     # Submit button positioned at the bottom center
-    submit_btn, submit_text =create_button(win,Point(300, 520), Point(500, 570), "Submit", "lightgreen","darkgreen",vout="lightgreen",size=12)
+    submit_btn, submit_text =create_button(win,Point(200, 520), Point(300, 570), "Submit", "lightgreen","darkgreen",vout="lightgreen",size=12)
+    back_button, vim = create_button(win, Point(350, 520), Point(550, 570), "Go to Dashboard", "lightgreen", "Darkgreen",size=12)   
+  
       
     while True:
         click = win.getMouse()
 
         if is_click_in_rectangle(click, submit_btn): # Submit button clicked
             break
+        elif is_click_in_rectangle(click, back_button):
+            win.close()
+            create_dashboard()
 
         # Check for clicks on the up arrow (right side)
         elif 710 < click.x < 770 and 160 < click.y < 200:  # Up arrow clicked
@@ -293,7 +337,7 @@ def VariableSelection():
 
 
 def GraphOptions(selected):
-    
+    from Dashboard import create_dashboard
       
     oldwin = getCurrentWindow()
     if oldwin:
@@ -344,15 +388,22 @@ def GraphOptions(selected):
     back_arrow.setWidth(3)
     back_arrow.setFill("white")
     back_arrow.draw(win)
+    
+    back_button, vim = create_button(win, Point(350, 520), Point(550, 570), "Go to Dashboard","lightgreen", "Darkgreen",size=12)   
+  
 
     selected_option = None
     while True:
         click = win.getMouse()
+        if is_click_in_rectangle(click, back_button):
+            win.close()
+            create_dashboard()
 
         for rect, option in buttons:
             if is_click_in_rectangle(click, rect):
                 selected_option = option
                 break
+            
 
         if 50 < click.x < 100 and 55 < click.y < 58:  # Back arrow region  # If the back button is clicked            
             main()
