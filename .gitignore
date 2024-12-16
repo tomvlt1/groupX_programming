@@ -1,6 +1,6 @@
-.idea/
-__pycache__/
-venv/
-test_env/
+.idea
+__pycache__
+venv
+test_env
 .DS_Store
 *.pyc
