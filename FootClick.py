@@ -74,15 +74,13 @@ def is_click(football, pt):
     return distance < football.getRadius()
 
 def display_average_time(avg_time, win):
-    time_label = Text(Point(250, 480), f"Average Time: {round(avg_time, 2)} seconds")
-    time_label.setSize(14)
+    time_label = Text(Point(250, 450), f"Reaction time: {round(avg_time, 2)} seconds \n Click to exit.")
+    time_label.setSize(30)
     time_label.setStyle("italic")
     time_label.setTextColor("blue")
     time_label.draw(win)
 
 def run_footclick():
-
-
     win = GraphWin("Football Click Game ⚽", 500, 500)
     draw_football_net(win)  # Draw the football net background
 
@@ -111,7 +109,7 @@ def run_footclick():
         print(f"Total time: {total_time:.2f}s, Count: {count}, Average time: {average_time:.2f}s")
         display_average_time(average_time, win)
 
-    win.getMouse()
+    win.getMouse()  
     win.close()
 
 if __name__ == "__main__":
