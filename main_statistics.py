@@ -6,82 +6,81 @@ from Globals import *
 import math
 
 
-def generate_graphs_1(vyear,vteam):
-  
+def generate_graphs_1(vyear, vteam):
     year = vyear
     iduser = getIDUser()
     team = vteam
     result, data = select_datadetail(year, iduser)
     
-    if result == True:
-            # Calculate goals and fouls per team by selecting the list of teams that are both home and away teams.            
-            teams = list(set(data['Home Team']).union(set(data['Away Team'])))
-          
-            # Calculate goals scored
-            home_goals = data.groupby('Home Team')['Score'].apply(lambda x: sum([int(s.split('-')[0]) for s in x])).to_dict()
-            away_goals = data.groupby('Away Team')['Score'].apply(lambda x: sum([int(s.split('-')[1]) for s in x])).to_dict()
-            
-            # Calculate fouls (assumed as match excitement for simplicity)
-            home_fouls = data.groupby('Home Team')['Match Excitement'].apply(lambda x: x.count()).to_dict()
-            away_fouls = data.groupby('Away Team')['Match Excitement'].apply(lambda x: x.count()).to_dict()
+    if result:
+        # Calculate goals and fouls per team by selecting the list of teams that are both home and away teams.
+        teams = sorted(list(set(data['Home Team']).union(set(data['Away Team']))))
+      
+        # Calculate goals scored
+        home_goals = data.groupby('Home Team')['Score'].apply(lambda x: sum([int(s.split('-')[0]) for s in x])).to_dict()
+        away_goals = data.groupby('Away Team')['Score'].apply(lambda x: sum([int(s.split('-')[1]) for s in x])).to_dict()
+        
+        # Calculate fouls (assumed as match excitement for simplicity)
+        home_fouls = data.groupby('Home Team')['Match Excitement'].count().to_dict()
+        away_fouls = data.groupby('Away Team')['Match Excitement'].count().to_dict()
 
-            # Create subplots: 1 row, 2 columns
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 10))  # Increased width to accommodate all teams
+        # Create a figure with GridSpec to handle different subplot types
+        fig = plt.figure(figsize=(18, 10))
+        gs = GridSpec(1, 2, figure=fig)
 
-            # Bar chart on the first axis (ax1)
-            x = range(len(teams))
+        # Bar chart on the first axis
+        ax1 = fig.add_subplot(gs[0, 0])
+        x = range(len(teams))
 
-            # Home team goals
-            ax1.bar(x, [home_goals.get(e, 0) for e in teams], width=0.3, label='Goals scored (Home)', align='center')
+        # Home team goals
+        ax1.bar(x, [home_goals.get(e, 0) for e in teams], width=0.3, label='Goals scored (Home)', align='center')
 
-            # Away team goals
-            ax1.bar(x, [away_goals.get(e, 0) for e in teams], width=0.3, label='Goals scored (Away)', 
-                    bottom=[home_goals.get(e, 0) for e in teams], align='center')
+        # Away team goals
+        ax1.bar(x, [away_goals.get(e, 0) for e in teams], width=0.3, label='Goals scored (Away)', 
+                bottom=[home_goals.get(e, 0) for e in teams], align='center')
 
-            # Fouls committed
-            ax1.bar(x, [home_fouls.get(e, 0) + away_fouls.get(e, 0) for e in teams], width=0.3, label='Fouls committed', alpha=0.5, align='center')
+        # Fouls committed
+        ax1.bar(x, [home_fouls.get(e, 0) + away_fouls.get(e, 0) for e in teams], width=0.3, label='Fouls committed', alpha=0.5, align='center')
 
-            # Rotate x-tick labels for better readability
-            ax1.set_xticks(x)
-            ax1.set_xticklabels(teams, rotation=90, fontsize=8)  # Smaller font size
+        # Rotate x-tick labels for better readability
+        ax1.set_xticks(x)
+        ax1.set_xticklabels(teams, rotation=90, fontsize=8)  # Smaller font size
 
-            # Set the x-axis limits to ensure all labels fit
-            ax1.set_xlim(-0.5, len(teams) - 0.5)
+        # Set the x-axis limits to ensure all labels fit
+        ax1.set_xlim(-0.5, len(teams) - 0.5)
 
-            ax1.set_title("Goals and Fouls per Team" +" year: " + str(year))
-           
-            ax1.legend()
+        ax1.set_title(f"Goals and Fouls per Team - Year: {year}")
+        ax1.legend()
 
-            # Radar chart on the second axis (ax2)
-            metrics = ['Home Team Possession %', 'Home Team Off Target Shots', 'Home Team On Target', 
-                    'Away Team Possession %', 'Away Team Off Target Shots']
+        # Radar chart on the second axis
+        metrics = ['Home Team Possession %', 'Home Team Off Target Shots', 'Home Team On Target', 
+                   'Away Team Possession %', 'Away Team Off Target Shots']
 
-            # Get average values for radar chart
-            values = [
-                data[data['Home Team'] == team][metric].mean() if metric in data.columns else 0 for metric in metrics
-            ]
-            
-            # Append first value to close the circle
-            values.append(values[0])
+        # Get average values for radar chart
+        values = [
+            data[data['Home Team'] == team][metric].mean() if metric in data.columns else 0 for metric in metrics
+        ]
 
-            # Categories include first metric again to close the circle
-            categories = metrics + [metrics[0]]
+        # Append first value to close the circle
+        values.append(values[0])
 
-            # Calculate angles for each category
-            angles = [i / float(len(categories)) * 2 * math.pi for i in range(len(categories))]
+        # Categories include first metric again to close the circle
+        categories = metrics + [metrics[0]]
 
-            # Create radar chart on ax2
-            ax2 = fig.add_subplot(122, polar=True)
-            ax2.fill(angles, values, alpha=0.25)
-            ax2.plot(angles, values, label=team)
-            ax2.set_title(f"Performance of Team: {team}")
-            ax2.set_xticks(angles[:-1])  # Exclude the last label as it is the same as the first
-            ax2.set_xticklabels(categories[:-1], rotation=45)
+        # Calculate angles for each category
+        angles = [i / float(len(categories)) * 2 * math.pi for i in range(len(categories))]
 
-            # Show both charts at once
-            plt.tight_layout()  # Adjust layout to avoid overlap
-            plt.show()
+        # Create radar chart on ax2 with polar projection
+        ax2 = fig.add_subplot(gs[0, 1], polar=True)
+        ax2.fill(angles, values, alpha=0.25)
+        ax2.plot(angles, values, label=team)
+        ax2.set_title(f"Performance of Team: {team}", va='bottom')
+        ax2.set_xticks(angles[:-1])  # Exclude the last label as it is the same as the first
+        ax2.set_xticklabels(categories[:-1], rotation=45)
 
+        # Adjust layout to prevent overlap
+        plt.tight_layout()
+        plt.show()
 
 def generate_graphs_2(vyear,vteam):
   

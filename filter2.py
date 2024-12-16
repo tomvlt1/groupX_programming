@@ -3,7 +3,7 @@ from Globals import is_click_in_rectangle, create_label, create_button, create_s
 from DataFunctions import openconnection
 import pandas as pd
 import time
-
+#rename a column
 def get_headers():
     conn = None
     cursor = None
@@ -12,7 +12,7 @@ def get_headers():
         cursor = conn.cursor()
         cursor.execute("SHOW COLUMNS FROM `DataDetail`")
         headers = [row[0] for row in cursor.fetchall()]
-        return headers[1:]  # Exclude first column if you don't need it
+        return headers[1:]  
     except Exception as e:
         print(f"Error fetching headers: {e}")
         return []
@@ -72,7 +72,7 @@ def get_operators_for_column(column_name):
     if datatype == "numerical":
         return ["=", ">", "<", ">=", "<="]
     else:
-        return ["="]  # For text columns, only '='
+        return ["="]  
 
 def filter_data_from_db(filters=None, columns=None,
                         order_by_column=None, order_by_direction=None,
@@ -86,13 +86,13 @@ def filter_data_from_db(filters=None, columns=None,
         conn = openconnection()
         cursor = conn.cursor()
 
-        # If no columns selected, select all columns
+        
         if not columns or len(columns) == 0:
             column_str = "*"
         else:
             column_str = ", ".join(f"`{col}`" for col in columns)
 
-        # If a unique column is specified, use DISTINCT on that column.
+        
         if unique_column:
             select_clause = f"DISTINCT `{unique_column}`"
             if column_str != "*":
@@ -129,7 +129,7 @@ def filter_data_from_db(filters=None, columns=None,
             conn.close()
 
 def build_filters_page(win):
-    # Use create_label with vcolor param
+    
     title = create_label(win, "Add Filters (Football Theme)", Point(450, 40), size=16, vcolor="white", style="bold")
     instructions = create_label(
         win,
@@ -413,11 +413,11 @@ def build_2_page_ui():
     if filters is None:
         return pd.DataFrame()
 
-    # Page 2: Columns
+    
     while True:
         df = build_columns_page(win, filters)
         if df is None:
-            # User clicked back => re-draw filter page
+            
             for item in win.items[:]:
                 item.undraw()
             win.items.clear()
