@@ -28,18 +28,17 @@ def display_team_selection(selected_year):
     team_label = create_label(win, "Select Team:", Point(100, 70), 16, colorcream, "bold")
 
     columns = 3 
-    rows_per_column = 8  # 8 rows per column
+    rows_per_column = 8 
 
     team_buttons = []
-    icon_objects = []  # List to store icon objects
+    icon_objects = []
 
     for idx, (team_name, icon_filename) in enumerate(teams):
-        # Calculate the row and column for the current team
-        row = idx % rows_per_column  # Row within the column
-        col = idx // rows_per_column  # Column index (0, 1, 2)
+        row = idx % rows_per_column 
+        col = idx // rows_per_column  
 
-        x_offset =30 + col * 250  # X-axis offset for columns
-        y_offset = 90 + row * 50  # Y-axis offset for rows
+        x_offset =30 + col * 250
+        y_offset = 90 + row * 50  
 
         btn, txt1 = create_button(
             win,
@@ -53,9 +52,8 @@ def display_team_selection(selected_year):
         team_buttons.append((team_name, btn, txt1))
 
         if icon_filename:
-            # Assume the icon exists if a filename is provided
-            icon_path = f"images/{icon_filename}"  # Construct the path for the icon
-            icon = Image(Point(x_offset + 30, y_offset + 25), icon_path)  # Position the icon
+            icon_path = f"images/{icon_filename}"
+            icon = Image(Point(x_offset + 30, y_offset + 25), icon_path)
             icon.draw(win)
             icon_objects.append(icon)
 
@@ -63,7 +61,7 @@ def display_team_selection(selected_year):
     while True:
         click_point = win.getMouse()
         if is_click_in_rectangle(click_point, back_button):
-            create_dashboard()  # Go back to the dashboard
+            create_dashboard()
             return None 
         else:
             for team_name, btn, txt1 in team_buttons:
