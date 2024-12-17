@@ -161,7 +161,6 @@ def create_mini_game_area(win):
 
 
 def statistics(userId):   
-    from main2 import main
     from Login import LoginGUI # Import inside the function to avoid circular dependency
     oldwin = getCurrentWindow()   
     if oldwin:
@@ -195,7 +194,7 @@ def statistics(userId):
 
                 if is_click_in_rectangle(click, back_button):
                     win.close()
-                    main()
+                    create_dashboard()
                     break
                 elif is_click_in_rectangle(click, gr1_button):                  
 
@@ -221,7 +220,7 @@ def statistics(userId):
             except Exception as e:
                 print(f"Error occurred: {e}")
                 win.close()
-                main()
+                create_dashboard()
                 break
     else: 
         win.close()       
