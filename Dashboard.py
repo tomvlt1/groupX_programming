@@ -17,12 +17,8 @@ import time
 
 
 def create_window():
-    
-
-    
     from Login import LoginGUI # Import inside the function to avoid circular dependency
     userid = getIDUser()
-    
     if userid:
         oldwin = getCurrentWindow()
         if oldwin:
@@ -33,7 +29,6 @@ def create_window():
         win.setBackground(color_rgb(44, 40, 85))
         return win
     else:
-        win.close()
         LoginGUI()
 
 def create_sidebar(win):
@@ -67,7 +62,7 @@ def create_sidebar(win):
 
     # Now add the new three buttons
     extra_titles = [("FootClick Game", "footclick"),
-                    ("HeadSoccer Game", "headsoccer"),
+                    ("Penalty game", "Penalty"),
                     ("Main statistics", "btoMainstatistics"),
                     ("Visualize Data", "visualize"),("Profile", "btoProfile")]  
     for btnlabel, btnid in extra_titles:
@@ -97,7 +92,7 @@ def PreviewButton(x, y, win):
     return preview_button, preview_text, lock_text
 
 def WarningMessage(x, y, win):
-    warning = Text(Point(x, y), "This will lock the dashboard until the game ends (30 - 60 seconds).")
+    warning = Text(Point(x, y), "This will lock the dashboard until the game ends (60 - 90 seconds).")
     warning.setSize(14)
     warning.setTextColor("red")
     warning.setStyle("bold")
@@ -163,7 +158,7 @@ def create_mini_game_area(win):
 
 
 def statistics(userId):   
-    from Login import LoginGUI # Import inside the function to avoid circular dependency
+    from login3 import LoginGUI # Import inside the function to avoid circular dependency
     oldwin = getCurrentWindow()   
     if oldwin:
         oldwin.close()  
@@ -195,9 +190,9 @@ def statistics(userId):
                 click = win.getMouse()
 
                 if is_click_in_rectangle(click, back_button):
-                    win.close()
-                    create_dashboard()
+                    LoginGUI()
                     break
+
                 elif is_click_in_rectangle(click, gr1_button):                  
 
                        selected_year = display_year_selection()
@@ -221,11 +216,9 @@ def statistics(userId):
                                    
             except Exception as e:
                 print(f"Error occurred: {e}")
-                win.close()
-                create_dashboard()
+                LoginGUI()
                 break
-    else: 
-        win.close()       
+    else:        
         LoginGUI()
        
 def display_files_selection(win, vfiles):
@@ -351,7 +344,7 @@ def create_dashboard():
 
             # Profile button
             elif is_click_in_rectangle(click, buttons.get("Visualize Data")):
-                if getDataset() =="":
+                if getDataset() is None:
                     messages("Select Dataset")
                 else:
                     # Instead of run_visualize(), call build_filter_ui()
@@ -371,14 +364,13 @@ def create_dashboard():
             # Other button logic...
             elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
                 run_footclick()
-            elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
+            elif is_click_in_rectangle(click, buttons.get("Penalty game")):
                 run_headsoccer()
             elif is_click_in_rectangle(click, buttons.get("Back")):
                 session.clear
-                win.close()
                 LoginGUI()
             elif is_click_in_rectangle(click, buttons.get("Main statistics")):
-                if getDataset() =="":
+                if getDataset() is None:
                     messages("Select Dataset")
                 else:
                     statistics(getIDUser())
