@@ -1,7 +1,6 @@
 from graphics import *
 from Globals import *
 from DataFunctions import get_headers,get_operators_for_column,get_unique_values,filter_data_from_db
- 
 import pandas as pd
 
 

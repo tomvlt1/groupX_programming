@@ -1,4 +1,4 @@
-# FileSelect.py
+# ChooseTeam.py
 
 from Globals import (
     create_button,

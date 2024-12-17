@@ -1,4 +1,4 @@
-# FileSelect.py
+# Chooseyear.py
 
 from Globals import (
     create_button,
