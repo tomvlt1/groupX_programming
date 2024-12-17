@@ -7,7 +7,7 @@ import pandas as pd
 (colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
 
 def build_filters_page(win):
-    from Dashboard import create_dashboard  #imported here to avoid circular references
+    from Dashboard import create_dashboard  
     
     back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout=colorblueBac)    
     title = create_label(win, "Add Filters (Football Theme)",Point(450, 40), 16, colorcream, "bold")
@@ -16,7 +16,7 @@ def build_filters_page(win):
 
     available_columns = get_headers()
     applied_filters = []
-    #We recover if we had something saved and we come from another window
+   
     
     vfilter=getFilters()
     if not vfilter:
@@ -113,7 +113,8 @@ def build_filters_page(win):
             val_text.setText("Select value")
             
         elif is_click_in_rectangle(click, back_button):
-            create_dashboard()  #bo back to the dashboard
+            create_dashboard()  
+            
        
 
 def build_columns_page(win, filters):
@@ -154,7 +155,7 @@ def build_columns_page(win, filters):
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
-    # --- Order By UI ---
+
     order_by_label = create_label(win, "Order By:", Point(750, 140), size=12, vcolor="white")
     order_box,order_text=create_button(win,Point(700,125), Point(880,155), "Select column", "white", "black",10)   
     
@@ -166,7 +167,7 @@ def build_columns_page(win, filters):
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
-    # --- Unique Feature ---
+  
     unique_label = create_label(win, "Select Unique Column:", Point(450, 330), size=12, vcolor="white")
     
     unique_box,unique_text=create_button(win,Point(340,350), Point(520,380), "Select column", "white", "black",10)   
@@ -287,7 +288,6 @@ def build_2_page_ui():
    
     filters = build_filters_page(win)
     if filters is None:
-        #win.close()
         return pd.DataFrame()
 
    
@@ -295,7 +295,6 @@ def build_2_page_ui():
         
         df = build_columns_page(win, filters)
         if df is None:
-            # user clicked back => re-draw filter page
             for item in win.items[:]:
                 item.undraw()
             win.items.clear()
@@ -306,7 +305,7 @@ def build_2_page_ui():
             filters = build_filters_page(win)
  
         else:
-            # We got final dataframe or user closed
+          
             win.close()
             df.to_csv("temp_data.csv", index=False)
             return "temp_data.csv"
@@ -315,7 +314,7 @@ def build_2_page_ui():
 def main():
     final_df = build_2_page_ui()
     from PostFilter import GraphOptions   
-    selected_option = GraphOptions()       # This will open the "Variable to Graph" / "Graph to Variable" window
+    selected_option = GraphOptions()     
 
     return "Data returned to main()", selected_option
 if __name__ == "__main__":
