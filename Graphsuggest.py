@@ -14,7 +14,7 @@ import seaborn as sns
 from matplotlib.colors import ListedColormap
 from Globals import *
 
-
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
 try:
     data = pd.read_csv('temp_data.csv')  
     print("Dataset loaded successfully!")

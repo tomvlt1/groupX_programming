@@ -3,6 +3,8 @@ from Globals import *
 from DataFunctions import get_headers,get_operators_for_column,get_unique_values,filter_data_from_db
 import pandas as pd
 
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
 
 def build_filters_page(win):
     from Dashboard import create_dashboard  #imported here to avoid circular references

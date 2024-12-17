@@ -4,14 +4,13 @@ from Globals import (
     create_button,
     create_label,
     is_click_in_rectangle,create_image_button,
-    screen_width,
-    screen_height,
-    getIDUser,setDataset,colorcream,SessionManager
+    getIDUser,setDataset,screen,color
 )
 from graphics import GraphWin, Point
 from DataFunctions import Select_Load_Files
 
-
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
 def clear_window(win):
     for item in win.items[:]:
         item.undraw()
@@ -28,7 +27,7 @@ def draw_dataset(win):
     y_offset = 100
     x_center = win.getWidth() / 2
     
-    iduser= SessionManager.getIDUser()
+    iduser= getIDUser()
     if  iduser:   
         vfiles = Select_Load_Files()
         if vfiles:

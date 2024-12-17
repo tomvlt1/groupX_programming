@@ -4,14 +4,12 @@ from Globals import (
     create_button,
     create_label,
     is_click_in_rectangle,create_image_button,
-    screen_width,
-    screen_height,
-    getIDUser,setDataset,colorcream,colorblueBac,
+    screen,color
 )
 from graphics import GraphWin, Point,Image
 from DataFunctions import fetch_teams_for_year
-
-
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
 def clear_window(win):
     for item in win.items[:]:
         item.undraw()

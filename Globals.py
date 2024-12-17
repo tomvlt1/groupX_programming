@@ -17,33 +17,24 @@ def color():
     colorcream=color_rgb(242, 237, 228)
     return colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream
     
-class SessionManager:
-    def __init__(self):
-        self.session = {}
+session = {}
 
-    def setIDUser(self, IdUser):
-        self.session['IdUser'] = IdUser
-
-    def getIDUser(self):
-        return self.session.get('IdUser', None)
-
-    def setCurrentWindow(self, Win):
-        self.session['CurrentWindow'] = Win
-
-    def getCurrentWindow(self):
-        return self.session.get('CurrentWindow', None)
-
-    def setFilters(self, vfilter):
-        self.session['Filters'] = vfilter
-
-    def getFilters(self):
-        return self.session.get('Filters', [])
-
-    def setDataset(self, IdFileLoad):
-        self.session['IdFileLoad'] = IdFileLoad
-
-    def getDataset(self):
-        return self.session.get('IdFileLoad', "")
+def setIDUser(IdUser):
+    session['IdUser']= IdUser
+def getIDUser():
+    return session.get('IdUser', None)   
+def setCurrentWindow(Win):
+    session['CurrentWindow']= Win
+def getCurrentWindow():
+    return session.get('CurrentWindow', None)  
+def setFilters(vfilter):
+    session['Filters']= vfilter
+def getFilters():
+    return session.get('Filters', [])    
+def setDataset(IdFileLoad):
+    session['IdFileLoad']=IdFileLoad
+def getDataset():
+    return session.get('IdFileLoad',"") 
   
 
   

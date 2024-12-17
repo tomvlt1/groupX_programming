@@ -3,13 +3,11 @@
 from Globals import (
     create_button,
     create_label,
-    is_click_in_rectangle,
-    screen_width,
-    screen_height,
-)
+    is_click_in_rectangle,screen)
 import os
 from graphics import GraphWin, Point
 
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
 def list_files(directory, extensions=(".txt", ".csv")):
     return [f for f in os.listdir(directory) if f.endswith(extensions)]
 

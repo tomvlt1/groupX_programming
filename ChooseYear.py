@@ -3,14 +3,12 @@
 from Globals import (
     create_button,
     create_label,
-    is_click_in_rectangle,create_image_button,
-    screen_width,
-    screen_height,
-    colorcream
+    is_click_in_rectangle,create_image_button,screen,color
 )
 from graphics import GraphWin, Point
 from DataFunctions import fetch_years
-
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
 
 def clear_window(win):
     for item in win.items[:]:

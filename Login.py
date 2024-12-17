@@ -4,7 +4,8 @@ from DataFunctions import *
 from jersey import draw_custom_jersey
 from Dashboard import create_dashboard
 
-
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
   
 def login_user(input1,input2):
     username = input1.getText()  # Get the username from the input field

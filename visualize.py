@@ -1,6 +1,11 @@
 from Globals import *
 from Graphsuggest import Graphsuggest_main
 from DataFunctions import *
+from main_statistics import *
+from Login import LoginGUI
+(screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
+(colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
+
 def statistics(userId):   
     oldwin = getCurrentWindow()   
     if oldwin:
