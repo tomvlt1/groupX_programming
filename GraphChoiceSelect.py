@@ -69,7 +69,6 @@ def variable_split():
             numerical_display.append(i)
         else:
             categorical_display.append(i)
-    #print("displays",numerical_display,"\n",categorical_display)
 
     return numerical_display, categorical_display, dataset
 
@@ -187,28 +186,24 @@ def VariableOptions(selected,numerical_display,categorical_display,dataset):
         else:
             categorical.append(i)
 
-   # print("selected numericals are: ", numerical,"carecoriacals are",categorical)
 
-   # print("These are the variables selected",numerical,"\n","categorical",categorical)
 
     return numerical, categorical
 
 
 def display_graph(numerical,categorical,selected,dataset):
-    #file_name_number = random.randint(1, 250000)
-    #filename = f"graph_{file_name_number}.png"
     filename ="graph_1.png"
     vcontrol=0
         
     plt.rcParams['figure.dpi'] = 96
-    plt.rcParams['savefig.dpi'] = 96  # Asegúrate de que los gráficos guardados también usen 96 DPI     
+    plt.rcParams['savefig.dpi'] = 96 
     
-    plt.close()  # Close   
+    plt.close()  
    
     if selected[0] == "Histogram" and len(numerical) >0:
         vcontrol=1   
        
-        plt.figure(dpi=96)  # Tamaño de figura y DPI       
+        plt.figure(dpi=96)      
         plt.hist(dataset[numerical[0]],bins=15, histtype='stepfilled', align = 'mid', color = "g") 
         plt.ylabel('Observations')
         plt.xlabel(f'{numerical[0]}', color="Black")
@@ -227,7 +222,7 @@ def display_graph(numerical,categorical,selected,dataset):
            
         elif len(categorical) == 2 and len(numerical) == 0:
             vcontrol=1
-            plt.figure(dpi=96)  # Tamaño de figura y DPI  
+            plt.figure(dpi=96)  
             cross_tab = pd.crosstab(dataset[categorical[0]],dataset[categorical[1]])
             cross_tab.plot(kind='bar', stacked=True, colormap='Greens')
             plt.title(f'{categorical[0]} vs {categorical[1]}', color='w')            
@@ -235,7 +230,7 @@ def display_graph(numerical,categorical,selected,dataset):
     elif selected[0] == "Box Plot" and len(categorical) <= 1 and len(numerical) == 1:
         if len(numerical) ==1 and len(categorical) ==0:
             vcontrol=1
-            plt.figure(dpi=96)  # Tamaño de figura y DPI  
+            plt.figure(dpi=96)   
             plt.boxplot(dataset[numerical[0]], sym='gx', widths=0.75, notch=True)
             plt.ylabel(f'{numerical[0]}', color='Black')
             plt.title(f'{numerical[0]} ', color='Black')
@@ -280,7 +275,6 @@ def display_graph(numerical,categorical,selected,dataset):
         plt.xlabel('Entries')
         plt.ylabel('Values')
         plt.title('Pie Chart')
-        # Usar valores y etiquetas de manera correcta
         plt.pie(datanew.values, labels=datanew.index, autopct='%1.1f%%', counterclock=False, shadow=False)
         
            
@@ -313,8 +307,6 @@ def main():
         messages ("It is not possible to graph with these options")
         main()        
     else:  
-        # Get the current figure and resize it to show it large first
-        # Establecer un DPI fijo de 96 para matplotlib
         plt.savefig(filename,dpi=96) 
         displayer(filename)
 
