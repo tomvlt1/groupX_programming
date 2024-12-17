@@ -232,10 +232,7 @@ def display_graph(numerical,categorical,selected,dataset):
     filename ="graph_1.png"
     vcontrol=0
     plt.clf()  # Clean
-    plt.close()  # Close
-   
-    
-   
+    plt.close()  # Close   
     if selected[0] == "Histogram" and len(numerical) >0:
         vcontrol=1
         plt.hist(dataset[numerical[0]],15, histtype='stepfilled', align = 'mid', color = "g")
@@ -318,15 +315,11 @@ def displayer(filename):
     win.setBackground('dark green')
     bg_image = Image(Point(400, 300), filename)
     bg_image.draw(win)
-    done= Rectangle(Point(350, 545), Point(450, 595))
-    done.setFill("green")
-    done.draw(win)
-    done_writting = Text(done.getCenter(), "Done")
-    done_writting.setTextColor("white")
-    done_writting.draw(win)
+    done, done_writting  = create_button(win, Point(350, 545), Point(450, 595), "Done", "green", "white",size=10)    
+    
     while True:
         click = win.getMouse()
-        if 350 < click.x < 450 and 545 < click.y < 595:
+        if is_click_in_rectangle(click,done):
             win.close()
             main()
            
@@ -341,13 +334,14 @@ def main():
     filename,vcontrol,ptl = display_graph(numerical, categorical, selected,dataset)
     if vcontrol==0:
         messages ("It is not possible to graph with these options")
-        main()
-        
+        main()        
     else:  
         # Get the current figure and resize it to show it large first
         fig = plt.gcf()  
         fig.set_size_inches(12, 8)       
-        plt.show()
+        plt.show()  
+        plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+        plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
         displayer(filename)
         
 

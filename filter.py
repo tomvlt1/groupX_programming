@@ -5,7 +5,6 @@ from DataFunctions import get_headers,get_operators_for_column,get_unique_values
 import pandas as pd
 
 
-
 def build_filters_page(win):
     from Dashboard import create_dashboard  #imported here to avoid circular references
     
@@ -161,7 +160,34 @@ def build_columns_page(win, filters):
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
     )
 
+    # --- Order By UI ---
+    order_by_label = create_label(win, "Order By:", Point(750, 140), size=12, vcolor="white")
+    order_box,order_text=create_button(win,Point(700,125), Point(880,155), "Select column", "white", "black",10)   
+    
+    direction_label = create_label(win, "Direction:", Point(750, 200), size=12, vcolor="white")
+    direction_box,direction_text=create_button(win,Point(700,185), Point(880,215), "ASC / DESC", "white", "black",10)   
+   
+    order_btn, order_btn_txt = create_button(
+        win, Point(700,230), Point(880,260), "Apply Sort",
+        fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
+    )
+
+    # --- Unique Feature ---
+    unique_label = create_label(win, "Select Unique Column:", Point(450, 330), size=12, vcolor="white")
+    
+    unique_box,unique_text=create_button(win,Point(340,350), Point(520,380), "Select column", "white", "black",10)   
+   
+    unique_btn, unique_btn_txt = create_button(
+        win, Point(540,350), Point(640,380), "Unique OFF",
+        fill_color=color_rgb(100, 100, 100), text_color="white", vout="grey", size=12
+    )
+    unique_column = None
+    is_unique = False
+
+    order_by_col = None
+    order_by_dir = None
     selected_col = None
+
 
     while True:
         click = win.getMouse()
@@ -172,8 +198,15 @@ def build_columns_page(win, filters):
             build_2_page_ui()  # Go back to the filter page
         # Submit
         elif is_click_in_rectangle(click, submit_btn):  
-            df = filter_data_from_db(filters=filters, columns=selected_columns if selected_columns else None)
+            df = filter_data_from_db(
+                filters=filters,
+                columns=selected_columns if selected_columns else None,
+                order_by_column=order_by_col,
+                order_by_direction=order_by_dir,
+                unique_column=unique_column if is_unique else None
+            )
             return df
+            
         # Display column box
         elif is_click_in_rectangle(click, disp_box): 
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,140))
@@ -192,6 +225,49 @@ def build_columns_page(win, filters):
            
             selected_col = None
             disp_text.setText("Select column")
+            
+        # Order By column box
+        if is_click_in_rectangle(click, order_box):
+            order_by_col = create_scrollable_dropdown(win, "", available_columns, Point(790,140))
+            order_text.setText(order_by_col if order_by_col else "Select column")
+
+        # Direction box
+        if is_click_in_rectangle(click, direction_box):
+            direction_options = ["ASC", "DESC"]
+            order_by_dir = create_scrollable_dropdown(win, "", direction_options, Point(790,200))
+            direction_text.setText(order_by_dir if order_by_dir else "ASC / DESC")
+
+        # Apply Sort button
+        if is_click_in_rectangle(click, order_btn):
+            if order_by_col and order_by_dir:
+                order_btn.setFill(color_rgb(0, 200, 0))
+                order_btn_txt.setText("Sort Applied")
+                win.update()
+                time.sleep(1)
+                order_btn.setFill(color_rgb(28,195,170))
+                order_btn_txt.setText("Apply Sort")
+
+        # Unique Column dropdown
+        if is_click_in_rectangle(click, unique_box):
+            unique_column = create_scrollable_dropdown(win, "", available_columns, Point(430,365))
+            unique_text.setText(unique_column if unique_column else "Select column")
+
+        # Unique On/Off button
+        if is_click_in_rectangle(click, unique_btn):
+            if unique_column:
+                is_unique = not is_unique
+                if is_unique:
+                    unique_btn_txt.setText(f"Unique ON ({unique_column})")
+                    unique_btn.setFill(color_rgb(28,195,170))
+                else:
+                    unique_btn_txt.setText("Unique OFF")
+                    unique_btn.setFill(color_rgb(100,100,100))
+            else:
+                alert_text = create_label(win, "Select a column for uniqueness!", Point(450, 430), size=10, vcolor="red")
+                win.update()
+                time.sleep(2)
+                alert_text.undraw()
+
 
 def build_2_page_ui():
     

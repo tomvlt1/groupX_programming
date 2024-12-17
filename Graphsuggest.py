@@ -44,6 +44,8 @@ def Histogram(column, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
 
 def Boxplot(column, filename):
@@ -57,6 +59,8 @@ def Boxplot(column, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
 
 def Barchart(column, filename):
@@ -72,6 +76,8 @@ def Barchart(column, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
 
 def Piechart(column, filename):
@@ -89,7 +95,10 @@ def Piechart(column, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
+
 
 def Scatterplot(x, y, filename):
     plt.figure()
@@ -103,7 +112,10 @@ def Scatterplot(x, y, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
+
 
 def Linechart(x, y, filename):
     plt.figure()
@@ -117,7 +129,10 @@ def Linechart(x, y, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
+
 
 def StackedBarchart(x, y, filename):
     plt.figure()
@@ -143,7 +158,10 @@ def StackedBarchart(x, y, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
+
 
 
 
@@ -164,7 +182,10 @@ def Heatmap(x, y, filename):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
+
 
 def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, agg_func='mean', filename="graph.png"):
     data[numerical_color] = pd.to_numeric(data[numerical_color], errors='coerce')
@@ -195,6 +216,8 @@ def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, ag
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
 
 def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
@@ -211,6 +234,8 @@ def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
     fig = plt.gcf()  
     fig.set_size_inches(12, 8)       
     plt.show()
+    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
+    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
     #plt.close()
 
 def VariableSelection():
@@ -293,7 +318,7 @@ def VariableSelection():
         if is_click_in_rectangle(click, submit_btn): # Submit button clicked
             break
         elif is_click_in_rectangle(click, back_button):
-            win.close()
+            win.close()           
             create_dashboard()
 
         # Check for clicks on the up arrow (right side)

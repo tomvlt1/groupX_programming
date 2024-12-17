@@ -735,7 +735,9 @@ def GetColumnNames(table_name):
             conn.close()
     return columns
 
-def filter_data_from_db(filters=None, columns=None):
+def filter_data_from_db(filters=None, columns=None,
+                        order_by_column=None, order_by_direction=None,
+                        unique_column=None):
     iduser1=getIDUser()
     idLoad1=getDataset()
    
@@ -747,30 +749,43 @@ def filter_data_from_db(filters=None, columns=None):
         try:
             conn = openconnection()
             cursor = conn.cursor()
-            column_str = "*"
-            # If no columns selected, select all
+
+            # If no columns selected, select all columns
             if not columns or len(columns) == 0:
                 column_str = "*"
             else:
                 column_str = ", ".join(f"`{col}`" for col in columns)
 
-            query = f"SELECT {column_str} FROM `DataDetail` WHERE `idUser` = %s AND `idLoad` = %s"
+            # If a unique column is specified, use DISTINCT on that column.
+            if unique_column:
+                select_clause = f"DISTINCT `{unique_column}`"
+                if column_str != "*":
+                    select_clause += f", {column_str}"
+            else:
+                select_clause = column_str
+
+            if select_clause.strip().startswith(","):
+                select_clause = select_clause.lstrip(",")
+
+            query = f"SELECT {select_clause} FROM `DataDetail` WHERE `idUser` = %s AND `idLoad` = %s"
             if filters:
                 query +=  " AND "
                 conditions = []
                 for (col, op, val) in filters:
                     conditions.append(f"`{col}` {op} '{val}'")
                 query +=" AND ".join(conditions)
+
+            if order_by_column and order_by_direction:
+                query += f" ORDER BY `{order_by_column}` {order_by_direction}"
             print(query)
             cursor.execute(query, (iduser, idLoad,))
             results = cursor.fetchall()
             column_names = [desc[0] for desc in cursor.description]
+            #return [row[0] for row in results if row[0] is not None]
             return pd.DataFrame(results, columns=column_names)
-
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            return pd.DataFrame()
-
+        except:
+            print(f"Error")
+            return None
         finally:
             if cursor:
                 cursor.close()
@@ -778,7 +793,49 @@ def filter_data_from_db(filters=None, columns=None):
                 conn.close()
     else:
         return None
-            
+
+
+def get_headers():
+    conn = None
+    cursor = None
+    try:
+        conn = openconnection()
+        cursor = conn.cursor()
+        cursor.execute("SHOW COLUMNS FROM `DataDetail`")
+        headers = [row[0] for row in cursor.fetchall()]
+        return headers[1:]  # Exclude first column if you don't need it
+    except Exception as e:
+        print(f"Error fetching headers: {e}")
+        return []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_column_datatype(column_name):
+    conn = None
+    cursor = None
+    try:
+        conn = openconnection()
+        cursor = conn.cursor()
+        query = f"SELECT `{column_name}` FROM `DataDetail` WHERE `{column_name}` IS NOT NULL LIMIT 1"
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result:
+            if isinstance(result[0], (int, float)):
+                return "numerical"
+            else:
+                return "text"
+    except Exception as e:
+        print(f"Error determining datatype for column {column_name}: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    return "text"
+
 def get_unique_values(column_name):
     iduser1=getIDUser()
     idLoad1=getDataset()
@@ -805,29 +862,6 @@ def get_unique_values(column_name):
     else:
         return []
 
-def get_column_datatype(column_name):
-    conn = None
-    cursor = None
-    try:
-        conn = openconnection()
-        cursor = conn.cursor()
-        query = f"SELECT `{column_name}` FROM `DataDetail` WHERE `{column_name}` IS NOT NULL LIMIT 1"
-        cursor.execute(query)
-        result = cursor.fetchone()
-        if result:
-            if isinstance(result[0], (int, float)):
-                return "numerical"
-            else:
-                return "text"
-    except Exception as e:
-        print(f"Error determining datatype for column {column_name}: {e}")
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-    return "text"
-
 
 def get_operators_for_column(column_name):
     """
@@ -838,24 +872,7 @@ def get_operators_for_column(column_name):
         return ["=", ">", "<", ">=", "<="]
     else:
         return ["="]  # For text columns, only '='
-    
-def get_headers():
-    conn = None
-    cursor = None
-    try:
-        conn = openconnection()
-        cursor = conn.cursor()
-        cursor.execute("SHOW COLUMNS FROM `DataDetail`")
-        headers = [row[0] for row in cursor.fetchall()]
-        return headers[1:]  # Exclude first column if you don't need it
-    except Exception as e:
-        print(f"Error fetching headers: {e}")
-        return []
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+
 
 # Fetch the available years from the database
 def Select_Load_Files():
