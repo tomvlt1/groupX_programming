@@ -136,16 +136,20 @@ def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, ag
 
     plt.figure(dpi=96) 
     cmap = plt.cm.Greens(np.linspace(0.3, 1, 256))  
-                cmap=ListedColormap(cmap), 
+    sns.heatmap(heatmap_data,
+                cmap=ListedColormap(cmap),  
                 annot=False,  
                 fmt='.2f', 
-                cbar_kws={'label': numerical_color}, 
+                cbar_kws={'label': numerical_color},  
                 linewidths=0.5)  
 
     plt.xlabel(f'{numerical_x}', color='black')  
     plt.ylabel(f'{categorical}', color='black')  
+
     plt.tight_layout()  
+      
     plt.savefig(filename,dpi=96) 
+
    
 
 def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
