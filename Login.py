@@ -8,9 +8,9 @@ from Dashboard import create_dashboard
 (colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream)=color()
   
 def login_user(input1,input2):
-    username = input1.getText()  # Get the username from the input field
-    password = input2.getText()  # Get the password directly from the input field   
- 
+    username = input1.getText()  
+    password = input2.getText()  
+  
     result, vmessage,username, user_id = validate_user(username, password)
     if result:
         setIDUser(user_id)       
@@ -145,11 +145,10 @@ def AccountGUI(userId):
     win.setBackground(colorcream)  
 
     if userId:
-        # Fetch existing user data from the database for modification
         user_data = get_user_data(userId)
         try:
             date_string = user_data[5].strftime('%Y-%m-%d').strip()       
-            dob = datetime.strptime(date_string, '%Y-%m-%d').date()  # Ensure the date is in the format yyyy-mm-dd     
+            dob = datetime.strptime(date_string, '%Y-%m-%d').date()  
         except ValueError:
             dob =None
         if user_data:
@@ -165,7 +164,6 @@ def AccountGUI(userId):
                 ("FavoriteTeam", 420, "Favorite Team", user_data[8])
             ]
 
-            # Create Entry fields for each data item
             entry_fields = {}
             for label, y, vtext, defaultvalue in fields:      
                 if label=="UserName":
@@ -179,14 +177,11 @@ def AccountGUI(userId):
             left_background,image_left_background=create_image_button(win, Point(0, 0), Point(350, 500), "images/BackgroundRegister1.png", size=(350, 500), vout=colorblueBac)
 
             jersey_objects=[]
-               # Draw jersey
             jersey_objects =draw_custom_jersey(win,Point(100, 180), Point(250, 370),user_data[8] ,user_data[2],user_data[4],jersey_objects)
 
-            # Titles
             title = create_label(win, "YOUR PROFILE", Point(550, 30), 20, colorblueBac, "bold")
             subtitle = create_label(win, "Modify your details", Point(550, 60), 12, colorblueBac, "normal")
 
-            # Buttons
             submit_button, txt6 = create_button(win, Point(370, 450), Point(560, 490), "Save", colorvlueButtons, colorcream)
             delete_button, txt7 = create_button(win, Point(590, 450), Point(790, 490), "Delete Account", colorvlueButtons, colorcream)            
             back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout= colorblueBac)
@@ -194,12 +189,11 @@ def AccountGUI(userId):
             while True:
                 try:
                     click = win.getMouse()
-                    # Check if the submit button is clicked
                     if is_click_in_rectangle(click, submit_button):
                         data = [
                             entry_fields["FirstName"].getText(),
                             entry_fields["LastName"].getText(),
-                            user_data[2],  # UserName cannot be modified
+                            user_data[2],  
                             entry_fields["Password"].getText(),
                             entry_fields["ShirtNumber"].getText(),
                             entry_fields["DateOfBirth"].getText(),
@@ -210,32 +204,31 @@ def AccountGUI(userId):
                         result, error = modify_user(int(userId), data)         
                         messages(error)                      
                         if result==True:  
-                            #refresh data and jersey
                             user_data = get_user_data(userId)
                             if jersey_objects:
                                 for obj in jersey_objects:
-                                    obj.undraw()  # Eliminar el objeto previamente dibujado
+                                    obj.undraw()  
                             draw_custom_jersey(win,Point(100, 180), Point(250, 370),user_data[8] ,user_data[2],user_data[4],jersey_objects )                                        
                   
                        
                     elif is_click_in_rectangle(click, back_button):
-                        create_dashboard()  # Go back to the dashboard
+                        create_dashboard()  
                         break
 
                     elif is_click_in_rectangle(click, delete_button):
-                        result, error = delete_user(int(userId))  # Delete user
+                        result, error = delete_user(int(userId))  
                         messages(error)
                         if result:
-                            LoginGUI()  # Go back to the login screen
+                            LoginGUI()  
                         break
 
                 except:
-                    LoginGUI()  # In case of error, go back to login screen
+                    LoginGUI()  
                     break
 
         else:
             messages("Error retrieving user data")
-            LoginGUI()  # Go back to the login screen
+            LoginGUI()  
 
 
 
@@ -265,10 +258,8 @@ def LoginGUI():
     
     drawFootballField(win,Point(400, 0), Point(800, 500))
     
-     # Event loop for login interaction
     while True:
-        click_point = win.checkMouse()  # Detect mouse clicks
-        # Check if the login button is clicked
+        click_point = win.checkMouse() 
         if is_click_in_rectangle(click_point,login_button):
             login_user(username_field,password_field)
             break
@@ -277,10 +268,8 @@ def LoginGUI():
             RegisterGUI()   
             break  
     
-     # Event loop for login interaction
     while True:
-        click_point = win.checkMouse()  # Detect mouse clicks
-        # Check if the login button is clicked
+        click_point = win.checkMouse() 
         if is_click_in_rectangle(click_point,login_button):
             login_user(username_field,password_field)
             break
