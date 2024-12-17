@@ -2,7 +2,7 @@
 from graphics import *
 import time
 import random
-import math
+
 
 def run_headsoccer():
     # Create the main window

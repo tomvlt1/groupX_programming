@@ -1,5 +1,4 @@
 # PostFilter.py
-
 from graphics import *
 from Globals import create_button, is_click_in_rectangle, create_label
 from GraphChoiceSelect import main as GraphChoiceSelect_main
