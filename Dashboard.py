@@ -11,7 +11,7 @@ from FileSelect import file_selector
 from ChooseDataset import dataset_selector
 from ChooseYear import display_year_selection
 from ChooseTeam import display_team_selection
-from filter import main as filtermain # Import the file_selector function
+from filter import main as filtermain
 from main_statistics import *
 import time
 (screen_width, screen_height, screen_widthHome, screen_heightHome)=screen()
@@ -19,7 +19,7 @@ import time
 
 def create_window():
     
-    from Login import LoginGUI # Import inside the function to avoid circular dependency
+    from Login import LoginGUI 
     userid = getIDUser()
     
     if userid:
@@ -45,7 +45,6 @@ def create_sidebar(win):
 
     buttons = {}
 
-    # Existing buttons
 
     back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",
                                            size=(20, 20), vout=colorblueBac)
@@ -115,7 +114,6 @@ def create_overview_section(win):
         overview_boxes.append(overview_box)
         x_offset += 200
 
-    # Use the imported GetRandomFacts() function
     facts = GetRandomFacts(3)
     update_overview_section(win, overview_boxes, facts)
     return overview_boxes
@@ -162,7 +160,7 @@ def create_mini_game_area(win):
 
 
 def statistics(userId):   
-    from Login import LoginGUI # Import inside the function to avoid circular dependency
+    from Login import LoginGUI 
     oldwin = getCurrentWindow()   
     if oldwin:
         oldwin.close()  
@@ -179,8 +177,8 @@ def statistics(userId):
     title = create_label(win, "MAIN STATISTICS",Point(200, 50),20,colorcream,"bold")
  
 
-    team_buttons = []  # To keep track of the team buttons and clear them when needed
-    team_menu_shown = False  # Track if the team menu is shown
+    team_buttons = []  
+    team_menu_shown = False 
 
     if userId:   
         gr1_button,txt11 = create_button(win, Point(80, 100), Point(330, 150), "Team Performance", colorvlueButtons,colorcream)
@@ -202,18 +200,18 @@ def statistics(userId):
                        selected_year = display_year_selection()
                        if selected_year is not None:   
                             selected_team= display_team_selection(selected_year)                               
-                            # Generate graph for selected team and year
+                            
                             if selected_team:
                                 generate_graphs_1(selected_year, selected_team)     
                 elif is_click_in_rectangle(click, gr2_button):
                         selected_year = display_year_selection()
                         if selected_year is not None:
                             selected_team= display_team_selection(selected_year)                               
-                            # Generate graph for selected team and year
+                            
                             if selected_team:
                                 generate_graphs_2(selected_year, selected_team)         
                 elif is_click_in_rectangle(click, gr3_button):               
-                     # Fetch years and display selection
+                     
                     selected_year = display_year_selection()
                     if selected_year is not None:
                         plot_shots(selected_year)    
@@ -239,13 +237,11 @@ def display_files_selection(win, vfiles):
         idx+=1
         files_buttons.append((idload, btn, txt13))
     
-    # Create the "X" to close the selection
-    close_button = Rectangle(Point(330, 140), Point(350,160))  # Position of the "X"
+    close_button = Rectangle(Point(330, 140), Point(350,160)) 
     close_button.setFill("#4682B4")
     close_button.setOutline("#4682B4")
     close_button.draw(win)
 
-    # Create the "X" text inside the button
     close_text = Text(Point(340, 150), "X")
     close_text.setSize(16)
     close_text.setTextColor("white")
@@ -255,37 +251,33 @@ def display_files_selection(win, vfiles):
     while True:
         click = win.getMouse()
 
-        # Check if the "X" was clicked
         if is_click_in_rectangle(click, close_button):
-            # Undraw the buttons, label, and "X" when closing
             for _, b, c in files_buttons:
                 b.undraw()
                 c.undraw()
             files_label.undraw()
             close_button.undraw()
             close_text.undraw()
-            return None  # Return None if the selection is closed
+            return None  
         
-        # Check if a year button was clicked
         for idload, btn, vtxt in files_buttons:
             if is_click_in_rectangle(click, btn):
-                # Undraw all buttons and the label when a year is selected
                 for _, b, c in files_buttons:
                     b.undraw()
                     c.undraw()
                 files_label.undraw()
                 close_button.undraw()
                 close_text.undraw()
-                return idload # Return the selected year
+                return idload 
 
 
 def create_dashboard():
-    from Login import LoginGUI, AccountGUI  # Import inside the function to avoid circular dependency
+    from Login import LoginGUI, AccountGUI  
     win = create_window()
     if not win:
         return
 
-    buttons = create_sidebar(win)  # Now returns a dictionary
+    buttons = create_sidebar(win)  
     overview_boxes = create_overview_section(win)
     refresh_button = RefreshButton(850, 60, win)
 
@@ -298,7 +290,6 @@ def create_dashboard():
     while True:
         click = win.checkMouse()
         if click:
-            # Preview button
             if not mini_game_active and is_click_in_rectangle(click, preview_button):
                 mini_game_active = True
                 preview_button.undraw()
@@ -314,19 +305,15 @@ def create_dashboard():
                 warning.draw(win)
                 mini_game_active = False
 
-            # Refresh button => Regenerate random facts
             elif is_click_in_rectangle(click, refresh_button):
                 new_facts = GetRandomFacts(3)
                 update_overview_section(win, overview_boxes, new_facts)
 
-            # Import dataset
             elif is_click_in_rectangle(click, buttons.get("Import Dataset")):
                 userId = getIDUser()
                 if userId:
                     try:
-                        # Use FileSelect.py's file_selector function
                         selected_file, selected_fileName= file_selector("target_folder",500,400)  
-                        # Proceed to import the selected file into the database
                         print(selected_file)
                         result1, verror = check_csv_file(selected_file)
                         if result1:
@@ -346,20 +333,15 @@ def create_dashboard():
                     except Exception as e:
                         messages(f"An error occurred: {str(e)}")
 
-            # Visualize button
 
-            # Profile button
             elif is_click_in_rectangle(click, buttons.get("Visualize Data")):
                 if getDataset() =="":
                     messages("Select Dataset")
                 else:
-                    # Instead of run_visualize(), call build_filter_ui()
-                    result_df = filtermain()  # or build_filter_ui() can also return a df
+                    result_df = filtermain() 
                     if result_df is not None:
                         print("Filtered DataFrame:", result_df)
-                    # Possibly do something else with result_df
 
-            # Import Dataset
             elif is_click_in_rectangle(click, buttons.get("Choose Dataset")):
                 userId = getIDUser()
                 if userId:
@@ -367,7 +349,6 @@ def create_dashboard():
                     setDataset(idload) 
                     messages(f'your dataset for the study will be {vtxt}') 
                    
-            # Other button logic...
             elif is_click_in_rectangle(click, buttons.get("FootClick Game")):
                 run_footclick()
             elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
@@ -383,7 +364,6 @@ def create_dashboard():
                     statistics(getIDUser())
             elif is_click_in_rectangle(click, buttons.get("Profile")):
                 AccountGUI(getIDUser())       
-            # Visualize Data button
             
 
         time.sleep(0.05)
