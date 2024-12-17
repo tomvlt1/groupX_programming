@@ -127,7 +127,6 @@ def update_overview_section(win, overview_boxes, facts):
                         overview_boxes[i].getP1().y <= item.getAnchor().y <= overview_boxes[i].getP2().y):
                     item.undraw()
 
-        # facts are returned in the form "description\nHomeTeam - AwayTeam\nColumn: value"
         try:
             description, match_info, value = fact.split("\n")
         except ValueError:
@@ -247,7 +246,6 @@ def display_files_selection(win, vfiles):
     close_text.setTextColor("white")
     close_text.draw(win)
 
-    # Wait for the user to click
     while True:
         click = win.getMouse()
 
