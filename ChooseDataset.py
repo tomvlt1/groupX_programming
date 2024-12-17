@@ -1,4 +1,3 @@
-# FileSelect.py
 
 from Globals import (
     create_button,
@@ -31,7 +30,6 @@ def draw_dataset(win):
     if  iduser:   
         vfiles = Select_Load_Files()
         if vfiles:
-            # Label for selecting year            
             buttons = []
             idx=1
         
@@ -60,7 +58,7 @@ def dataset_selector( win_width=screen_width, win_height=screen_height):
          
         if is_click_in_rectangle(click, back_button):
             
-            create_dashboard()  # Go back to the dashboard            
+            create_dashboard()          
         else:            
             for idload, btn, txt13 in buttons:            
                 if is_click_in_rectangle(click, btn):  
