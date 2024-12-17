@@ -38,9 +38,9 @@ def Histogram(column, filename):
    
     
     plt.figure(dpi=96) 
-    plt.hist(data[column], bins=10, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
-    plt.xlabel(f'{column}', color='black')  # X-axis label color to black
-    plt.ylabel('Frequency', color='black')  # Y-axis label color to black
+    plt.hist(data[column], bins=10, color='#006400', alpha=0.7, edgecolor='black')  
+    plt.xlabel(f'{column}', color='black')  
+    plt.ylabel('Frequency', color='black')  
     
     
     plt.savefig(filename,dpi=96) 
@@ -48,21 +48,19 @@ def Histogram(column, filename):
 
 def Boxplot(column, filename):
     plt.figure(dpi=96) 
-    data.boxplot(column=column, patch_artist=True, sym="ro", boxprops=dict(facecolor='#006400', color='black'))  # Dark Green
-    plt.ylabel('Values', color='black')  # Y-axis label color to black
+    data.boxplot(column=column, patch_artist=True, sym="ro", boxprops=dict(facecolor='#006400', color='black'))  
+    plt.ylabel('Values', color='black')  
     
-    #plt.show(block=True)
     plt.savefig(filename,dpi=96) 
     
 
 def Barchart(column, filename):
     plt.figure(dpi=96) 
     counts = data[column].value_counts()
-    plt.bar(counts.index, counts.values, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
-    plt.xlabel('Categories', color='black')  # X-axis label color to black
-    plt.ylabel('Counts', color='black')  # Y-axis label color to black
+    plt.bar(counts.index, counts.values, color='#006400', alpha=0.7, edgecolor='black')  
+    plt.xlabel('Categories', color='black')  
+    plt.ylabel('Counts', color='black')  
    
-    #plt.show(block=True)
     plt.savefig(filename,dpi=96) 
     
 
