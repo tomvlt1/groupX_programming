@@ -6,7 +6,7 @@ from Globals import (
     is_click_in_rectangle,create_image_button,
     screen_width,
     screen_height,
-    getIDUser,setDataset,colorcream,
+    getIDUser,setDataset,colorcream,SessionManager
 )
 from graphics import GraphWin, Point
 from DataFunctions import Select_Load_Files
@@ -28,7 +28,7 @@ def draw_dataset(win):
     y_offset = 100
     x_center = win.getWidth() / 2
     
-    iduser= getIDUser()
+    iduser= SessionManager.getIDUser()
     if  iduser:   
         vfiles = Select_Load_Files()
         if vfiles:

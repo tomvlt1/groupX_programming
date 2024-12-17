@@ -2,35 +2,49 @@
 from graphics import *
 
 # Screen dimensions
-screen_width = 900  # Width
-screen_height = 500  # Height
-screen_widthHome = 800  # Width
-screen_heightHome = 500  # Height
+def screen():
+    screen_width = 900  # Width
+    screen_height = 500  # Height
+    screen_widthHome = 800  # Width
+    screen_heightHome = 500  # Height
+    return screen_width, screen_height, screen_widthHome, screen_heightHome
 
-colorblueBac=color_rgb(31, 27, 58)
-colorvlueButtons=color_rgb(44, 40, 85)
-colorvlueButtons1=color_rgb(84, 80, 125)
-colorgreen="#F8F9FA"
-colorcream=color_rgb(242, 237, 228)
+def color():
+    colorblueBac=color_rgb(31, 27, 58)
+    colorvlueButtons=color_rgb(44, 40, 85)
+    colorvlueButtons1=color_rgb(84, 80, 125)
+    colorgreen="#F8F9FA"
+    colorcream=color_rgb(242, 237, 228)
+    return colorblueBac, colorvlueButtons, colorvlueButtons1, colorgreen, colorcream
+    
+class SessionManager:
+    def __init__(self):
+        self.session = {}
 
-session = {}
+    def setIDUser(self, IdUser):
+        self.session['IdUser'] = IdUser
 
-def setIDUser(IdUser):
-    session['IdUser']= IdUser
-def getIDUser():
-    return session.get('IdUser', None)   
-def setCurrentWindow(Win):
-    session['CurrentWindow']= Win
-def getCurrentWindow():
-    return session.get('CurrentWindow', None)  
-def setFilters(vfilter):
-    session['Filters']= vfilter
-def getFilters():
-    return session.get('Filters', [])    
-def setDataset(IdFileLoad):
-    session['IdFileLoad']=IdFileLoad
-def getDataset():
-    return session.get('IdFileLoad',"")   
+    def getIDUser(self):
+        return self.session.get('IdUser', None)
+
+    def setCurrentWindow(self, Win):
+        self.session['CurrentWindow'] = Win
+
+    def getCurrentWindow(self):
+        return self.session.get('CurrentWindow', None)
+
+    def setFilters(self, vfilter):
+        self.session['Filters'] = vfilter
+
+    def getFilters(self):
+        return self.session.get('Filters', [])
+
+    def setDataset(self, IdFileLoad):
+        self.session['IdFileLoad'] = IdFileLoad
+
+    def getDataset(self):
+        return self.session.get('IdFileLoad', "")
+  
 
   
 def is_click_in_rectangle(click_point, rectangle):

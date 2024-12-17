@@ -19,15 +19,15 @@ import time
 def create_window():
     
     from Login import LoginGUI # Import inside the function to avoid circular dependency
-    userid = getIDUser()
+    userid = SessionManager.getIDUser()
     
     if userid:
-        oldwin = getCurrentWindow()
+        oldwin = SessionManager.getCurrentWindow()
         if oldwin:
             oldwin.close()
         winHome = GraphWin("Football Dashboard UI", screen_width, screen_height)
-        setCurrentWindow(winHome)
-        win = getCurrentWindow()
+        SessionManager.setCurrentWindow(winHome)
+        win = SessionManager.getCurrentWindow()
         win.setBackground(color_rgb(44, 40, 85))
         return win
     else:
@@ -320,7 +320,7 @@ def create_dashboard():
 
             # Import dataset
             elif is_click_in_rectangle(click, buttons.get("Import Dataset")):
-                userId = getIDUser()
+                userId = SessionManager.getIDUser()
                 if userId:
                     try:
                         # Use FileSelect.py's file_selector function
@@ -349,7 +349,7 @@ def create_dashboard():
 
             # Profile button
             elif is_click_in_rectangle(click, buttons.get("Visualize Data")):
-                if getDataset() =="":
+                if SessionManager.getDataset() =="":
                     messages("Select Dataset")
                 else:
                     # Instead of run_visualize(), call build_filter_ui()
@@ -360,10 +360,10 @@ def create_dashboard():
 
             # Import Dataset
             elif is_click_in_rectangle(click, buttons.get("Choose Dataset")):
-                userId = getIDUser()
+                userId = SessionManager.getIDUser()
                 if userId:
                     idload,vtxt=dataset_selector(320,600)
-                    setDataset(idload) 
+                    SessionManager.setDataset(idload) 
                     messages(f'your dataset for the study will be {vtxt}') 
                    
             # Other button logic...
@@ -372,16 +372,16 @@ def create_dashboard():
             elif is_click_in_rectangle(click, buttons.get("HeadSoccer Game")):
                 run_headsoccer()
             elif is_click_in_rectangle(click, buttons.get("Back")):
-                session.clear
+                SessionManager.session.clear
                 win.close()
                 LoginGUI()
             elif is_click_in_rectangle(click, buttons.get("Main statistics")):
-                if getDataset() =="":
+                if SessionManager.getDataset() =="":
                     messages("Select Dataset")
                 else:
-                    statistics(getIDUser())
+                    statistics(SessionManager.getIDUser())
             elif is_click_in_rectangle(click, buttons.get("Profile")):
-                AccountGUI(getIDUser())       
+                AccountGUI(SessionManager.getIDUser())       
             # Visualize Data button
             
 
