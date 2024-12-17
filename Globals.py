@@ -30,7 +30,7 @@ def getFilters():
 def setDataset(IdFileLoad):
     session['IdFileLoad']=IdFileLoad
 def getDataset():
-    return session.get('IdFileLoad', None)   
+    return session.get('IdFileLoad',"")   
 
   
 def is_click_in_rectangle(click_point, rectangle):

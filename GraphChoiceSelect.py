@@ -32,10 +32,12 @@
 
 
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from graphics import *
-import random
 from Globals import messages,create_button,is_click_in_rectangle
+import ctypes
 
 
 
@@ -231,69 +233,76 @@ def display_graph(numerical,categorical,selected,dataset):
     #filename = f"graph_{file_name_number}.png"
     filename ="graph_1.png"
     vcontrol=0
-    plt.clf()  # Clean
+        
+    plt.rcParams['figure.dpi'] = 96
+    plt.rcParams['savefig.dpi'] = 96  # Asegúrate de que los gráficos guardados también usen 96 DPI     
+    
     plt.close()  # Close   
+   
     if selected[0] == "Histogram" and len(numerical) >0:
-        vcontrol=1
-        plt.hist(dataset[numerical[0]],15, histtype='stepfilled', align = 'mid', color = "g")
+        vcontrol=1   
+       
+        plt.figure(dpi=96)  # Tamaño de figura y DPI       
+        plt.hist(dataset[numerical[0]],bins=15, histtype='stepfilled', align = 'mid', color = "g") 
         plt.ylabel('Observations')
         plt.xlabel(f'{numerical[0]}', color="Black")
-        plt.title(f'{numerical[0]} ', color="Black")
-        
-        plt.savefig(filename)
-        
+        plt.title(f'{numerical[0]} ', color="Black")          
+               
         
     elif selected[0] == "Bar chart (Simple and Stacked)" and len(categorical) <= 2 and len(numerical) <= 1:
         
         if len(categorical) == 1 and len(numerical)  == 1:
             vcontrol=1
+            plt.figure(dpi=96) 
             plt.bar(dataset[categorical[0]], dataset[numerical[0]], color="g", align='center')
             plt.ylabel(f'{numerical[0]}', color="Black")
             plt.xlabel(f'{categorical[0]}', color="Black")
             plt.title(f'{numerical[0]} ', color="Black")
            
-            plt.savefig(filename)
         elif len(categorical) == 2 and len(numerical) == 0:
             vcontrol=1
-            plt.figure()
+            plt.figure(dpi=96)  # Tamaño de figura y DPI  
             cross_tab = pd.crosstab(dataset[categorical[0]],dataset[categorical[1]])
             cross_tab.plot(kind='bar', stacked=True, colormap='Greens')
             plt.title(f'{categorical[0]} vs {categorical[1]}', color='w')            
-            plt.savefig(filename)
+            
     elif selected[0] == "Box Plot" and len(categorical) <= 1 and len(numerical) == 1:
         if len(numerical) ==1 and len(categorical) ==0:
             vcontrol=1
+            plt.figure(dpi=96)  # Tamaño de figura y DPI  
             plt.boxplot(dataset[numerical[0]], sym='gx', widths=0.75, notch=True)
             plt.ylabel(f'{numerical[0]}', color='Black')
             plt.title(f'{numerical[0]} ', color='Black')
-            plt.savefig(filename)
+           
         elif len(categorical) == 1 and len(categorical) == 1:
             vcontrol=1
+            plt.figure(dpi=96)  
             plt.boxplot(dataset[numerical[0]], labels = dataset[categorical[0]].unique(), sym='gx', widths=0.75, notch=True)
             plt.xlabel('Entries')
             plt.ylabel('Values')
             plt.title('Histogram')
-            plt.savefig(filename)
+           
     elif selected[0] == "Scatter Plot" and len(numerical) <= 3 and len(categorical) == 0:
         if len(numerical) == 2:
             vcontrol=1
+            plt.figure(dpi=96) 
             plt.scatter(dataset[numerical[0]], dataset[numerical[1]], s=[100], color='m')
             plt.xlabel('Entries')
             plt.ylabel('Values')
             plt.xlabel(f'{numerical[0]}', color="Black")
             plt.ylabel(f'{numerical[1]}', color="Black")
             plt.title(f'{numerical[0]} vs {numerical[1]} ', color="Black")
-            plt.savefig(filename)
+            
         elif len(numerical) == 3:
             vcontrol=1
-            plane = plt.figure()
+            plane = plt.figure(dpi=96) 
             axis = plane.add_subplot(projection='3d')
             axis.scatter(dataset[numerical[0]], dataset[numerical[1]], dataset[numerical[2]])
             axis.set_xlabel(f'{numerical[0]}', color="Black")
             axis.set_ylabel(f'{numerical[1]}', color="Black")
             axis.set_zlabel(f'{numerical[2]}', color="Black")
             plt.title(f'{numerical[0]} vs. {numerical[1]} vs. {numerical[2]}', color="Black")
-            plt.savefig(filename)
+          
     elif (selected[0] == "Pie Chart" and len(categorical) ==1) or (selected[0] == "Pie Chart" and  len(numerical) == 1):
         if len(numerical) == 1:
             vcontrol = 1
@@ -301,19 +310,21 @@ def display_graph(numerical,categorical,selected,dataset):
         elif len(categorical) == 1:
             vcontrol = 1
             datanew = dataset.groupby(categorical[0]).size()
+        plt.figure(dpi=96) 
         plt.xlabel('Entries')
         plt.ylabel('Values')
         plt.title('Pie Chart')
         # Usar valores y etiquetas de manera correcta
         plt.pie(datanew.values, labels=datanew.index, autopct='%1.1f%%', counterclock=False, shadow=False)
-        plt.savefig(filename)
+        
            
     return filename,vcontrol,plt
 
 def displayer(filename):
     win = GraphWin("Show", 800, 600)
     win.setBackground('dark green')
-    bg_image = Image(Point(400, 300), filename)
+    bg_image = Image(Point(400, 300), filename)       
+    
     bg_image.draw(win)
     done, done_writting  = create_button(win, Point(350, 545), Point(450, 595), "Done", "green", "white",size=10)    
     
@@ -331,19 +342,15 @@ def main():
     numerical_display, categorical_display, dataset=variable_split()
     numerical, categorical = VariableOptions(selected,numerical_display,categorical_display,dataset)
    
-    filename,vcontrol,ptl = display_graph(numerical, categorical, selected,dataset)
+    filename,vcontrol,plt = display_graph(numerical, categorical, selected,dataset)
     if vcontrol==0:
         messages ("It is not possible to graph with these options")
         main()        
     else:  
         # Get the current figure and resize it to show it large first
-        fig = plt.gcf()  
-        fig.set_size_inches(12, 8)       
-        plt.show()  
-        plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-        plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
+        # Establecer un DPI fijo de 96 para matplotlib
+        plt.savefig(filename,dpi=96) 
         displayer(filename)
-        
 
 #main()
 
