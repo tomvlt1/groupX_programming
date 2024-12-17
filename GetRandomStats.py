@@ -2,14 +2,14 @@ import mysql.connector
 import random
 import time
 
-db_config = {
+
+
+def GetRandomFacts(fact_qtt):
+    db_config = {
     "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
     "user": "MATCHIEAdmin",
     "password": "IeUniversity123",
-    "database": "LaLiga"
-}
-
-def GetRandomFacts(fact_qtt):
+    "database": "LaLiga"}
     facts = []
     random.seed(time.time())  
     conn = mysql.connector.connect(**db_config)
