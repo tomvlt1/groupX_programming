@@ -5,7 +5,7 @@ def main():
     if getIDUser() == None:
         LoginGUI()
     else:              
-        create_dashboard
+        create_dashboard()
 
 main()
 
