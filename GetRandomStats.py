@@ -104,7 +104,6 @@ def GetColumnNames(table_name):
             conn.close()
     return columns
 
-# If testing directly:
 if __name__ == "__main__":
     print(GetRandomFacts(5))
     print(GetColumnNames("DataDetail"))
