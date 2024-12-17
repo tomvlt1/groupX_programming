@@ -37,7 +37,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from graphics import *
 from Globals import messages,create_button,is_click_in_rectangle
-import ctypes
 
 
 
@@ -352,8 +351,8 @@ def main():
         plt.savefig(filename,dpi=96) 
         displayer(filename)
 
-#main()
-
+if __name__ == "__main__":
+    main()
 
 
 

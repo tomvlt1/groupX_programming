@@ -1,5 +1,4 @@
 import mysql.connector
-from config import *
 from datetime import datetime
 from Globals import *
 import csv
