@@ -7,27 +7,6 @@ import pandas as pd
 import random
 import time
 
-expected_headers = [
-    "Home Team", "Away Team", "Score", "Half Time Score",
-    "Match Excitement", "Home Team Rating", "Away Team Rating",
-    "Home Team Possession %", "Away Team Possession %",
-    "Home Team Off Target Shots", "Home Team On Target Shots",
-    "Home Team Total Shots", "Home Team Blocked Shots",
-    "Home Team Corners", "Home Team Throw Ins",
-    "Home Team Pass Success %", "Home Team Aerials Won",
-    "Home Team Clearances", "Home Team Fouls",
-    "Home Team Yellow Cards", "Home Team Second Yellow Cards",
-    "Home Team Red Cards", "Away Team Off Target Shots",
-    "Away Team On Target Shots", "Away Team Total Shots",
-    "Away Team Blocked Shots", "Away Team Corners",
-    "Away Team Throw Ins", "Away Team Pass Success %",
-    "Away Team Aerials Won", "Away Team Clearances",
-    "Away Team Fouls", "Away Team Yellow Cards",
-    "Away Team Second Yellow Cards", "Away Team Red Cards",
-    "Home Team Goals Scored", "Away Team Goals Scored",
-    "Home Team Goals Conceeded", "Away Team Goals Conceeded",
-    "year"
-]
 
 def openconnection():
     db_host = host
@@ -462,6 +441,27 @@ def delete_last_insert_for_user(user_id):
             cursor.close()
             db_connection.close()
 def check_csv_file(file_path):
+    expected_headers = [
+    "Home Team", "Away Team", "Score", "Half Time Score",
+    "Match Excitement", "Home Team Rating", "Away Team Rating",
+    "Home Team Possession %", "Away Team Possession %",
+    "Home Team Off Target Shots", "Home Team On Target Shots",
+    "Home Team Total Shots", "Home Team Blocked Shots",
+    "Home Team Corners", "Home Team Throw Ins",
+    "Home Team Pass Success %", "Home Team Aerials Won",
+    "Home Team Clearances", "Home Team Fouls",
+    "Home Team Yellow Cards", "Home Team Second Yellow Cards",
+    "Home Team Red Cards", "Away Team Off Target Shots",
+    "Away Team On Target Shots", "Away Team Total Shots",
+    "Away Team Blocked Shots", "Away Team Corners",
+    "Away Team Throw Ins", "Away Team Pass Success %",
+    "Away Team Aerials Won", "Away Team Clearances",
+    "Away Team Fouls", "Away Team Yellow Cards",
+    "Away Team Second Yellow Cards", "Away Team Red Cards",
+    "Home Team Goals Scored", "Away Team Goals Scored",
+    "Home Team Goals Conceeded", "Away Team Goals Conceeded",
+    "year"
+]
     try:
         with open(file_path, 'r', encoding='utf-8') as csvfile:
             csvreader = csv.reader(csvfile)

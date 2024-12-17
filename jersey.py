@@ -15,7 +15,20 @@
 from graphics import *
 
 # Define a dictionary of team colors with primary and secondary colors
-team_colors = {
+
+def draw_custom_jersey(win, p1, p2, team_chosen, username, favorite_number, jersey_objects=None):
+    """
+    Draws a custom jersey within the specified rectangular area defined by p1 and p2.
+
+    Parameters:
+    - win: GraphWin object where the jersey will be drawn.
+    - p1: Point object representing the top-left corner of the drawing area.
+    - p2: Point object representing the bottom-right corner of the drawing area.
+    - team_chosen: String representing the selected team.
+    - username: String representing the user's name.
+    - favorite_number: Integer representing the user's favorite number.
+    """
+    team_colors = {
     "BASE": {"primary": "#FFFFFF", "secondary": "#000000"},
     "MÁLAGA": {"primary": "#4AADD4", "secondary": "#FFFFFF"},
     "SEVILLA FC": {"primary": "#D71A28", "secondary": "#FFFFFF"},
@@ -50,18 +63,6 @@ team_colors = {
     "CÁDIZ CF": {"primary": "#FFD700", "secondary": "#0000FF"},
 }
 
-def draw_custom_jersey(win, p1, p2, team_chosen, username, favorite_number, jersey_objects=None):
-    """
-    Draws a custom jersey within the specified rectangular area defined by p1 and p2.
-
-    Parameters:
-    - win: GraphWin object where the jersey will be drawn.
-    - p1: Point object representing the top-left corner of the drawing area.
-    - p2: Point object representing the bottom-right corner of the drawing area.
-    - team_chosen: String representing the selected team.
-    - username: String representing the user's name.
-    - favorite_number: Integer representing the user's favorite number.
-    """
     if jersey_objects:
         for obj in jersey_objects:
             obj.undraw()  
