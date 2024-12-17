@@ -7,9 +7,6 @@ from Graphsuggest import main as GraphSuggestions_main
 def GraphOptions():
     from filter import main as fmain
     from Dashboard import create_dashboard
-    """
-    A window with two buttons: 'Variable to Graph' and 'Graph to Variable'.
-    """
 
     win = GraphWin("Graph Options", 800, 600)
     win.setBackground("darkgreen")
@@ -41,13 +38,12 @@ def GraphOptions():
             GraphSuggestions_main()
 
         elif is_click_in_rectangle(click, button2):
-            #graph to variable
             win.close()
             GraphChoiceSelect_main()
         elif is_click_in_rectangle(click, back_button):
             win.close()
             create_dashboard()
-        elif 50 < click.x < 100 and 55 < click.y < 58:  # Back arrow region  # If the back button is clicked            
+        elif 50 < click.x < 100 and 55 < click.y < 58:         
             win.close()
             create_dashboard()
 
