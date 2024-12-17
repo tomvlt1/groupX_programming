@@ -39,7 +39,6 @@ def build_filters_page(win):
     selected_op  = None
     selected_val = None
 
-    # Use create_button from Globals
     add_filter_btn, add_filter_txt = create_button(
         win, Point(540, 105), Point(640, 135), "Add Filter",
         fill_color=color_rgb(28,195,170), text_color="white", vout="grey", size=12
@@ -60,7 +59,6 @@ def build_filters_page(win):
 
         x, y = click.getX(), click.getY()
 
-        # Column Box
         if is_click_in_rectangle(click, col_box):
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,120))
             col_text.setText(selected_col if selected_col else "Select column")
@@ -69,7 +67,6 @@ def build_filters_page(win):
             op_text.setText("Select operator")
             val_text.setText("Select value")
 
-        # Operator Box
         if is_click_in_rectangle(click, op_box):
             operators = get_operators_for_column(selected_col)
             selected_op = create_scrollable_dropdown(win, "", operators, Point(430,160))
@@ -77,13 +74,11 @@ def build_filters_page(win):
             selected_val = None
             val_text.setText("Select value")
 
-        # Value Box
         if is_click_in_rectangle(click, val_box) and selected_col and selected_op:
             unique_vals = get_unique_values(selected_col)
             selected_val = create_scrollable_dropdown(win, "", unique_vals, Point(430,200))
             val_text.setText(str(selected_val) if selected_val else "Select value")
 
-        # Add Filter
         if  is_click_in_rectangle(click, add_filter_btn):
             
             if selected_col and selected_op and selected_val is not None:
@@ -101,11 +96,9 @@ def build_filters_page(win):
                 op_text.setText("Select operator")
                 val_text.setText("Select value")
 
-        # Next Step
         elif is_click_in_rectangle(click, next_step_btn):
             return applied_filters
 
-        # Clear All
         elif  is_click_in_rectangle(click, clear_filters_btn):
             applied_filters.clear()
             setFilters(None)
@@ -118,7 +111,7 @@ def build_filters_page(win):
             val_text.setText("Select value")
             
         elif is_click_in_rectangle(click, back_button):
-            create_dashboard()  # Go back to the dashboard
+            create_dashboard()  #bo back to the dashboard
        
 
 def build_columns_page(win, filters):
@@ -194,8 +187,8 @@ def build_columns_page(win, filters):
             continue        
         
         if is_click_in_rectangle(click, back_button):
-            build_2_page_ui()  # Go back to the filter page
-        # Submit
+            build_2_page_ui()  
+    
         elif is_click_in_rectangle(click, submit_btn):  
             df = filter_data_from_db(
                 filters=filters,
@@ -206,11 +199,11 @@ def build_columns_page(win, filters):
             )
             return df
             
-        # Display column box
+       
         elif is_click_in_rectangle(click, disp_box): 
             selected_col = create_scrollable_dropdown(win, "", available_columns, Point(430,140))
             disp_text.setText(selected_col if selected_col else "Select column")
-        # Add Column
+       
         elif is_click_in_rectangle(click, add_col_btn):  
             if not selected_columns:
                 selected_columns.append(selected_col)
@@ -225,18 +218,18 @@ def build_columns_page(win, filters):
             selected_col = None
             disp_text.setText("Select column")
             
-        # Order By column box
+        
         if is_click_in_rectangle(click, order_box):
             order_by_col = create_scrollable_dropdown(win, "", available_columns, Point(790,140))
             order_text.setText(order_by_col if order_by_col else "Select column")
 
-        # Direction box
+       
         if is_click_in_rectangle(click, direction_box):
             direction_options = ["ASC", "DESC"]
             order_by_dir = create_scrollable_dropdown(win, "", direction_options, Point(790,200))
             direction_text.setText(order_by_dir if order_by_dir else "ASC / DESC")
 
-        # Apply Sort button
+       
         if is_click_in_rectangle(click, order_btn):
             if order_by_col and order_by_dir:
                 order_btn.setFill(color_rgb(0, 200, 0))
@@ -246,12 +239,12 @@ def build_columns_page(win, filters):
                 order_btn.setFill(color_rgb(28,195,170))
                 order_btn_txt.setText("Apply Sort")
 
-        # Unique Column dropdown
+      
         if is_click_in_rectangle(click, unique_box):
             unique_column = create_scrollable_dropdown(win, "", available_columns, Point(430,365))
             unique_text.setText(unique_column if unique_column else "Select column")
 
-        # Unique On/Off button
+       
         if is_click_in_rectangle(click, unique_btn):
             if unique_column:
                 is_unique = not is_unique
@@ -289,13 +282,13 @@ def build_2_page_ui():
     back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout=colorblueBac)    
 
    
-    # Page 1: Filters
+   
     filters = build_filters_page(win)
     if filters is None:
         #win.close()
         return pd.DataFrame()
 
-    # Page 2: Columns
+   
     while True:
         
         df = build_columns_page(win, filters)
@@ -319,8 +312,7 @@ def build_2_page_ui():
 
 def main():
     final_df = build_2_page_ui()
-    # Once the user finishes the 2-page filter UI, we then call PostFilter.py
-    from PostFilter import GraphOptions   # Import here to avoid circular references
+    from PostFilter import GraphOptions   
     selected_option = GraphOptions()       # This will open the "Variable to Graph" / "Graph to Variable" window
 
     return "Data returned to main()", selected_option
