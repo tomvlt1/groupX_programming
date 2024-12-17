@@ -5,6 +5,8 @@
 
 
 from graphics import *
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -33,55 +35,39 @@ def IsCategorical(column):
 
 
 def Histogram(column, filename):
-    plt.figure()
+   
+    
+    plt.figure(dpi=96) 
     plt.hist(data[column], bins=10, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.xlabel(f'{column}', color='black')  # X-axis label color to black
     plt.ylabel('Frequency', color='black')  # Y-axis label color to black
     
     
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+    
 
 def Boxplot(column, filename):
-    plt.figure()
+    plt.figure(dpi=96) 
     data.boxplot(column=column, patch_artist=True, sym="ro", boxprops=dict(facecolor='#006400', color='black'))  # Dark Green
     plt.ylabel('Values', color='black')  # Y-axis label color to black
     
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+    
 
 def Barchart(column, filename):
-    plt.figure()
+    plt.figure(dpi=96) 
     counts = data[column].value_counts()
     plt.bar(counts.index, counts.values, color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.xlabel('Categories', color='black')  # X-axis label color to black
     plt.ylabel('Counts', color='black')  # Y-axis label color to black
    
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+    
 
 def Piechart(column, filename):
-    plt.figure()
+    plt.figure(dpi=96) 
     counts = data[column].value_counts()
     num_colors = len(counts)
     dark_green_shades = plt.cm.Greens(np.linspace(0.5, 1, len(counts)))  # Darker shades of green
@@ -90,52 +76,32 @@ def Piechart(column, filename):
             explode=explode, colors=dark_green_shades, counterclock=False, shadow=True)
    
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
-
+    plt.savefig(filename,dpi=96) 
+    
 
 def Scatterplot(x, y, filename):
-    plt.figure()
+    plt.figure(dpi=96) 
     plt.scatter(data[x], data[y], color='#006400', alpha=0.7, edgecolor='black')  # Dark Green
     plt.xlabel(f'{x}', color='black')  # X-axis label color to black
     plt.ylabel(f'{y}', color='black')  # Y-axis label color to black
     
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+   
 
 
 def Linechart(x, y, filename):
-    plt.figure()
+    plt.figure(dpi=96) 
     plt.plot(data[x], data[y], color='#006400', alpha=0.7)  # Dark Green
     plt.xlabel(f'{x}', color='black')  # X-axis label color to black
     plt.ylabel(f'{y}', color='black')  # Y-axis label color to black
     
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
-
+    plt.savefig(filename,dpi=96) 
+   
 
 def StackedBarchart(x, y, filename):
-    plt.figure()
+    plt.figure(dpi=96) 
     cross_tab = pd.crosstab(data[x], data[y])
 
     # Create the stacked bar chart with custom colormap
@@ -153,21 +119,15 @@ def StackedBarchart(x, y, filename):
     #plt.tight_layout()  # To ensure the legend fits without overlapping
    
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+  
 
 
 
 
 def Heatmap(x, y, filename):
     pivot_table = data.pivot_table(index=x, columns=y, aggfunc='size', fill_value=0)
-    plt.figure()
+    plt.figure(dpi=96) 
     cmap = plt.cm.Greens(np.linspace(0.3, 1, 256))  # Darker greens range
     plt.imshow(pivot_table, cmap=ListedColormap(cmap), interpolation='nearest')
     plt.colorbar(label='Counts')  # Color bar label color to black
@@ -177,15 +137,8 @@ def Heatmap(x, y, filename):
     plt.tight_layout()
     
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
-
+    plt.savefig(filename,dpi=96) 
+   
 
 def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, agg_func='mean', filename="graph.png"):
     data[numerical_color] = pd.to_numeric(data[numerical_color], errors='coerce')
@@ -196,7 +149,7 @@ def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, ag
                                     aggfunc=agg_func)
 
 
-    plt.figure()
+    plt.figure(dpi=96) 
     cmap = plt.cm.Greens(np.linspace(0.3, 1, 256))  # Darker range for better visibility in green
     sns.heatmap(heatmap_data,
                 cmap=ListedColormap(cmap),  # Apply custom green colormap
@@ -211,17 +164,11 @@ def HeatmapWithTwoNumericals(categorical, numerical_x, numerical_color, data, ag
     plt.tight_layout()  # To ensure the layout is properly adjusted
       
     #plt.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+   
 
 def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
-    plane = plt.figure()
+    plane = plt.figure(dpi=96) 
     axis = plane.add_subplot(projection='3d')
     axis.scatter(data[numvar1], data[numvar2], data[numvar3],c="green")
     axis.set_xlabel(f'{numvar1}', color="black")  # Set axis label color to black
@@ -229,14 +176,8 @@ def ThreeDScatterplot(numvar1, numvar2, numvar3, filename, data):
     axis.set_zlabel(f'{numvar3}', color="black")  # Set axis label color to black
        
     #plane.show(block=True)
-    plt.savefig(filename)
-     # Get the current figure and resize it to show it large first
-    fig = plt.gcf()  
-    fig.set_size_inches(12, 8)       
-    plt.show()
-    plt.close(fig)  # Cierra explícitamente la figura para liberar recursos
-    plt.rcParams.update(plt.rcParamsDefault)  # Restablece configuraciones globales
-    #plt.close()
+    plt.savefig(filename,dpi=96) 
+
 
 def VariableSelection():
     from Dashboard import create_dashboard
@@ -484,6 +425,9 @@ def main():
                     break  # Go back to the variable selection screen
 
                 # Generate and display the selected graph
+                plt.rcParams['figure.dpi'] = 96
+                plt.rcParams['savefig.dpi'] = 96      
+                plt.close()  # Close   
                 if selected_graph == "Histogram":
                     Histogram(selected_variables[0], "graph.png")
                     title_text = f"Histogram of {selected_variables[0]}"

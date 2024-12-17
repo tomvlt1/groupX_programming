@@ -60,6 +60,7 @@ def dataset_selector( win_width=screen_width, win_height=screen_height):
         click = win.getMouse()
          
         if is_click_in_rectangle(click, back_button):
+            
             create_dashboard()  # Go back to the dashboard            
         else:            
             for idload, btn, txt13 in buttons:            

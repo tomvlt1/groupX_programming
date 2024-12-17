@@ -20,42 +20,6 @@ def login_user(input1,input2):
         LoginGUI()
         
 def RegisterGUI():
-    teams = {
-        "MÁLAGA": {"primary": "#4AADD4", "secondary": "#FFFFFF"},
-        "SEVILLA FC": {"primary": "#D71A28", "secondary": "#FFFFFF"},
-        "GRANADA": {"primary": "#E30613", "secondary": "#FFFFFF"},
-        "ALMERÍA": {"primary": "#FF0000", "secondary": "#FFFFFF"},
-        "EIBAR": {"primary": "#800000", "secondary": "#0044FF"},
-        "BARCELONA": {"primary": "#A50044", "secondary": "#004D98"},
-        "CELTA": {"primary": "#C0E6F1", "secondary": "#FFFFFF"},
-        "LEVANTE": {"primary": "#003DA5", "secondary": "#ED1C24"},
-        "REAL MADRID": {"primary": "#FFFFFF", "secondary": "#FEBE10"},
-        "RAYO VALLECANO": {"primary": "#FFFFFF", "secondary": "#FF0000"},
-        "GETAFE": {"primary": "#003DA5", "secondary": "#FFFFFF"},
-        "VALENCIA": {"primary": "#FFFFFF", "secondary": "#FF8800"},
-        "ATHLETIC": {"primary": "#D6001C", "secondary": "#FFFFFF"},
-        "CÓRDOBA": {"primary": "#339933", "secondary": "#FFFFFF"},
-        "ATLETICO MADRID": {"primary": "#D81920", "secondary": "#FFFFFF"},
-        "ESPANYOL": {"primary": "#005CB9", "secondary": "#FFFFFF"},
-        "VILLARREAL": {"primary": "#FFEF00", "secondary": "#005BAC"},
-        "DEPORTIVO": {"primary": "#0071C5", "secondary": "#FFFFFF"},
-        "REAL SOCIEDAD": {"primary": "#005BAC", "secondary": "#FFFFFF"},
-        "ELCHE": {"primary": "#008542", "secondary": "#FFFFFF"},
-        "GIJÓN": {"primary": "#D6001C", "secondary": "#FFFFFF"},
-        "REAL BETIS": {"primary": "#008542", "secondary": "#FFFFFF"},
-        "LAS PALMAS": {"primary": "#FFD700", "secondary": "#0070C0"},
-        "OSASUNA": {"primary": "#D6001C", "secondary": "#001E62"},
-        "LEGANÉS": {"primary": "#0044FF", "secondary": "#FFFFFF"},
-        "ALAVÉS": {"primary": "#0044FF", "secondary": "#FFFFFF"},
-        "GIRONA": {"primary": "#D6001C", "secondary": "#FFFFFF"},
-        "VALLADOLID": {"primary": "#4A2C81", "secondary": "#FFFFFF"},
-        "HUESCA": {"primary": "#900C3F", "secondary": "#0044FF"},
-        "MALLORCA": {"primary": "#D6001C", "secondary": "#000000"},
-        "CÁDIZ CF": {"primary": "#FFD700", "secondary": "#0000FF"}
-    }
-
-    team_names = list(teams.keys())
-    
     oldwin = getCurrentWindow()
     if oldwin:
         oldwin.close()
@@ -66,13 +30,16 @@ def RegisterGUI():
     win.setBackground(colorcream)
 
 
+
+    # Titles
     title = create_label(win, "REGISTER", Point(550, 30), 20, colorblueBac, "bold")
-    subtitle = create_label(win, "Return to your profile from the home page to see your customized shirt!!!", Point(550, 60), 12, colorblueBac, "normal")
+    subtitle = create_label(win, "IT'S COMPLETELY FREE", Point(550, 60), 12, colorblueBac, "normal")
 
-    left_background, image_left_background = create_image_button(win, Point(0, 0), Point(350, 500), "images/BackgroundRegister1.png", size=(350, 500), vout=colorblueBac)
-    jersey_objects = []
-    jersey_objects = draw_custom_jersey(win, Point(100, 180), Point(250, 370), "base", "FOOTVIZ", "0", jersey_objects)
-
+    left_background,image_left_background=create_image_button(win, Point(0, 0), Point(350, 500), "images/BackgroundRegister1.png", size=(350, 500), vout=colorblueBac)
+    jersey_objects=[]
+    # Draw jersey
+    jersey_objects =draw_custom_jersey(win,Point(100, 180), Point(250, 370),"base" ,"FOOTVIZ","0",jersey_objects)
+    # Registration fields
     fields = [
         ("FirstName", 100, "First Name"),
         ("LastName", 140, "Last Name"),
@@ -82,57 +49,48 @@ def RegisterGUI():
         ("DateOfBirth", 300, "Date of Birth"),
         ("Gender", 340, "Gender"),
         ("Nationality", 380, "Nationality"),
-        ("Fav", 420, "FavoriteTeam")
+        ("FavoriteTeam", 420, "Favorite Team")
     ]
 
     entry_fields = {}
-    favorite_team_selected = None  
-
     for label, y, vtext in fields:
-        create_label(win, vtext, Point(460, y), 12, colorblueBac)
-        if label == "Fav":
-            dropdown_position = Point(670, y)
-            selected_team = create_scrollable_dropdown(
-                win,
-                label="Favorite Team",
-                options=team_names,
-                position=dropdown_position,
-                width=15,
-                visible_count=3
-            )
-            entry_fields[label] = selected_team  
-        else:
-            entry = create_entry(win, Point(670, y), 25, 12, vfill="#F0F8FF")
-            entry_fields[label] = entry
+        label_text = create_label(win, vtext, Point(460, y), 12, colorblueBac)
+        entry = create_entry(win, Point(670, y), 25, 12, vfill="#F0F8FF")
+        entry_fields[label] = entry
 
-    submit_button, txt_submit = create_button(win, Point(460, 450), Point(670, 490), "Create Account", colorvlueButtons, colorcream)
-    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png", size=(20, 20), vout=colorblueBac)
-
+    # Buttons
+    submit_button, txt_submit = create_button(win, Point(460, 450), Point(670, 490), "Create Account", colorvlueButtons, colorcream)    
+    back_button, vim = create_image_button(win, Point(0, 0), Point(80, 50), "images/back3.png",size=(20, 20), vout=colorblueBac)
+  
     while True:
         try:
             click = win.getMouse()
-            
+            # Check if the submit button is clicked
             if is_click_in_rectangle(click, submit_button):
-                data = []
-                for field in fields:
-                    if field[0] == "Fav":
-                        selected_team = entry_fields["Fav"]  
-                        data.append(selected_team)
-                    else:
-                        text = entry_fields[field[0]].getText()
-                        data.append(text)
-
+                data = [
+                    entry_fields["FirstName"].getText(),
+                    entry_fields["LastName"].getText(),
+                    entry_fields["UserName"].getText(),
+                    entry_fields["Password"].getText(),
+                    entry_fields["ShirtNumber"].getText(),
+                    entry_fields["DateOfBirth"].getText(),
+                    entry_fields["Gender"].getText(),
+                    entry_fields["Nationality"].getText(),
+                    entry_fields["FavoriteTeam"].getText()
+                ]
                 result, error = create_user(data)
                 if result:
-                    LoginGUI()  
+                    LoginGUI()  # Go back to the login screen
+                   
                 else:
-                    messages(error)
+                    messages(error)              
             elif is_click_in_rectangle(click, back_button):
-                LoginGUI()
+                LoginGUI() 
+                  
+ 
 
         except GraphicsError:
             break
-
 
 def AccountGUI(userId):
     oldwin = getCurrentWindow()   
@@ -246,6 +204,7 @@ def LoginGUI():
     setCurrentWindow(winLoginGUI)
     win=getCurrentWindow()
     win.setBackground(colorcream)
+    session.clear
     
     left_background = Rectangle(Point(0, 0), Point(400, 500))
     left_background.setFill(colorblueBac)
@@ -271,6 +230,7 @@ def LoginGUI():
             login_user(username_field,password_field)
             break
         elif is_click_in_rectangle(click_point,register_button):
+            win.close()
             RegisterGUI()   
             break  
     
@@ -282,6 +242,7 @@ def LoginGUI():
             login_user(username_field,password_field)
             break
         elif is_click_in_rectangle(click_point,register_button):
+            win.close()
             RegisterGUI()   
             break       
 
