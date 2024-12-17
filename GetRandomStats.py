@@ -84,6 +84,11 @@ def GetRandomFacts(fact_qtt):
     return facts
 
 def GetColumnNames(table_name):
+    db_config = {
+    "host": "matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com",
+    "user": "MATCHIEAdmin",
+    "password": "IeUniversity123",
+    "database": "LaLiga"}
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
