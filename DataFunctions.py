@@ -9,17 +9,17 @@ import time
 
 
 def openconnection():
-    db_host = host
-    db_user = user
-    db_password = password
-    db_name = database
+    host="matchie.clkcos8e6w49.eu-north-1.rds.amazonaws.com"
+    user="MATCHIEAdmin"
+    password="IeUniversity123"
+    database="LaLiga"
 
     # Database connection details
     db_config = {
-        "host": db_host,
-        "user": db_user,
-        "password": db_password,
-        "database":db_name 
+        "host": host,
+        "user": user,
+        "password": password,
+        "database":database 
     }
     db_connection = mysql.connector.connect(**db_config)
     return db_connection
